@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 R_is_correction_bsf <- function(model_, theta, approx_posterior, nsim_states, prior, n_threads, seed) {
-    .Call('isStan_R_is_correction_bsf', PACKAGE = 'isStan', model_, theta, approx_posterior, nsim_states, prior, n_threads, seed)
+    .Call('StanIS_R_is_correction_bsf', PACKAGE = 'StanIS', model_, theta, approx_posterior, nsim_states, prior, n_threads, seed)
 }
 

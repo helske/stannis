@@ -1,20 +1,20 @@
-\name{isStan-package}
-\alias{isStan-package}
-\alias{isStan}
+\name{StanIS-package}
+\alias{StanIS-package}
+\alias{StanIS}
 \docType{package}
-\title{\packageTitle{isStan}}
-\description{\packageDescription{isStan}}
+\title{\packageTitle{StanIS}}
+\description{\packageDescription{StanIS}}
 \details{
-  The DESCRIPTION file: \packageDESCRIPTION{isStan}
-  \packageIndices{isStan}
+  The DESCRIPTION file: \packageDESCRIPTION{StanIS}
+  \packageIndices{StanIS}
 
   This section should provide a more detailed overview of how to use the
   package, including the most important functions.
 }
 \author{
-  \packageAuthor{isStan}
+  \packageAuthor{StanIS}
   
-  Maintainer: \packageMaintainer{isStan}
+  Maintainer: \packageMaintainer{StanIS}
 }
 \references{
   This optional section can contain literature or other references for

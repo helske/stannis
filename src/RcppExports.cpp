@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // R_is_correction_bsf
 Rcpp::List R_is_correction_bsf(const Rcpp::List& model_, const arma::mat& theta, const arma::vec& approx_posterior, const unsigned int nsim_states, const arma::vec& prior, const unsigned int n_threads, const unsigned int seed);
-RcppExport SEXP isStan_R_is_correction_bsf(SEXP model_SEXP, SEXP thetaSEXP, SEXP approx_posteriorSEXP, SEXP nsim_statesSEXP, SEXP priorSEXP, SEXP n_threadsSEXP, SEXP seedSEXP) {
+RcppExport SEXP StanIS_R_is_correction_bsf(SEXP model_SEXP, SEXP thetaSEXP, SEXP approx_posteriorSEXP, SEXP nsim_statesSEXP, SEXP priorSEXP, SEXP n_threadsSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
