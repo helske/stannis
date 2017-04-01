@@ -1,4 +1,5 @@
 library(rstan)
+library(bssm)
 set.seed(123)
 n <- 1000
 x <- cumsum(rnorm(n, 0, 0.1))

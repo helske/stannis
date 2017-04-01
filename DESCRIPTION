@@ -1,13 +1,16 @@
-Package: StanIS
+Package: stannis
 Type: Package
-Title: What the Package Does Using Title Case
-Version: 1.0
+Title: Efficient importance sampling type corrected MCMC for state space models
+Version: 0.0.1
 Date: 2017-03-31
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@jyu.fi>
-Description: More details about what the package does. See
-         <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file>
-         for details on how to write this part.
+Description: Bayesian analysis of exponential family state space models where 
+  the state dynamics are Gaussian but the observational density is either 
+  Gaussian, Poisson, binomial, or negative binomial. The novel approach used by 
+  the stannis package is based on the combination of fast Gaussian approximation, 
+  efficient No-U-Turn sampler provided by Stan, and the parallelisable 
+  importance sampling type corrected Markov chain Monte Carlo approach.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.9)
 LinkingTo: Rcpp, RcppArmadillo
