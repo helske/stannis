@@ -22,7 +22,16 @@ public:
   // bootstrap filter  
   double bsf_filter(const unsigned int nsim, arma::cube& alphasim, 
     arma::mat& weights, arma::umat& indices);
-  
+  // psi-filter
+  double psi_filter(const arma::vec& approx_y, const arma::vec& approx_var_y,
+    const arma::vec& scales, const unsigned int nsim, arma::cube& alpha, 
+    arma::mat& weights, arma::umat& indices);
+  // approximate smoother returning the cross-covariances of smoothed states
+  void smoother_ccov(const arma::vec& approx_y, const arma::vec& HH, 
+    arma::mat& at, arma::cube& Pt, arma::cube& ccov) const;
+  // unnormalized log_weights p/g
+  arma::vec log_weights(const arma::vec& approx_y, const arma::vec& HH, 
+    const unsigned int t, const arma::cube& alpha) const;
   arma::vec y;
   arma::mat Z;
   arma::cube T;
