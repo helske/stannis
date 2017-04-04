@@ -48,8 +48,8 @@ functions {
    vector[n+1] theta = theta_;
    vector[3 * n + 1] approx_results; // y, var, scaling, loglik
    real loglik = theta[n+1];
-   real diff = 1;
-   int i=1;
+   real diff = 1.0;
+   int i = 1;
    for(t in 1:n) {
      yreal[t] = y[t];
    }
@@ -92,6 +92,8 @@ data {
   int<lower=0> y[n];
   real x1;
   real P1;
+  real prior_mean;
+  real prior_sd;
 }
 transformed data {
 
@@ -113,7 +115,7 @@ transformed parameters {
     vector[3 * n + 1] approx_results = poisson_local_level_approx(y, x1, P1, sd_x, theta_init);
 }
 model {
-  target += normal_lpdf(sd_x | 0, 10);
+  target += normal_lpdf(sd_x | prior_mean, prior_sd);
   target += approx_results[3 * n + 1];
 }
 

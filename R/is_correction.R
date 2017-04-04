@@ -1,3 +1,4 @@
+#' @useDynLib stannis
 #' @export
 is_correction_bsf <- function(object, theta, posterior, prior, nsim_states, n_threads = 1, seed = 1) {
   object$distribution <- pmatch(object$distribution, c("poisson", "binomial", "negative binomial"))

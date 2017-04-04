@@ -3,6 +3,8 @@ data {
   int y[n];
   real x1;
   real P1;
+  real prior_mean;
+  real prior_sd;
 }
 
 parameters {
@@ -11,7 +13,7 @@ parameters {
 }
 
 model {
-  target += normal_lpdf(sd_x | 0, 10);
+  target += normal_lpdf(sd_x | prior_mean, prior_sd);
   target += normal_lpdf(x[1] | x1, P1);
   for(t in 2:n) {
     target += normal_lpdf(x[t] | x[t-1], sd_x);
