@@ -7,15 +7,12 @@ real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
    
   vector[m] x = x1;
   matrix[m, m] P = P1;
-  real v;
-  real F;
-  vector[m] K;
   
   for (t in 1:n) {
-    F = quad_form(P, Zt') + var_y[t];
+    real F = quad_form(P, Zt') + var_y[t];
     if (F > 1.0e-8) {
-      v = y[t] - dot_product(Zt, x);
-      K = P * Zt' / F;
+      real v = y[t] - dot_product(Zt, x);
+      vector[m] K = P * Zt' / F;
       x = Tt * (x + K * v);
       P = quad_form_sym(P - K * K' * F, Tt') + Rt;
       loglik = loglik - 0.5 * (log(F) + v * v / F);
@@ -26,15 +23,13 @@ real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
   }  
    return loglik;
   }
+  
   vector gaussian_smoother(vector y, vector x1, matrix P1, vector var_y, 
   row_vector Zt, matrix Tt, matrix Rt) {
   
   int n = rows(y);
   int m = rows(x1);
   real loglik = 0.0;
-   
-  vector[m] tmp;
-  vector[m] tmp2;
   vector[n+1] mode;
   vector[m] x = x1;
   matrix[m, m] P = P1;
@@ -42,6 +37,8 @@ real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
   vector[n] F;
   matrix[m, n] K;
   matrix[m, n+1] r;
+  vector[m] tmpr;
+  
   for (t in 1:n) {
     F[t] = quad_form(P, Zt') + var_y[t];
     if (F[t] > 1.0e-8) {
@@ -60,19 +57,19 @@ real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
   r[,n+1] = rep_vector(0.0, m);
   for (tt in 1:n) {
     int t = n + 1 - tt;
-    tmp = r[,t+1];
+    vector[m] tmp = r[,t+1];
     if(F[t] > 1.0e-8) {
       r[,t] =  Zt' * v[t] / F[t] + (Tt - Tt * K[,t] * Zt)' * tmp;
     } else {
       r[,t] = Tt' * tmp;
     }
   }
-   
-  tmp = r[,1];
-  r[,1] = x1 + P1 * tmp;
+  
+  tmpr = r[,1];
+  r[,1] = x1 + P1 * tmpr;
   for (t in 2:n) {
-    tmp = r[,t-1];
-    tmp2 = r[,t];
+    vector[m] tmp = r[,t-1];
+    vector[m] tmp2 = r[,t];
     r[,t] = Tt * tmp + Rt * tmp2;
   }
    
@@ -91,7 +88,7 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   vector[n] approx_y;
   vector[n] approx_var_y;
   vector[n+1] mode = mode_;
-  vector[n+1] mode_new;
+
   vector[3 * n + 1] approx_results; // y, var, scaling, loglik
   real loglik = mode[n+1];
   real diff = 1.0;
@@ -104,8 +101,10 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   if (distribution != 2 && max(xbeta + mode[1:n]) > 50) {
     reject("Mean of the Poisson/negbin distribution > exp(50). ")
   }
-  while(i < 25 && diff > 1.0e-8) {
   
+  while(i < 25 && diff > 1.0e-8) {
+    
+    vector[n+1] mode_new;
     if(distribution == 1) {  
       approx_var_y = 1.0 ./ exp(xbeta + mode[1:n]);
       // note no xbeta here as it would be substracted in the smoother anyway
