@@ -37,7 +37,7 @@ vector svm_smoother(vector y, real mu, real phi, real sd_x, vector var_y) {
     }
   }
 
-  r[1] = x1 + P1 * r[1];
+  r[1] = mu + sd_x * sd_x / sqrt(1 - phi * phi) * r[1];
   for (t in 2:n) {
     r[t] = phi * r[t-1] + var_x * r[t];
   }
