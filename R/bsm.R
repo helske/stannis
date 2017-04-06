@@ -3,7 +3,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
   sd_prior_means, sd_prior_sds, iter = 7500, thin = 5, 
   nsim_states = 10, stan_inits, ...) {
   
-  distribution <- pmatch(distribution, c("poisson", "binomial", "negative binomial"))
+  distr <- pmatch(distribution, c("poisson", "binomial", "negative binomial"))
   
   if(inherits(formula, "formula")) {
     if (missing(data)) {
@@ -55,7 +55,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
       
       stan_data <- list(y = y, n = length(y), period = period,
         x1 = x1, P1 = P1, sd_prior_means = sd_prior_means, sd_prior_sds = sd_prior_sds,
-        initial_mode = c(model$initial_mode, -1e300))
+        initial_mode = c(model$initial_mode, -1e300), distribution = distr)
       
       fit <- sampling(stannis:::stanmodels$llt_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
@@ -71,7 +71,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
       stan_data <- list(y = y, n = length(y), k = k, period = period,
         x1 = x1, P1 = P1, sd_prior_means = sd_prior_means, sd_prior_sds = sd_prior_sds,
         beta_prior_means = beta_prior_means, beta_prior_sds = beta_prior_sds,
-        initial_mode = c(model$initial_mode, -1e300), xreg = xreg)
+        initial_mode = c(model$initial_mode, -1e300), xreg = xreg, distribution = distr)
       
       fit <- sampling(stannis:::stanmodels$x_llt_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
@@ -102,7 +102,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
       
       stan_data <- list(y = y, n = length(y), period = period,
         x1 = x1, P1 = P1, sd_prior_means = sd_prior_means, sd_prior_sds = sd_prior_sds,
-        initial_mode = c(model$initial_mode, -1e300))
+        initial_mode = c(model$initial_mode, -1e300), distribution = distr)
       
       fit <- sampling(stannis:::stanmodels$bsm_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
@@ -119,7 +119,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
       stan_data <- list(y = y, n = length(y), k = k, period = period,
         x1 = x1, P1 = P1, sd_prior_means = sd_prior_means, sd_prior_sds = sd_prior_sds,
         beta_prior_means = beta_prior_means, beta_prior_sds = beta_prior_sds,
-        initial_mode = c(model$initial_mode, -1e300), xreg = xreg)
+        initial_mode = c(model$initial_mode, -1e300), xreg = xreg, distribution = distr)
       
       fit <- sampling(stannis:::stanmodels$x_bsm_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits, 
