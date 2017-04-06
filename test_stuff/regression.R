@@ -13,12 +13,12 @@ library(bssm)
 model <- ng_bsm(y, xreg = xreg, beta = normal(rep(0, k), 0, 2), P1 = diag(100, 2),
   sd_level = halfnormal(0.1, 1), sd_slope = halfnormal(0.001, 1), distribution = "poisson")
 
-out <- run_mcmc(model, n_iter = 1e4, nsim = 100, method = "isc")
-out2 <- run_mcmc(model, n_iter = 1e4, nsim = 100, method = "pm")
+out <- run_mcmc(model, n_iter = 1e4, nsim = 10, method = "isc")
+out2 <- run_mcmc(model, n_iter = 1e4, nsim = 10, method = "pm")
 
 dat <- as.data.frame(cbind(y, xreg))
 names(dat) <- c("y",paste0("x",1:3))
-bsm_out <- stannis::bsm(y~.,dat, distribution = "poisson", iter = 1e4, thin=1,
+bsm_out <- stannis::bsm(y~.,dat, distribution = "poisson", iter = 2000, thin=1,
   stan_inits = list(list(theta = c(0.1, 0.001), beta = rep(0, k))),
   beta_prior_means = rep(0, k), beta_prior_sds = rep(2, k), 
   sd_prior_means = c(0, 0), sd_prior_sds = c(1, 1), x1 = c(0,0), P1 = diag(100, 2))

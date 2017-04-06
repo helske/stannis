@@ -55,7 +55,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
         x1 = x1, P1 = P1, sd_prior_means = sd_prior_means, sd_prior_sds = sd_prior_sds,
         initial_mode = c(model$initial_mode, -1e300))
       
-      fit <- sampling(stannis:::stanmodels$poisson_llt_approx, data = stan_data,
+      fit <- sampling(stannis:::stanmodels$llt_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = "Rt", include = FALSE,
         iter = iter,  thin = thin, ...)
@@ -71,7 +71,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
         beta_prior_means = beta_prior_means, beta_prior_sds = beta_prior_sds,
         initial_mode = c(model$initial_mode, -1e300), xreg = xreg)
       
-      fit <- sampling(stannis:::stanmodels$x_poisson_llt_approx, data = stan_data,
+      fit <- sampling(stannis:::stanmodels$x_llt_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = c("Rt", "xbeta"), include = FALSE,
         iter = iter,  thin = thin, ...)
@@ -102,7 +102,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
         x1 = x1, P1 = P1, sd_prior_means = sd_prior_means, sd_prior_sds = sd_prior_sds,
         initial_mode = c(model$initial_mode, -1e300))
       
-      fit <- sampling(stannis:::stanmodels$poisson_bsm_approx, data = stan_data,
+      fit <- sampling(stannis:::stanmodels$bsm_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = "Rt", include = FALSE,
         iter = iter,  thin = thin, ...)
@@ -119,7 +119,7 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
         beta_prior_means = beta_prior_means, beta_prior_sds = beta_prior_sds,
         initial_mode = c(model$initial_mode, -1e300), xreg = xreg)
       
-      fit <- sampling(stannis:::stanmodels$x_poisson_bsm_approx, data = stan_data,
+      fit <- sampling(stannis:::stanmodels$x_bsm_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits, 
         pars = c("Rt", "xbeta"), include = FALSE,
         iter = iter, thin = thin, ...)
