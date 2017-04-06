@@ -5,15 +5,20 @@ Version: 0.0.1
 Date: 2017-04-04
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@iki.fi>
-Description:  Bayesian analysis of exponential family state space models where 
-  the state dynamics are Gaussian but the observational density is either 
-  Gaussian, Poisson, binomial, or negative binomial. The novel approach used by 
-  the stannis package is based on the combination of fast Gaussian approximation, 
-  efficient No-U-Turn sampler provided by Stan, and the parallelisable 
-  importance sampling type corrected Markov chain Monte Carlo approach.
+Description: Bayesian analysis of exponential family state space models
+    where the state dynamics are Gaussian but the observational density is either
+    Gaussian, Poisson, binomial, or negative binomial. The novel approach used by
+    the stannis package is based on the combination of fast Gaussian approximation,
+    efficient No-U-Turn sampler provided by Stan, and the parallelisable importance
+    sampling type corrected Markov chain Monte Carlo approach.
 License: GPL (>= 2)
-Depends: R (>= 3.0.2), Rcpp (>= 0.12.9), methods
-Imports: rstan (>= 2.14.1), rstantools (>= 1.2.0)
-LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1), 
-  Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0), RcppArmadillo
+Depends:
+    R (>= 3.0.2),
+    Rcpp (>= 0.12.9),
+    methods
+Imports:
+    rstan (>= 2.14.1)
+LinkingTo: StanHeaders (>= 2.14.0.1), rstan (>= 2.14.1), BH (>= 1.62.0.1),
+    RcppArmadillo, Rcpp (>= 0.12.9), RcppEigen (>= 0.3.2.9.0)
 SystemRequirements: C++11
+RoxygenNote: 5.0.1

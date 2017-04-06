@@ -253,34 +253,34 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
   switch(distribution) {
   case 0  :
     for (unsigned int i = 0; i < alpha.n_slices; i++) {
-      double simsignal = alpha(0, t, i);
-      weights(i) = -0.5 * (simsignal + pow(y(t) / phi, 2) * exp(-simsignal)) +
-        0.5 * std::pow(approx_y(t) - simsignal, 2) / HH(t) + log(HH(t));
+      double zt = alpha(0, t, i);
+      weights(i) = -0.5 * (zt + pow(y(t) / phi, 2) * exp(-zt)) +
+        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
     }
     break;
   case 1  :
     for (unsigned int i = 0; i < alpha.n_slices; i++) {
-      double simsignal = arma::as_scalar(Z.col(t * Ztv).t() *
-        alpha.slice(i).col(t) + xbeta(t));
-      weights(i) = y(t) * simsignal  - u(t) * exp(simsignal) +
-        0.5 * std::pow(approx_y(t) - simsignal, 2) / HH(t) + log(HH(t));
+      double zt = arma::as_scalar(Z.col(t * Ztv).t() *
+        alpha.slice(i).col(t));
+      weights(i) = y(t) * (zt + xbeta(t))  - u(t) * exp(zt + xbeta(t)) +
+        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
     }
     break;
   case 2  :
     for (unsigned int i = 0; i < alpha.n_slices; i++) {
-      double simsignal = arma::as_scalar(Z.col(t * Ztv).t() *
-        alpha.slice(i).col(t) + xbeta(t));
-      weights(i) = y(t) * simsignal - u(t) * log1p(exp(simsignal)) +
-        0.5 * std::pow(approx_y(t) - simsignal, 2) / HH(t) + log(HH(t));
+      double zt = arma::as_scalar(Z.col(t * Ztv).t() *
+        alpha.slice(i).col(t));
+      weights(i) = y(t) * (zt + xbeta(t)) - u(t) * log1p(exp(zt + xbeta(t))) +
+        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
     }
     break;
   case 3  :
     for (unsigned int i = 0; i < alpha.n_slices; i++) {
-      double simsignal = arma::as_scalar(Z.col(t * Ztv).t() *
-        alpha.slice(i).col(t) + xbeta(t));
-      weights(i) = y(t) * simsignal - (y(t) + phi) *
-        log(phi + u(t) * exp(simsignal)) +
-        0.5 * std::pow(approx_y(t) - simsignal, 2) / HH(t) + log(HH(t));
+      double zt = arma::as_scalar(Z.col(t * Ztv).t() *
+        alpha.slice(i).col(t));
+      weights(i) = y(t) * (zt + xbeta(t)) - (y(t) + phi) *
+        log(phi + u(t) * exp(zt + xbeta(t))) +
+        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
     }
     break;
   }
@@ -300,15 +300,11 @@ void ung_bsm::smoother_ccov(const arma::vec& approx_y, const arma::vec& HH,
   arma::vec Ft(n);
   arma::mat Kt(m, n);
   
-  arma::vec y_tmp = approx_y;
-  if(xreg.n_cols > 0) {
-    y_tmp -= xbeta;
-  }
   
   for (unsigned int t = 0; t < (n - 1); t++) {
     Ft(t) = arma::as_scalar(Z.col(t * Ztv).t() * Pt.slice(t) * Z.col(t * Ztv) + HH(t));
     Kt.col(t) = Pt.slice(t) * Z.col(t * Ztv) / Ft(t);
-    vt(t) = arma::as_scalar(y_tmp(t) - D(t * Dtv) - Z.col(t * Ztv).t() * at.col(t));
+    vt(t) = arma::as_scalar(approx_y(t) - D(t * Dtv) - Z.col(t * Ztv).t() * at.col(t));
     at.col(t + 1) = C.col(t * Ctv) + T.slice(t * Ttv) * (at.col(t) + Kt.col(t) * vt(t));
     Pt.slice(t + 1) = arma::symmatu(T.slice(t * Ttv) * (Pt.slice(t) -
       Kt.col(t) * Kt.col(t).t() * Ft(t)) * T.slice(t * Ttv).t() + RR.slice(t * Rtv));
@@ -317,7 +313,7 @@ void ung_bsm::smoother_ccov(const arma::vec& approx_y, const arma::vec& HH,
   }
   unsigned int t = n - 1;
   Ft(t) = arma::as_scalar(Z.col(t * Ztv).t() * Pt.slice(t) * Z.col(t * Ztv) + HH(t));
-  vt(t) = arma::as_scalar(y_tmp(t) - D(t * Dtv) - Z.col(t * Ztv).t() * at.col(t));
+  vt(t) = arma::as_scalar(approx_y(t) - D(t * Dtv) - Z.col(t * Ztv).t() * at.col(t));
   Kt.col(t) = Pt.slice(t) * Z.col(t * Ztv) / Ft(t);
   ccov.slice(t) = arma::symmatu(T.slice(t * Ttv) * (Pt.slice(t) -
     Kt.col(t) * Kt.col(t).t() * Ft(t)) * T.slice(t * Ttv).t() + RR.slice(t * Rtv));

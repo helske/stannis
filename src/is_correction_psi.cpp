@@ -48,8 +48,8 @@ Rcpp::List is_correction_psi(ung_bsm model,
       weights, approx_y, approx_var_y, scales);
   }
   
-  weights -= jacobian;
   arma::vec posterior = approx_posterior + weights;
+  weights -= jacobian;
   double wmax = weights.max();
   weights = exp(weights - wmax);
   double wsum = arma::sum(weights);

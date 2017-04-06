@@ -1,3 +1,5 @@
 cleanup*
 ^\.travis\.yml$
 test_stuff
+^.*\.Rproj$
+^\.Rproj\.user$
