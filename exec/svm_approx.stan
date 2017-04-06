@@ -102,7 +102,7 @@ data {
 transformed data {
   vector[n] iy_nz2 = y;
   for (t in 1:n) {
-    if (abs(y[t]) < 1.0e-4) {
+    if (fabs(y[t]) < 1.0e-4) {
       iy_nz2[t] = 1.0e-4;
     }
     iy_nz2[t] = 1.0 / iy_nz2[t]^2;
