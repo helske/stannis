@@ -3,6 +3,8 @@ bsm <- function(formula, data, distribution, x1, P1, beta_prior_means, beta_prio
   sd_prior_means, sd_prior_sds, iter = 7500, thin = 5, 
   nsim_states = 10, stan_inits, ...) {
   
+  distribution <- pmatch(distribution, c("poisson", "binomial", "negative binomial"))
+  
   if(inherits(formula, "formula")) {
     if (missing(data)) {
       data <- environment(formula)
