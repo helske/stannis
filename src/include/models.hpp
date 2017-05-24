@@ -66,34 +66,40 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(P,DUMMY_VAR__);
             stan::math::assign(P,P1);
-            fun_scalar_t__ v;
-            (void) v;  // dummy to suppress unused var warning
-            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(v,DUMMY_VAR__);
-            fun_scalar_t__ F;
-            (void) F;  // dummy to suppress unused var warning
-            stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(F,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
-            (void) K;  // dummy to suppress unused var warning
-            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(K,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
 
-                stan::math::assign(F, (quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
-                if (as_bool(logical_gt(F,1e-08))) {
 
-                    stan::math::assign(v, (get_base1(y,t,"y",1) - dot_product(Zt,x)));
-                    stan::math::assign(K, divide(multiply(P,transpose(Zt)),F));
-                    stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
-                    stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
-                    stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
-                } else {
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
 
-                    stan::math::assign(x, multiply(Tt,x));
-                    stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
                 }
             }
             return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
@@ -152,14 +158,6 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
             stan::math::assign(loglik,0.0);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp2;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp2,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode(static_cast<Eigen::VectorXd::Index>((n + 1)));
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
@@ -190,6 +188,10 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) r;  // dummy to suppress unused var warning
             stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(r,DUMMY_VAR__);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmpr(static_cast<Eigen::VectorXd::Index>(m));
+            (void) tmpr;  // dummy to suppress unused var warning
+            stan::math::initialize(tmpr, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(tmpr,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
@@ -221,9 +223,13 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     (void) t;  // dummy to suppress unused var warning
                     stan::math::fill(t, std::numeric_limits<int>::min());
                     stan::math::assign(t,((n + 1) - tt));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
 
 
-                    stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
                     if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
 
                         stan::model::assign(r, 
@@ -239,19 +245,30 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     }
                 }
             }
-            stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
+            stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmp)), 
+                        add(x1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp2;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp2,DUMMY_VAR__);
+                    stan::math::assign(tmp2,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
 
-                stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
-                stan::math::assign(tmp2, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
-                stan::model::assign(r, 
-                            stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
-                            add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
-                            "assigning variable r");
+
+                    stan::model::assign(r, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
+                                "assigning variable r");
+                }
             }
             for (int t = 1; t <= n; ++t) {
 
@@ -319,11 +336,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mode,DUMMY_VAR__);
-            stan::math::assign(mode,mode_);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
-            (void) mode_new;  // dummy to suppress unused var warning
-            stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(mode_new,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
             (void) approx_results;  // dummy to suppress unused var warning
             stan::math::initialize(approx_results, std::numeric_limits<double>::quiet_NaN());
@@ -332,7 +344,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) loglik;  // dummy to suppress unused var warning
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
-            stan::math::assign(loglik,get_base1(mode,(n + 1),"mode",1));
+            stan::math::assign(loglik,get_base1(mode_,(n + 1),"mode_",1));
             fun_scalar_t__ diff;
             (void) diff;  // dummy to suppress unused var warning
             stan::math::initialize(diff, std::numeric_limits<double>::quiet_NaN());
@@ -344,6 +356,10 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(i,1);
 
 
+            stan::model::assign(mode, 
+                        stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
                 std::stringstream errmsg_stream__;
@@ -356,33 +372,40 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
+                    (void) mode_new;  // dummy to suppress unused var warning
+                    stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(mode_new,DUMMY_VAR__);
 
-                if (as_bool(logical_eq(distribution,1))) {
 
-                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                } else {
+                    if (as_bool(logical_eq(distribution,1))) {
 
-                    if (as_bool(logical_eq(distribution,2))) {
-
+                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
                     } else {
 
-                    }
-                }
-                stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
-                if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode,(n + 1),"mode",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+                        if (as_bool(logical_eq(distribution,2))) {
 
-                    std::stringstream errmsg_stream__;
-                    errmsg_stream__ << "Error at iteration ";
-                    errmsg_stream__ << i;
-                    errmsg_stream__ << " of the approximation.";
-                    throw std::domain_error(errmsg_stream__.str());
+                        } else {
+
+                        }
+                    }
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+
+                        std::stringstream errmsg_stream__;
+                        errmsg_stream__ << "Error at iteration ";
+                        errmsg_stream__ << i;
+                        errmsg_stream__ << " of the approximation.";
+                        throw std::domain_error(errmsg_stream__.str());
+                    }
+                    stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(mode, mode_new);
+                    stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
+                    stan::math::assign(i, (i + 1));
                 }
-                stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                stan::math::assign(mode, mode_new);
-                stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
-                stan::math::assign(i, (i + 1));
             }
             if (as_bool(logical_eq(i,25))) {
 
@@ -1021,34 +1044,40 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(P,DUMMY_VAR__);
             stan::math::assign(P,P1);
-            fun_scalar_t__ v;
-            (void) v;  // dummy to suppress unused var warning
-            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(v,DUMMY_VAR__);
-            fun_scalar_t__ F;
-            (void) F;  // dummy to suppress unused var warning
-            stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(F,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
-            (void) K;  // dummy to suppress unused var warning
-            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(K,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
 
-                stan::math::assign(F, (quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
-                if (as_bool(logical_gt(F,1e-08))) {
 
-                    stan::math::assign(v, (get_base1(y,t,"y",1) - dot_product(Zt,x)));
-                    stan::math::assign(K, divide(multiply(P,transpose(Zt)),F));
-                    stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
-                    stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
-                    stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
-                } else {
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
 
-                    stan::math::assign(x, multiply(Tt,x));
-                    stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
                 }
             }
             return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
@@ -1107,14 +1136,6 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
             stan::math::assign(loglik,0.0);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp2;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp2,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode(static_cast<Eigen::VectorXd::Index>((n + 1)));
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
@@ -1145,6 +1166,10 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) r;  // dummy to suppress unused var warning
             stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(r,DUMMY_VAR__);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmpr(static_cast<Eigen::VectorXd::Index>(m));
+            (void) tmpr;  // dummy to suppress unused var warning
+            stan::math::initialize(tmpr, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(tmpr,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
@@ -1176,9 +1201,13 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     (void) t;  // dummy to suppress unused var warning
                     stan::math::fill(t, std::numeric_limits<int>::min());
                     stan::math::assign(t,((n + 1) - tt));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
 
 
-                    stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
                     if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
 
                         stan::model::assign(r, 
@@ -1194,19 +1223,30 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     }
                 }
             }
-            stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
+            stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmp)), 
+                        add(x1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp2;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp2,DUMMY_VAR__);
+                    stan::math::assign(tmp2,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
 
-                stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
-                stan::math::assign(tmp2, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
-                stan::model::assign(r, 
-                            stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
-                            add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
-                            "assigning variable r");
+
+                    stan::model::assign(r, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
+                                "assigning variable r");
+                }
             }
             for (int t = 1; t <= n; ++t) {
 
@@ -1274,11 +1314,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mode,DUMMY_VAR__);
-            stan::math::assign(mode,mode_);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
-            (void) mode_new;  // dummy to suppress unused var warning
-            stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(mode_new,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
             (void) approx_results;  // dummy to suppress unused var warning
             stan::math::initialize(approx_results, std::numeric_limits<double>::quiet_NaN());
@@ -1287,7 +1322,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) loglik;  // dummy to suppress unused var warning
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
-            stan::math::assign(loglik,get_base1(mode,(n + 1),"mode",1));
+            stan::math::assign(loglik,get_base1(mode_,(n + 1),"mode_",1));
             fun_scalar_t__ diff;
             (void) diff;  // dummy to suppress unused var warning
             stan::math::initialize(diff, std::numeric_limits<double>::quiet_NaN());
@@ -1299,6 +1334,10 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(i,1);
 
 
+            stan::model::assign(mode, 
+                        stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
                 std::stringstream errmsg_stream__;
@@ -1311,33 +1350,40 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
+                    (void) mode_new;  // dummy to suppress unused var warning
+                    stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(mode_new,DUMMY_VAR__);
 
-                if (as_bool(logical_eq(distribution,1))) {
 
-                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                } else {
+                    if (as_bool(logical_eq(distribution,1))) {
 
-                    if (as_bool(logical_eq(distribution,2))) {
-
+                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
                     } else {
 
-                    }
-                }
-                stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
-                if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode,(n + 1),"mode",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+                        if (as_bool(logical_eq(distribution,2))) {
 
-                    std::stringstream errmsg_stream__;
-                    errmsg_stream__ << "Error at iteration ";
-                    errmsg_stream__ << i;
-                    errmsg_stream__ << " of the approximation.";
-                    throw std::domain_error(errmsg_stream__.str());
+                        } else {
+
+                        }
+                    }
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+
+                        std::stringstream errmsg_stream__;
+                        errmsg_stream__ << "Error at iteration ";
+                        errmsg_stream__ << i;
+                        errmsg_stream__ << " of the approximation.";
+                        throw std::domain_error(errmsg_stream__.str());
+                    }
+                    stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(mode, mode_new);
+                    stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
+                    stan::math::assign(i, (i + 1));
                 }
-                stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                stan::math::assign(mode, mode_new);
-                stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
-                stan::math::assign(i, (i + 1));
             }
             if (as_bool(logical_eq(i,25))) {
 
@@ -2986,7 +3032,7 @@ static int current_statement_begin__;
 
 class model_svm : public prob_grad {
 private:
-    int T;
+    int n;
     vector_d y;
 public:
     model_svm(stan::io::var_context& context__,
@@ -3021,23 +3067,23 @@ public:
         (void) DUMMY_VAR__;  // suppress unused var warning
 
         // initialize member variables
-        context__.validate_dims("data initialization", "T", "int", context__.to_vec());
-        T = int(0);
-        vals_i__ = context__.vals_i("T");
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
         pos__ = 0;
-        T = vals_i__[pos__++];
-        validate_non_negative_index("y", "T", T);
-        y = vector_d(static_cast<Eigen::VectorXd::Index>(T));
-        context__.validate_dims("data initialization", "y", "vector_d", context__.to_vec(T));
+        n = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        y = vector_d(static_cast<Eigen::VectorXd::Index>(n));
+        context__.validate_dims("data initialization", "y", "vector_d", context__.to_vec(n));
         vals_r__ = context__.vals_r("y");
         pos__ = 0;
-        size_t y_i_vec_lim__ = T;
+        size_t y_i_vec_lim__ = n;
         for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
             y[i_vec__] = vals_r__[pos__++];
         }
 
         // validate, data variables
-        check_greater_or_equal(function__,"T",T,0);
+        check_greater_or_equal(function__,"n",n,0);
         // initialize data variables
 
         try {
@@ -3055,7 +3101,7 @@ public:
         ++num_params_r__;
         ++num_params_r__;
         ++num_params_r__;
-        num_params_r__ += T;
+        num_params_r__ += n;
     }
 
     ~model_svm() { }
@@ -3117,10 +3163,10 @@ public:
             throw std::runtime_error("variable h_std missing");
         vals_r__ = context__.vals_r("h_std");
         pos__ = 0U;
-        context__.validate_dims("initialization", "h_std", "vector_d", context__.to_vec(T));
+        context__.validate_dims("initialization", "h_std", "vector_d", context__.to_vec(n));
         // generate_declaration h_std
-        vector_d h_std(static_cast<Eigen::VectorXd::Index>(T));
-        for (int j1__ = 0U; j1__ < T; ++j1__)
+        vector_d h_std(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
             h_std(j1__) = vals_r__[pos__++];
         try {
             writer__.vector_unconstrain(h_std);
@@ -3182,13 +3228,13 @@ public:
         Eigen::Matrix<T__,Eigen::Dynamic,1>  h_std;
         (void) h_std;  // dummy to suppress unused var warning
         if (jacobian__)
-            h_std = in__.vector_constrain(T,lp__);
+            h_std = in__.vector_constrain(n,lp__);
         else
-            h_std = in__.vector_constrain(T);
+            h_std = in__.vector_constrain(n);
 
 
         // transformed parameters
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  h(static_cast<Eigen::VectorXd::Index>(T));
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  h(static_cast<Eigen::VectorXd::Index>(n));
         (void) h;  // dummy to suppress unused var warning
         stan::math::initialize(h, DUMMY_VAR__);
         stan::math::fill(h,DUMMY_VAR__);
@@ -3198,7 +3244,7 @@ public:
             stan::math::assign(h, multiply(h_std,sigma));
             stan::math::assign(get_base1_lhs(h,1,"h",1), (get_base1(h,1,"h",1) / sqrt((1 - (phi * phi)))));
             stan::math::assign(h, add(h,mu));
-            for (int t = 2; t <= T; ++t) {
+            for (int t = 2; t <= n; ++t) {
                 stan::math::assign(get_base1_lhs(h,t,"h",1), (get_base1(h,t,"h",1) + (phi * (get_base1(h,(t - 1),"h",1) - mu))));
             }
         } catch (const std::exception& e) {
@@ -3208,7 +3254,7 @@ public:
         }
 
         // validate transformed parameters
-        for (int i0__ = 0; i0__ < T; ++i0__) {
+        for (int i0__ = 0; i0__ < n; ++i0__) {
             if (stan::math::is_uninitialized(h(i0__))) {
                 std::stringstream msg__;
                 msg__ << "Undefined transformed parameter: h" << '[' << i0__ << ']';
@@ -3270,10 +3316,10 @@ public:
         dims__.resize(0);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(T);
+        dims__.push_back(n);
         dimss__.push_back(dims__);
         dims__.resize(0);
-        dims__.push_back(T);
+        dims__.push_back(n);
         dimss__.push_back(dims__);
     }
 
@@ -3293,11 +3339,11 @@ public:
         double mu = in__.scalar_constrain();
         double phi = in__.scalar_lub_constrain(-(1),1);
         double sigma = in__.scalar_lb_constrain(0);
-        vector_d h_std = in__.vector_constrain(T);
+        vector_d h_std = in__.vector_constrain(n);
         vars__.push_back(mu);
         vars__.push_back(phi);
         vars__.push_back(sigma);
-        for (int k_0__ = 0; k_0__ < T; ++k_0__) {
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
             vars__.push_back(h_std[k_0__]);
         }
 
@@ -3310,7 +3356,7 @@ public:
         double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
         (void) DUMMY_VAR__;  // suppress unused var warning
 
-        vector_d h(static_cast<Eigen::VectorXd::Index>(T));
+        vector_d h(static_cast<Eigen::VectorXd::Index>(n));
         (void) h;  // dummy to suppress unused var warning
         stan::math::initialize(h, std::numeric_limits<double>::quiet_NaN());
         stan::math::fill(h,DUMMY_VAR__);
@@ -3320,7 +3366,7 @@ public:
             stan::math::assign(h, multiply(h_std,sigma));
             stan::math::assign(get_base1_lhs(h,1,"h",1), (get_base1(h,1,"h",1) / sqrt((1 - (phi * phi)))));
             stan::math::assign(h, add(h,mu));
-            for (int t = 2; t <= T; ++t) {
+            for (int t = 2; t <= n; ++t) {
                 stan::math::assign(get_base1_lhs(h,t,"h",1), (get_base1(h,t,"h",1) + (phi * (get_base1(h,(t - 1),"h",1) - mu))));
             }
         } catch (const std::exception& e) {
@@ -3332,7 +3378,7 @@ public:
         // validate transformed parameters
 
         // write transformed parameters
-        for (int k_0__ = 0; k_0__ < T; ++k_0__) {
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
             vars__.push_back(h[k_0__]);
         }
 
@@ -3388,14 +3434,14 @@ public:
         param_name_stream__.str(std::string());
         param_name_stream__ << "sigma";
         param_names__.push_back(param_name_stream__.str());
-        for (int k_0__ = 1; k_0__ <= T; ++k_0__) {
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "h_std" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 
         if (!include_gqs__ && !include_tparams__) return;
-        for (int k_0__ = 1; k_0__ <= T; ++k_0__) {
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "h" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
@@ -3418,14 +3464,14 @@ public:
         param_name_stream__.str(std::string());
         param_name_stream__ << "sigma";
         param_names__.push_back(param_name_stream__.str());
-        for (int k_0__ = 1; k_0__ <= T; ++k_0__) {
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "h_std" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 
         if (!include_gqs__ && !include_tparams__) return;
-        for (int k_0__ = 1; k_0__ <= T; ++k_0__) {
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "h" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
@@ -3493,16 +3539,16 @@ svm_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
             stan::math::assign(x,mu);
-            fun_scalar_t__ P;
-            (void) P;  // dummy to suppress unused var warning
-            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(P,DUMMY_VAR__);
-            stan::math::assign(P,((sd_x * sd_x) / sqrt((1 - (phi * phi)))));
             fun_scalar_t__ var_x;
             (void) var_x;  // dummy to suppress unused var warning
             stan::math::initialize(var_x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(var_x,DUMMY_VAR__);
             stan::math::assign(var_x,(sd_x * sd_x));
+            fun_scalar_t__ P;
+            (void) P;  // dummy to suppress unused var warning
+            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(P,DUMMY_VAR__);
+            stan::math::assign(P,(var_x / (1.0 - (phi * phi))));
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  v(static_cast<Eigen::VectorXd::Index>(n));
             (void) v;  // dummy to suppress unused var warning
             stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
@@ -3519,6 +3565,11 @@ svm_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) r;  // dummy to suppress unused var warning
             stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(r,DUMMY_VAR__);
+            fun_scalar_t__ nu;
+            (void) nu;  // dummy to suppress unused var warning
+            stan::math::initialize(nu, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(nu,DUMMY_VAR__);
+            stan::math::assign(nu,(mu * (1.0 - phi)));
 
 
             for (int t = 1; t <= n; ++t) {
@@ -3528,12 +3579,12 @@ svm_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                     stan::math::assign(get_base1_lhs(v,t,"v",1), (get_base1(y,t,"y",1) - x));
                     stan::math::assign(get_base1_lhs(K,t,"K",1), (P / get_base1(F,t,"F",1)));
-                    stan::math::assign(x, (phi * (x + (get_base1(K,t,"K",1) * get_base1(v,t,"v",1)))));
+                    stan::math::assign(x, (nu + (phi * (x + (get_base1(K,t,"K",1) * get_base1(v,t,"v",1))))));
                     stan::math::assign(P, ((((phi * phi) * P) * (1.0 - get_base1(K,t,"K",1))) + var_x));
                     stan::math::assign(loglik, (loglik - (0.5 * (log(get_base1(F,t,"F",1)) + ((get_base1(v,t,"v",1) * get_base1(v,t,"v",1)) / get_base1(F,t,"F",1))))));
                 } else {
 
-                    stan::math::assign(x, (phi * x));
+                    stan::math::assign(x, (nu + (phi * x)));
                     stan::math::assign(P, (((phi * phi) * P) + var_x));
                 }
             }
@@ -3555,10 +3606,10 @@ svm_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     }
                 }
             }
-            stan::math::assign(get_base1_lhs(r,1,"r",1), (mu + (((sd_x * sd_x) / sqrt((1 - (phi * phi)))) * get_base1(r,1,"r",1))));
+            stan::math::assign(get_base1_lhs(r,1,"r",1), (mu + ((var_x / (1.0 - (phi * phi))) * get_base1(r,1,"r",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(r,t,"r",1), ((phi * get_base1(r,(t - 1),"r",1)) + (var_x * get_base1(r,t,"r",1))));
+                stan::math::assign(get_base1_lhs(r,t,"r",1), ((nu + (phi * get_base1(r,(t - 1),"r",1))) + (var_x * get_base1(r,t,"r",1))));
             }
             stan::math::assign(get_base1_lhs(r,(n + 1),"r",1), loglik);
             return stan::math::promote_scalar<fun_return_scalar_t__>(r);
@@ -3642,12 +3693,12 @@ svm_approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(i,1);
 
 
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
 
                 stan::math::assign(approx_var_y, elt_multiply(multiply(2.0,exp(stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode"))),iy_nz2));
                 stan::math::assign(approx_y, subtract(add(stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode"),1.0),multiply(0.5,approx_var_y)));
                 stan::math::assign(mode_new, svm_smoother(approx_y,mu,phi,sd_x,approx_var_y, pstream__));
-                if (as_bool((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode,(n + 1),"mode",1)))))) {
+                if (as_bool((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1)))))) {
 
                     std::stringstream errmsg_stream__;
                     errmsg_stream__ << "Error at iteration ";
@@ -3676,7 +3727,7 @@ svm_approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                         "assigning variable approx_results");
             for (int t = 1; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((-(0.5) * (get_base1(mode,t,"mode",1) + (pow(get_base1(y,t,"y",1),2) * exp(-(get_base1(mode,t,"mode",1)))))) + ((0.5 * pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2)) / get_base1(approx_var_y,t,"approx_var_y",1))) + log(get_base1(approx_var_y,t,"approx_var_y",1))));
+                stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), ((-(0.5) * (get_base1(mode,t,"mode",1) + (pow(get_base1(y,t,"y",1),2) * exp(-(get_base1(mode,t,"mode",1)))))) + (0.5 * ((pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)) + log(get_base1(approx_var_y,t,"approx_var_y",1))))));
             }
             stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), (loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))));
             return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
@@ -3776,7 +3827,7 @@ public:
         try {
             for (int t = 1; t <= n; ++t) {
 
-                if (as_bool(logical_lt(abs(get_base1(y,t,"y",1)),0.0001))) {
+                if (as_bool(logical_lt(fabs(get_base1(y,t,"y",1)),0.0001))) {
 
                     stan::math::assign(get_base1_lhs(iy_nz2,t,"iy_nz2",1), 0.0001);
                 }
@@ -3935,6 +3986,7 @@ public:
         // model body
         try {
 
+            lp_accum__.add(uniform_log(phi,-(1),1));
             lp_accum__.add(normal_log(mu,0,10));
             lp_accum__.add(normal_log(sd_x,0,5));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
@@ -4192,34 +4244,40 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(P,DUMMY_VAR__);
             stan::math::assign(P,P1);
-            fun_scalar_t__ v;
-            (void) v;  // dummy to suppress unused var warning
-            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(v,DUMMY_VAR__);
-            fun_scalar_t__ F;
-            (void) F;  // dummy to suppress unused var warning
-            stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(F,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
-            (void) K;  // dummy to suppress unused var warning
-            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(K,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
 
-                stan::math::assign(F, (quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
-                if (as_bool(logical_gt(F,1e-08))) {
 
-                    stan::math::assign(v, (get_base1(y,t,"y",1) - dot_product(Zt,x)));
-                    stan::math::assign(K, divide(multiply(P,transpose(Zt)),F));
-                    stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
-                    stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
-                    stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
-                } else {
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
 
-                    stan::math::assign(x, multiply(Tt,x));
-                    stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
                 }
             }
             return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
@@ -4278,14 +4336,6 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
             stan::math::assign(loglik,0.0);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp2;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp2,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode(static_cast<Eigen::VectorXd::Index>((n + 1)));
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
@@ -4316,6 +4366,10 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) r;  // dummy to suppress unused var warning
             stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(r,DUMMY_VAR__);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmpr(static_cast<Eigen::VectorXd::Index>(m));
+            (void) tmpr;  // dummy to suppress unused var warning
+            stan::math::initialize(tmpr, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(tmpr,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
@@ -4347,9 +4401,13 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     (void) t;  // dummy to suppress unused var warning
                     stan::math::fill(t, std::numeric_limits<int>::min());
                     stan::math::assign(t,((n + 1) - tt));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
 
 
-                    stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
                     if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
 
                         stan::model::assign(r, 
@@ -4365,19 +4423,30 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     }
                 }
             }
-            stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
+            stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmp)), 
+                        add(x1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp2;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp2,DUMMY_VAR__);
+                    stan::math::assign(tmp2,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
 
-                stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
-                stan::math::assign(tmp2, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
-                stan::model::assign(r, 
-                            stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
-                            add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
-                            "assigning variable r");
+
+                    stan::model::assign(r, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
+                                "assigning variable r");
+                }
             }
             for (int t = 1; t <= n; ++t) {
 
@@ -4445,11 +4514,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mode,DUMMY_VAR__);
-            stan::math::assign(mode,mode_);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
-            (void) mode_new;  // dummy to suppress unused var warning
-            stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(mode_new,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
             (void) approx_results;  // dummy to suppress unused var warning
             stan::math::initialize(approx_results, std::numeric_limits<double>::quiet_NaN());
@@ -4458,7 +4522,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) loglik;  // dummy to suppress unused var warning
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
-            stan::math::assign(loglik,get_base1(mode,(n + 1),"mode",1));
+            stan::math::assign(loglik,get_base1(mode_,(n + 1),"mode_",1));
             fun_scalar_t__ diff;
             (void) diff;  // dummy to suppress unused var warning
             stan::math::initialize(diff, std::numeric_limits<double>::quiet_NaN());
@@ -4470,6 +4534,10 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(i,1);
 
 
+            stan::model::assign(mode, 
+                        stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
                 std::stringstream errmsg_stream__;
@@ -4482,33 +4550,40 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
+                    (void) mode_new;  // dummy to suppress unused var warning
+                    stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(mode_new,DUMMY_VAR__);
 
-                if (as_bool(logical_eq(distribution,1))) {
 
-                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                } else {
+                    if (as_bool(logical_eq(distribution,1))) {
 
-                    if (as_bool(logical_eq(distribution,2))) {
-
+                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
                     } else {
 
-                    }
-                }
-                stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
-                if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode,(n + 1),"mode",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+                        if (as_bool(logical_eq(distribution,2))) {
 
-                    std::stringstream errmsg_stream__;
-                    errmsg_stream__ << "Error at iteration ";
-                    errmsg_stream__ << i;
-                    errmsg_stream__ << " of the approximation.";
-                    throw std::domain_error(errmsg_stream__.str());
+                        } else {
+
+                        }
+                    }
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+
+                        std::stringstream errmsg_stream__;
+                        errmsg_stream__ << "Error at iteration ";
+                        errmsg_stream__ << i;
+                        errmsg_stream__ << " of the approximation.";
+                        throw std::domain_error(errmsg_stream__.str());
+                    }
+                    stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(mode, mode_new);
+                    stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
+                    stan::math::assign(i, (i + 1));
                 }
-                stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                stan::math::assign(mode, mode_new);
-                stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
-                stan::math::assign(i, (i + 1));
             }
             if (as_bool(logical_eq(i,25))) {
 
@@ -5259,34 +5334,40 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(P,DUMMY_VAR__);
             stan::math::assign(P,P1);
-            fun_scalar_t__ v;
-            (void) v;  // dummy to suppress unused var warning
-            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(v,DUMMY_VAR__);
-            fun_scalar_t__ F;
-            (void) F;  // dummy to suppress unused var warning
-            stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(F,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
-            (void) K;  // dummy to suppress unused var warning
-            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(K,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
 
-                stan::math::assign(F, (quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
-                if (as_bool(logical_gt(F,1e-08))) {
 
-                    stan::math::assign(v, (get_base1(y,t,"y",1) - dot_product(Zt,x)));
-                    stan::math::assign(K, divide(multiply(P,transpose(Zt)),F));
-                    stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
-                    stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
-                    stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
-                } else {
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
 
-                    stan::math::assign(x, multiply(Tt,x));
-                    stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
                 }
             }
             return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
@@ -5345,14 +5426,6 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
             stan::math::assign(loglik,0.0);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp,DUMMY_VAR__);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
-            (void) tmp2;  // dummy to suppress unused var warning
-            stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(tmp2,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode(static_cast<Eigen::VectorXd::Index>((n + 1)));
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
@@ -5383,6 +5456,10 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) r;  // dummy to suppress unused var warning
             stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(r,DUMMY_VAR__);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmpr(static_cast<Eigen::VectorXd::Index>(m));
+            (void) tmpr;  // dummy to suppress unused var warning
+            stan::math::initialize(tmpr, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(tmpr,DUMMY_VAR__);
 
 
             for (int t = 1; t <= n; ++t) {
@@ -5414,9 +5491,13 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     (void) t;  // dummy to suppress unused var warning
                     stan::math::fill(t, std::numeric_limits<int>::min());
                     stan::math::assign(t,((n + 1) - tt));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
 
 
-                    stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
                     if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
 
                         stan::model::assign(r, 
@@ -5432,19 +5513,30 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     }
                 }
             }
-            stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
+            stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmp)), 
+                        add(x1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp2;  // dummy to suppress unused var warning
+                    stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp2,DUMMY_VAR__);
+                    stan::math::assign(tmp2,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
 
-                stan::math::assign(tmp, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
-                stan::math::assign(tmp2, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
-                stan::model::assign(r, 
-                            stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
-                            add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
-                            "assigning variable r");
+
+                    stan::model::assign(r, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
+                                "assigning variable r");
+                }
             }
             for (int t = 1; t <= n; ++t) {
 
@@ -5512,11 +5604,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) mode;  // dummy to suppress unused var warning
             stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mode,DUMMY_VAR__);
-            stan::math::assign(mode,mode_);
-            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
-            (void) mode_new;  // dummy to suppress unused var warning
-            stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
-            stan::math::fill(mode_new,DUMMY_VAR__);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
             (void) approx_results;  // dummy to suppress unused var warning
             stan::math::initialize(approx_results, std::numeric_limits<double>::quiet_NaN());
@@ -5525,7 +5612,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) loglik;  // dummy to suppress unused var warning
             stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(loglik,DUMMY_VAR__);
-            stan::math::assign(loglik,get_base1(mode,(n + 1),"mode",1));
+            stan::math::assign(loglik,get_base1(mode_,(n + 1),"mode_",1));
             fun_scalar_t__ diff;
             (void) diff;  // dummy to suppress unused var warning
             stan::math::initialize(diff, std::numeric_limits<double>::quiet_NaN());
@@ -5537,6 +5624,10 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(i,1);
 
 
+            stan::model::assign(mode, 
+                        stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
                 std::stringstream errmsg_stream__;
@@ -5549,33 +5640,40 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+                {
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
+                    (void) mode_new;  // dummy to suppress unused var warning
+                    stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(mode_new,DUMMY_VAR__);
 
-                if (as_bool(logical_eq(distribution,1))) {
 
-                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                } else {
+                    if (as_bool(logical_eq(distribution,1))) {
 
-                    if (as_bool(logical_eq(distribution,2))) {
-
+                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
                     } else {
 
-                    }
-                }
-                stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
-                if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode,(n + 1),"mode",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+                        if (as_bool(logical_eq(distribution,2))) {
 
-                    std::stringstream errmsg_stream__;
-                    errmsg_stream__ << "Error at iteration ";
-                    errmsg_stream__ << i;
-                    errmsg_stream__ << " of the approximation.";
-                    throw std::domain_error(errmsg_stream__.str());
+                        } else {
+
+                        }
+                    }
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+
+                        std::stringstream errmsg_stream__;
+                        errmsg_stream__ << "Error at iteration ";
+                        errmsg_stream__ << i;
+                        errmsg_stream__ << " of the approximation.";
+                        throw std::domain_error(errmsg_stream__.str());
+                    }
+                    stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(mode, mode_new);
+                    stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
+                    stan::math::assign(i, (i + 1));
                 }
-                stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                stan::math::assign(mode, mode_new);
-                stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
-                stan::math::assign(i, (i + 1));
             }
             if (as_bool(logical_eq(i,25))) {
 

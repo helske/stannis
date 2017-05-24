@@ -14,7 +14,7 @@ parameters {
 
 transformed parameters {
   vector[n] x;
-  x[1] = x1 + P1 * x_raw[1];
+  x[1] = x1 + sqrt(P1) * x_raw[1];
   for(t in 2:n) {
     x[t] = x[t-1] + sd_x * x_raw[t];
   }

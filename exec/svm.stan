@@ -1,7 +1,7 @@
 data {
-  int<lower=0> T;
+  int<lower=0> n;
   // # time points (equally spaced)
-    vector[T] y;
+    vector[n] y;
   // mean corrected return at time t
 }
 parameters {
@@ -10,17 +10,17 @@ parameters {
   real<lower=-1,upper=1> phi; // persistence of volatility
   real<lower=0> sigma;// white noise shock scale
   // log volatility at time t
-  vector[T] h_std;
+  vector[n] h_std;
 }
 
 transformed parameters {
-  vector[T] h;
+  vector[n] h;
   // log volatility at time t
   h = h_std * sigma;
   // now h ~ normal(0, sigma)
   h[1] = h[1] / sqrt(1 - phi * phi); // rescale h[1]
   h = h + mu;
-  for (t in 2:T)
+  for (t in 2:n)
     h[t] = h[t] + phi * (h[t-1] - mu);
 }
 

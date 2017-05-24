@@ -255,7 +255,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
     for (unsigned int i = 0; i < alpha.n_slices; i++) {
       double zt = alpha(0, t, i);
       weights(i) = -0.5 * (zt + pow(y(t) / phi, 2) * exp(-zt)) +
-        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t)));
     }
     break;
   case 1  :
@@ -263,7 +263,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
       double zt = arma::as_scalar(Z.col(t * Ztv).t() *
         alpha.slice(i).col(t));
       weights(i) = y(t) * (zt + xbeta(t))  - u(t) * exp(zt + xbeta(t)) +
-        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t)));
     }
     break;
   case 2  :
@@ -271,7 +271,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
       double zt = arma::as_scalar(Z.col(t * Ztv).t() *
         alpha.slice(i).col(t));
       weights(i) = y(t) * (zt + xbeta(t)) - u(t) * log1p(exp(zt + xbeta(t))) +
-        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t)));
     }
     break;
   case 3  :
@@ -280,7 +280,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
         alpha.slice(i).col(t));
       weights(i) = y(t) * (zt + xbeta(t)) - (y(t) + phi) *
         log(phi + u(t) * exp(zt + xbeta(t))) +
-        0.5 * std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + log(HH(t)));
     }
     break;
   }

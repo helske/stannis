@@ -24,7 +24,7 @@ real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
    return loglik;
   }
   
-  vector gaussian_smoother(vector y, vector x1, matrix P1, vector var_y, 
+vector gaussian_smoother(vector y, vector x1, matrix P1, vector var_y, 
   row_vector Zt, matrix Tt, matrix Rt) {
   
   int n = rows(y);
@@ -87,13 +87,13 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   int n = rows(y);
   vector[n] approx_y;
   vector[n] approx_var_y;
-  vector[n+1] mode = mode_;
-
+  vector[n+1] mode;
   vector[3 * n + 1] approx_results; // y, var, scaling, loglik
-  real loglik = mode[n+1];
+  real loglik = mode_[n+1];
   real diff = 1.0;
   int i = 1;
-   
+  
+  mode[1:n] = mode_[1:n] - xbeta; //adjust initial estimate with xbeta   
   // check for bounds
   if (min(diagonal(Rt)) < 0.0) {
     reject("Negative standard deviation. ");
@@ -102,7 +102,7 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
     reject("Mean of the Poisson/negbin distribution > exp(50). ")
   }
   
-  while(i < 25 && diff > 1.0e-8) {
+  while(i < 25 && diff > 1.0e-4) {
     
     vector[n+1] mode_new;
     if(distribution == 1) {  
@@ -119,8 +119,8 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   
     mode_new = gaussian_smoother(approx_y, x1, P1, approx_var_y, Zt, Tt, Rt);
     // Problem with the approximation, potential divergence
-    if (is_nan(mode_new[n+1]) || is_inf(mode[n+1]) || 
-        (distribution != 2 &&max(xbeta + mode_new[1:n]) > 50)) {
+    if (is_nan(mode_new[n+1]) || is_inf(mode_new[n+1]) || 
+        (distribution != 2 && max(xbeta + mode_new[1:n]) > 50)) {
       reject("Error at iteration ", i, " of the approximation.");
     }
     diff = mean(square(mode_new[1:n] - mode[1:n]));
