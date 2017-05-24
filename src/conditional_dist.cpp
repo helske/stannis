@@ -1,6 +1,5 @@
 #include "conditional_dist.h"
 
-// [[Rcpp::export]]
 void conditional_cov(arma::cube& Vt, arma::cube& Ct, const bool use_svd) {
   
   unsigned int p = Vt.n_cols;

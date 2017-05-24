@@ -1,3 +1,4 @@
+// From bssm package
 //back-tracking for filter smoother
 
 #ifndef FILTERSMOOTHER_H

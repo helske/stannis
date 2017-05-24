@@ -1,9 +1,8 @@
-#include <RcppArmadillo.h>
 #include "ung_bsm.h"
-#include "is_correction_psi.h"
+#include "is_correction.h"
 #include "filter_smoother.h"
 
-Rcpp::List is_correction_psi(ung_bsm model, 
+Rcpp::List is_correction(ung_bsm model, 
   const arma::mat& approx_y, const arma::mat& approx_var_y, const arma::mat& scales, 
   const arma::mat& theta, const arma::vec& approx_posterior, 
   const arma::vec& jacobian, const unsigned int nsim_states, 
@@ -17,14 +16,15 @@ Rcpp::List is_correction_psi(ung_bsm model,
   
   if(n_threads > 1) {
 #ifdef _OPENMP
-#pragma omp parallel num_threads(n_threads) default(none) firstprivate(model)
+#pragma omp parallel num_threads(n_threads) default(none) \
+    shared(alpha, weights, n_samples, theta, approx_y, approx_var_y, scales) firstprivate(model)
 {
   model.engine = std::mt19937(omp_get_thread_num() + 1);
-  unsigned thread_size = floor(n_stored / n_threads);
+  unsigned thread_size = floor(n_samples / n_threads);
   unsigned int start = omp_get_thread_num() * thread_size;
   unsigned int end = (omp_get_thread_num() + 1) * thread_size - 1;
   if(omp_get_thread_num() == (n_threads - 1)) {
-    end = n_stored - 1;
+    end = n_samples - 1;
   }
   
   arma::mat theta_piece = theta(arma::span::all, arma::span(start, end));
@@ -33,18 +33,18 @@ Rcpp::List is_correction_psi(ung_bsm model,
   arma::mat approx_y_piece = approx_y(arma::span::all, arma::span(start, end));
   arma::mat approx_var_y_piece = approx_var_y(arma::span::all, arma::span(start, end));
   arma::mat scales_piece = scales(arma::span::all, arma::span(start,end));
-  state_sampler_psi(model, nsim_states, theta_piece, 
+  state_sampler(model, nsim_states, theta_piece, 
     alpha_piece, weights_piece, approx_y_piece, approx_var_y_piece, scales_piece);
   
   alpha.slices(start, end) = alpha_piece;
-  weight.subvec(start, end) = weights_piece;
+  weights.subvec(start, end) = weights_piece;
 }
 #else
-    state_sampler_psi(model, nsim_states, theta, alpha, 
+    state_sampler(model, nsim_states, theta, alpha, 
       weights, approx_y, approx_var_y, scales);
 #endif
   } else {
-    state_sampler_psi(model, nsim_states, theta, alpha, 
+    state_sampler(model, nsim_states, theta, alpha, 
       weights, approx_y, approx_var_y, scales);
   }
   
@@ -59,7 +59,7 @@ Rcpp::List is_correction_psi(ung_bsm model,
     Rcpp::Named("w_max") = wmax, Rcpp::Named("w_sum") = wsum);
 }
 
-void state_sampler_psi(ung_bsm model, const unsigned int nsim_states, 
+void state_sampler(ung_bsm model, const unsigned int nsim_states, 
   const arma::mat& theta, arma::cube& alpha, arma::vec& weights, 
   const arma::mat& approx_y, const arma::mat& approx_var_y, const arma::mat& scales) {
   

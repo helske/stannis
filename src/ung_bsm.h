@@ -1,3 +1,5 @@
+// modified from bssm package
+
 #ifndef UNG_BSM_H
 #define UNG_BSM_H
 
@@ -17,11 +19,6 @@ public:
   void compute_RR();
   void compute_xbeta() { xbeta = xreg * beta; }
 
-  arma::vec log_obs_density(const unsigned int t, 
-    const arma::cube& alpha) const;
-  // bootstrap filter  
-  double bsf_filter(const unsigned int nsim, arma::cube& alphasim, 
-    arma::mat& weights, arma::umat& indices);
   // psi-filter
   double psi_filter(const arma::vec& approx_y, const arma::vec& approx_var_y,
     const arma::vec& scales, const unsigned int nsim, arma::cube& alpha, 
