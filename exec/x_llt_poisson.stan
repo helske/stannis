@@ -38,7 +38,3 @@ model {
   target += poisson_lpmf(y | exp(xbeta + level));
 }
 
-generated quantities {
-  real jacobian;
-  jacobian = -sum(log(theta));
-}

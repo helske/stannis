@@ -3,7 +3,7 @@
 #include "ung_bsm.h"
 
 //[[Rcpp::export]]
-Rcpp::List is_correction(const Rcpp::List& model_,
+Rcpp::List R_is_correction(const Rcpp::List& model_,
   const arma::mat& approx_y, const arma::mat approx_var_y, const arma::mat scales,
   const arma::mat& theta, const arma::vec& approx_posterior,
   const arma::vec& jacobian, const unsigned int nsim_states,
