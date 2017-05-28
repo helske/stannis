@@ -117,7 +117,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
     for (unsigned int i = 0; i < alpha.n_slices; i++) {
       double zt = alpha(0, t, i);
       weights(i) = -0.5 * (zt + std::pow(y(t) / phi, 2) * std::exp(-zt)) +
-        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + std::log(HH(t)));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t)); // + std::log(HH(t)));
     }
     break;
   case 1  :
@@ -125,7 +125,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
       double zt = arma::as_scalar(Z.col(t * Ztv).t() *
         alpha.slice(i).col(t));
       weights(i) = y(t) * (zt + xbeta(t))  - u(t) * std::exp(zt + xbeta(t)) +
-        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + std::log(HH(t)));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t)); // + std::log(HH(t)));
     }
     break;
   case 2  :
@@ -133,7 +133,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
       double zt = arma::as_scalar(Z.col(t * Ztv).t() *
         alpha.slice(i).col(t));
       weights(i) = y(t) * (zt + xbeta(t)) - u(t) * std::log1p(std::exp(zt + xbeta(t))) +
-        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + std::log(HH(t)));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t)); // + std::log(HH(t)));
     }
     break;
   case 3  :
@@ -142,7 +142,7 @@ arma::vec ung_bsm::log_weights(const arma::vec& approx_y, const arma::vec& HH,
         alpha.slice(i).col(t));
       weights(i) = y(t) * (zt + xbeta(t)) - (y(t) + phi) *
         std::log(phi + u(t) * std::exp(zt + xbeta(t))) +
-        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t) + std::log(HH(t)));
+        0.5 * (std::pow(approx_y(t) - zt, 2) / HH(t)); // + std::log(HH(t)));
     }
     break;
   }
@@ -253,7 +253,8 @@ double ung_bsm::psi_filter(const arma::vec& approx_y, const arma::vec& approx_va
         Ct.slice(t + 1) * (alphatmp.col(i) - alphahat.col(t)) + Vt.slice(t + 1) * um;
     }
     
-    weights.col(t + 1) = arma::exp(log_weights(approx_y, approx_var_y, t + 1, alpha) - scales(t+1));
+    weights.col(t + 1) =
+      arma::exp(log_weights(approx_y, approx_var_y, t + 1, alpha) - scales(t+1));
     //weights.col(t + 1) = std::exp(weights.col(t + 1) - weights.col(t + 1).max());
     double sum_weights = arma::sum(weights.col(t + 1));
     if(sum_weights > 0.0){

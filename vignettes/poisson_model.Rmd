@@ -9,49 +9,98 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(stannis)
 library(rstan)
+library(glarma)
 ```
 
-## Data
+## Introduction
 
-```{r data}
-set.seed(123)
-n <- 500
-k <- 3
-x1 <- rnorm(n, mean = 1, sd = 0.1)
-x2 <- cumsum(rnorm(n, sd = 0.05))
-x3 <- runif(n, 0, 1)
-xreg <- cbind(x1, x2, x3)
-slope <- cumsum(c(0, rnorm(n-1, sd = 0.0005)))
-y <- rpois(n, exp(rowSums(xreg) + cumsum(slope + c(0, rnorm(n - 1, sd = 0.1)))))
+The `R` [@R] package `stannis` ("Stan 'n' IS") is a fully functional proof-of-concept demonstration and case study for Bayesian inference of structural time series [@harvey1989] with Poisson distributed observations[^1]. These models contain a Gaussian latent process $x_1\ldots, x_n$ evolving in time, which is only undirectly observed through observing $y_1,\ldots,y_n$. Consider for example a random walk model
+
+$$
+y_t \sim Poisson(\exp(x_t)),\\
+x_{t+1} = x_t + \eta_t, \\
+\eta_t \sim N(0, \sigma^2_{\eta})
+$$
+with prior $x_1 \sim N(0, P_1)$ and unknown $\sigma^2_{\eta}$. Performing computationally efficient inference of these type of models using `Stan` [@stan] can be difficult in practice due to large parameter space (here $n+1$ parameters corresponding to the unknown states $x$ and standard deviation $\sigma^2_{\eta}$) with strong correlation structures. On the other hand, in case of Gaussian observations, the marginal likelihood $p(y)$ is tractable via the Kalman filter, so a simple Metropolis-type Markov chain Monte Carlo (MCMC) targeting the hyperparameters $\theta$ (here $\sigma^2_{\eta}$) can be easily constructed. Then, using the samples $\{\theta^{(i)}\}^N_{i=1}$, we can obtain samples from the joint posterior $(x,\theta)$ by sampling the states $x^{(i)}$ given $y$ and $\theta^{(i)}$ using efficient simulation smoother [@durbin-koopman2002] algorithms for $i=1,\ldots,N$. This approach reduces the scale of the MCMC problem significantly as the dimension of $\theta$ is typically much smaller than $n$.
+
+Unfortunately, the marginal likelihood $p(y)$ is intractable in case of non-Gaussian observations. In this case, one option is to use so called pseudo-marginal MCMC, or more specifically particle MCMC approach [@], where we replace $p(y)$, with its unbiased estimate, which can be found using some variant particle filter Monte Carlo algorithms [@]. However, these methods are often computationally demanding.
+
+@vihola-helske-franks introduces an alternative approach based on importance sampling type correction (IS-MCMC), where first an MCMC run targeting approximate marginal posterior is performed, and then an straighforwardly parallelisable importance sampling type scheme is used to correct for the bias. The MCMC algorithms used in @vihola-helske-franks were based on robust adaptive random walk Metropolis algorithm [@vihola], implemented in the `bssm` package [@helske-vihola]. In this vignette we study the potential computational efficiencies of Metropolis-IS-MCMC of @vihola-helske-franks, NUTS-MCMC of `Stan` [@hoffman-gelman], and hybrid NUTS-IS-MCMC provided by `stannis` package, using two case studies. Our results suggest that when the dimension of $\theta$ is small, NUTS-IS-MCMC provides good alternative for Metropolis-IS-MCMC and NUTS-MCMC, whereas with large number of hyperparameters the repeated gradient computation of NUTS algorithm slows down the NUTS-IS-MCMC so much that standard Metropolis-IS-MCMC is recommended. In case of both models, basic NUTS-MCMC provided by `Stan` tends to perform poorly with substantial divergence problems.
+
+The core pieces of the `bssm` package are written in `C++` using `Armadillo` [@armadillo] linear algebra library, interfaced with `Rcpp` [@Rcpp] and `RcppArmadillo` [@RcppArmadillo] packages, whereas `Stan` was used via the `rstan` package [@rstan]. The `stannis` package contains some partially modified parts of `bssm` for the particle filtering task, where as the NUTS-sampler of `Stan`is used via calls to functions of `rstan`.
+
+
+[^1]: Other exponential family models such as Binomial, negative binomial and Gamma distributions, as well as simpler Gaussian case could be straighforwardly implemented as well.
+
+## Local linear trend model
+
+As a first illustration, consider a local linear trend model [@Harvey1989] with Poisson observations and one external covariate $z$:
+
+$$
+y_t \sim Poisson(\exp(\beta z_t + \mu_t)),\\
+\mu_{t+1} = \mu_t + \nu_t + \eta_t, \\
+\nu_{t+1} = \nu_t + \xi_t, \\
+\eta_t \sim N(0, \sigma^2_{\eta}),\\
+\xi_t \sim N(0, \sigma^2_{\xi})
+$$
+Here $\theta = (\beta, \sigma^2_{\eta}, \sigma^2_{\xi})$, and $x_t = (\mu_t, \nu_t)$. We simulated our data of length $n=100$ from this model by fixing $x_1 = 0$, $\beta = 1$, $\sigma^2_{\eta} = 0.1$, and $\sigma^2_{\xi} = 0.01$, and simulating the values of covariate $z$ from $N(1, 1)$.
+```{r data, cache = TRUE}
+set.seed(1)
+n <- 100
+z <- matrix(rnorm(n, 1, 1))
+slope <- cumsum(c(0, rnorm(n - 1, sd = 0.01)))
+y <- rpois(n, exp(z + cumsum(slope + c(0, rnorm(n - 1, sd = 0.1)))))
 ts.plot(y)
 ```
 
-```{r stannis, cache = TRUE}
-dat <- as.data.frame(cbind(y, xreg))
-names(dat) <- c("y", paste0("x", 1:3))
-bsm_out <- stannis(y ~ ., dat, distribution = "poisson", iter = 2000, thin = 1,
-                   beta = cbind(0, rep(2, k)), level = c(0, 1), slope = c(0, 1),
-                   x1 = c(0, 0), P1 = diag(c(10, 1)), n_threads = 2)
+For actual analysis, we set the prior distributions as $\mu_1 \sim N(0, 10)$, $\nu_1 \ \sim N(0, 1)$, $\beta \sim N(0, 2^2))$, and  $\sigma_{\eta} \sim N(0, 1)$, and $\sigma_{\xi} \sim N(0, 1)$, with latter two priors truncated to positive real axis.
 
+Let us first run the NUTS-IS-MCMC by calling `stannis`. Here familiar formula object determines the regression part, whereas priors for $\beta$ and standard deviation parameters are defined via vectors of length two, where the first value is the mean and second the standard deviation of the Gaussian prior distribution. Similarly we define the prior for initial state $x_1$ using arguments `x1` and `P1`. Rest of the arguments are self-explatonary. We use the default value of `nsim_states = 10`, which defines the number of particles used in $\psi$-particle filter of IS-correction (for details, see [@vihola-helske-franks]). Also by default, we use four Markov chains in parallel, and we also parallelise the IS-correction step with the same argument.
+
+```{r stannis, cache = TRUE}
+stannis_results <- stannis(y ~ z, distribution = "poisson", iter = 2000, thin = 1,
+                   beta = c(0, 2), level = c(0, 1), slope = c(0, 1), refresh = 0,
+                   x1 = c(0, 0), P1 = diag(c(10, 1)), n_threads = 1)
+```
+
+Next we run Metropolis-IS-MCMC using `bssm` package. We first build the model using `ng_bsm` function with similar syntax, and then run the MCMC algorithm using `run_mcmc` method for `ng_bsm` object. Note that `run_mcmc` uses only single chain, so we multiply the number of iterations by four in order to make methods more comparable. Also, `bssm` uses so called jump chain representation, which provides some computational benefits.
+
+```{r bssm, cache = TRUE}
+model <- ng_bsm(y, xreg = as.matrix(z), beta = normal(0, 0, 2), P1 = diag(c(10, 1)),
+  sd_level = halfnormal(0, 1), sd_slope = halfnormal(0, 1), distribution = "poisson")
+
+bssm_results <- run_mcmc(model, n_iter = 50000, nsim_states = 10, method = "isc") 
 ```
 
 ```{r stan, cache = TRUE}
-stan_data <- list(n = n, k = k, y = y, xreg = xreg, x1 = c(0,0), P1 = diag(c(10, 1)), 
+
+stan_data <- list(n = n, k = 1, y = y, xreg = as.matrix(z), 
+  x1 = c(0,0), P1 = diag(c(10, 1)), 
                   sd_prior_means = c(0, 0), sd_prior_sds = c(1, 1), 
-                  beta_prior_means = rep(0, k), beta_prior_sds = rep(2, k))
+                  beta_prior_means = structure(0,dim=1), beta_prior_sds = structure(2,dim=1))
+# 
+# stan_inits <- list(
+#   list(theta = c(0.01, 0.0001), beta = rep(0, k), level_std = rep(0, n), slope_std = rep(0, n)), 
+#   list(theta = c(0.1, 0.1), beta = rep(1, k), level_std = rep(0, n), slope_std = rep(0, n)),
+#   list(theta = c(0.0001, 0.01), beta = rep(-1, k), level_std = rep(0, n), slope_std = rep(0, n)),
+#   list(theta = c(0.001, 0.001), beta = rep(0, k), level_std = rep(0, n), slope_std = rep(0, n)))
 
 stan_inits <- list(
-  list(theta = c(0.01, 0.0001), beta = rep(0, k), level_std = rep(0, n), slope_std = rep(0, n)), 
-  list(theta = c(0.1, 0.1), beta = rep(1, k), level_std = rep(0, n), slope_std = rep(0, n)),
-  list(theta = c(0.0001, 0.01), beta = rep(-1, k), level_std = rep(0, n), slope_std = rep(0, n)),
-  list(theta = c(0.001, 0.001), beta = rep(0, k), level_std = rep(0, n), slope_std = rep(0, n)))
-
-fit <- sampling(stannis:::stanmodels$x_llt_poisson, data = stan_data, seed = 1,
-                iter = 2000, thin = 1,  chains = 4, init = stan_inits)
+  list(theta = c(0.01, 0.0001), beta = structure(0,dim=1), level = rep(0, n), slope = rep(0, n)), 
+  list(theta = c(0.1, 0.1), beta = structure(1,dim=1), level = rep(0, n), slope = rep(0, n)),
+  list(theta = c(0.0001, 0.01), beta = structure(-1,dim=1), level = rep(0, n), slope = rep(0, n)),
+  list(theta = c(0.001, 0.001), beta = structure(0,dim=1), level = rep(0, n), slope = rep(0, n)))
+fit <- sampling(stannis:::stanmodels$x_llt_poisson2, data = stan_data, seed = 1, refresh = 0,
+                iter = 5000, thin = 1,  chains = 4, 
+  init = stan_inits, cores = 1, control = list(adapt_delta = 0.95, max_treedepth = 15))
 ```
 
 ```{r results}
-print(bsm_out$stan_fit,pars = c("beta", "theta"))
-print(fit,pars = c("beta", "theta"))
+ library(diagis)
+ weighted_mean(unlist(stannis_results$beta), stannis_results$weights)
+ weighted_mean(as.matrix(stannis_results$theta), stannis_results$weights)
+ ess(stannis$weights)
+ bssm_results
+ print(fit, pars = c("beta", "theta"))
 
 ```

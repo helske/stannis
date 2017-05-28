@@ -1,4 +1,5 @@
-real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
+
+  real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
   row_vector Zt, matrix Tt, matrix Rt) {
 
   int n = rows(y);
@@ -92,8 +93,9 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   real loglik = mode_[n+1];
   real diff = 1.0;
   int i = 1;
-
-  mode[1:n] = mode_[1:n] - xbeta; //adjust initial estimate with xbeta
+  mode[1:n] = mode_[1:n]; 
+  
+  //mode[1:n] = mode_[1:n] - xbeta; //adjust initial estimate with xbeta
   // check for bounds
   if (min(diagonal(Rt)) < 0.0) {
     reject("Negative standard deviation. ");
@@ -102,7 +104,7 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
     reject("Mean of the Poisson/negbin distribution > exp(50). ")
   }
 
-  while(i < 25 && diff > 1.0e-4) {
+  while(i < 100 && diff > 1.0e-8) {
 
     vector[n+1] mode_new;
     if(distribution == 1) {
@@ -128,7 +130,7 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
     loglik = mode[n+1];
     i = i + 1;
   }
-  if (i == 25) {
+  if (i == 100) {
     reject("Maximum number of iterations for approximation used. ");
   }
 
@@ -139,8 +141,10 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   if(distribution == 1) {
     for(t in 1:n) {
       approx_results[2 * n + t] = y[t] * (xbeta[t] + mode[t]) - exp(xbeta[t] + mode[t]) +
-        0.5 * ((approx_y[t] - mode[t])^2 / approx_var_y[t] + log(approx_var_y[t]));
+        0.5 * ((approx_y[t] - mode[t])^2 / approx_var_y[t]);
     }
+    approx_results[3 * n + 1] = loglik + sum(approx_results[(2*n+1): (3*n)]) +
+       0.5 * sum(log(approx_var_y));
   } else {
     if (distribution == 2) {
 
@@ -148,7 +152,7 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
 
     }
   }
-
-  approx_results[3 * n + 1] = loglik + sum(approx_results[(2*n+1): (3*n)]);
+  
   return approx_results;
 }
+

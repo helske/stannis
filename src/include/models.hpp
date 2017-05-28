@@ -411,7 +411,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -425,7 +425,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -462,7 +462,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,25))) {
+            if (as_bool(logical_eq(i,100))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -480,8 +480,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 for (int t = 1; t <= n; ++t) {
 
-                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * ((pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)) + log(get_base1(approx_var_y,t,"approx_var_y",1))))));
+                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * (pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)))));
                 }
+                stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), ((loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))) + (0.5 * sum(log(approx_var_y)))));
             } else {
 
                 if (as_bool(logical_eq(distribution,2))) {
@@ -490,7 +491,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 }
             }
-            stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), (loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))));
             return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
         }
     } catch (const std::exception& e) {
@@ -1464,7 +1464,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -1478,7 +1478,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -1515,7 +1515,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,25))) {
+            if (as_bool(logical_eq(i,100))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -1533,8 +1533,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 for (int t = 1; t <= n; ++t) {
 
-                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * ((pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)) + log(get_base1(approx_var_y,t,"approx_var_y",1))))));
+                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * (pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)))));
                 }
+                stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), ((loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))) + (0.5 * sum(log(approx_var_y)))));
             } else {
 
                 if (as_bool(logical_eq(distribution,2))) {
@@ -1543,7 +1544,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 }
             }
-            stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), (loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))));
             return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
         }
     } catch (const std::exception& e) {
@@ -2473,7 +2473,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -2487,7 +2487,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -2524,7 +2524,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,25))) {
+            if (as_bool(logical_eq(i,100))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -2542,8 +2542,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 for (int t = 1; t <= n; ++t) {
 
-                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * ((pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)) + log(get_base1(approx_var_y,t,"approx_var_y",1))))));
+                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * (pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)))));
                 }
+                stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), ((loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))) + (0.5 * sum(log(approx_var_y)))));
             } else {
 
                 if (as_bool(logical_eq(distribution,2))) {
@@ -2552,7 +2553,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 }
             }
-            stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), (loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))));
             return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
         }
     } catch (const std::exception& e) {
@@ -3946,7 +3946,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -3960,7 +3960,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -3997,7 +3997,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,25))) {
+            if (as_bool(logical_eq(i,100))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -4015,8 +4015,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 for (int t = 1; t <= n; ++t) {
 
-                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * ((pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)) + log(get_base1(approx_var_y,t,"approx_var_y",1))))));
+                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * (pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)))));
                 }
+                stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), ((loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))) + (0.5 * sum(log(approx_var_y)))));
             } else {
 
                 if (as_bool(logical_eq(distribution,2))) {
@@ -4025,7 +4026,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 }
             }
-            stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), (loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))));
             return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
         }
     } catch (const std::exception& e) {
@@ -5121,7 +5121,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -5135,7 +5135,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,25)) && primitive_value(logical_gt(diff,0.0001))))) {
+            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -5172,7 +5172,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,25))) {
+            if (as_bool(logical_eq(i,100))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -5190,8 +5190,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 for (int t = 1; t <= n; ++t) {
 
-                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * ((pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)) + log(get_base1(approx_var_y,t,"approx_var_y",1))))));
+                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * (pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)))));
                 }
+                stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), ((loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))) + (0.5 * sum(log(approx_var_y)))));
             } else {
 
                 if (as_bool(logical_eq(distribution,2))) {
@@ -5200,7 +5201,6 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
                 }
             }
-            stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), (loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))));
             return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
         }
     } catch (const std::exception& e) {
@@ -6234,8 +6234,8 @@ public:
             stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(x1,2,"x1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(level,t,"level",1), ((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + (get_base1(theta,1,"theta",1) * get_base1(level_std,t,"level_std",1))));
-                stan::math::assign(get_base1_lhs(slope,t,"slope",1), (get_base1(slope,(t - 1),"slope",1) + (get_base1(theta,2,"theta",1) * get_base1(slope_std,t,"slope_std",1))));
+                stan::math::assign(get_base1_lhs(level,t,"level",1), (((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + get_base1(level_std,t,"level_std",1)) * get_base1(theta,1,"theta",1)));
+                stan::math::assign(get_base1_lhs(slope,t,"slope",1), ((get_base1(slope,(t - 1),"slope",1) + get_base1(slope_std,t,"slope_std",1)) * get_base1(theta,2,"theta",1)));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -6276,7 +6276,7 @@ public:
             lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
             lp_accum__.add(normal_log(level_std,0,1));
             lp_accum__.add(normal_log(slope_std,0,1));
-            lp_accum__.add(poisson_log(y,exp(add(xbeta,level))));
+            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -6309,7 +6309,6 @@ public:
         names__.push_back("xbeta");
         names__.push_back("level");
         names__.push_back("slope");
-        names__.push_back("jacobian");
     }
 
 
@@ -6336,8 +6335,6 @@ public:
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(n);
-        dimss__.push_back(dims__);
-        dims__.resize(0);
         dimss__.push_back(dims__);
     }
 
@@ -6410,8 +6407,8 @@ public:
             stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(x1,2,"x1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(level,t,"level",1), ((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + (get_base1(theta,1,"theta",1) * get_base1(level_std,t,"level_std",1))));
-                stan::math::assign(get_base1_lhs(slope,t,"slope",1), (get_base1(slope,(t - 1),"slope",1) + (get_base1(theta,2,"theta",1) * get_base1(slope_std,t,"slope_std",1))));
+                stan::math::assign(get_base1_lhs(level,t,"level",1), (((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + get_base1(level_std,t,"level_std",1)) * get_base1(theta,1,"theta",1)));
+                stan::math::assign(get_base1_lhs(slope,t,"slope",1), ((get_base1(slope,(t - 1),"slope",1) + get_base1(slope_std,t,"slope_std",1)) * get_base1(theta,2,"theta",1)));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -6434,15 +6431,9 @@ public:
 
         if (!include_gqs__) return;
         // declare and define generated quantities
-        double jacobian(0.0);
-        (void) jacobian;  // dummy to suppress unused var warning
-
-        stan::math::initialize(jacobian, std::numeric_limits<double>::quiet_NaN());
-        stan::math::fill(jacobian,DUMMY_VAR__);
 
 
         try {
-            stan::math::assign(jacobian, -(sum(log(theta))));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -6452,8 +6443,6 @@ public:
         // validate generated quantities
 
         // write generated quantities
-        vars__.push_back(jacobian);
-
     }
 
     template <typename RNG>
@@ -6522,9 +6511,6 @@ public:
         }
 
         if (!include_gqs__) return;
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "jacobian";
-        param_names__.push_back(param_name_stream__.str());
     }
 
 
@@ -6571,9 +6557,621 @@ public:
         }
 
         if (!include_gqs__) return;
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "jacobian";
-        param_names__.push_back(param_name_stream__.str());
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
+namespace model_x_llt_poisson2_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+class model_x_llt_poisson2 : public prob_grad {
+private:
+    int n;
+    int k;
+    vector<int> y;
+    vector_d x1;
+    matrix_d P1;
+    vector_d sd_prior_means;
+    vector_d sd_prior_sds;
+    vector_d beta_prior_means;
+    vector_d beta_prior_sds;
+    matrix_d xreg;
+public:
+    model_x_llt_poisson2(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_x_llt_poisson2(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_x_llt_poisson2_namespace::model_x_llt_poisson2";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "k", "int", context__.to_vec());
+        k = int(0);
+        vals_i__ = context__.vals_i("k");
+        pos__ = 0;
+        k = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "int", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = std::vector<int>(n,int(0));
+        vals_i__ = context__.vals_i("y");
+        pos__ = 0;
+        size_t y_limit_0__ = n;
+        for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
+            y[i_0__] = vals_i__[pos__++];
+        }
+        validate_non_negative_index("x1", "2", 2);
+        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("x1", "2", 2);
+        x1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("x1");
+        pos__ = 0;
+        size_t x1_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
+            x1[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("P1", "2", 2);
+        validate_non_negative_index("P1", "2", 2);
+        context__.validate_dims("data initialization", "P1", "matrix_d", context__.to_vec(2,2));
+        validate_non_negative_index("P1", "2", 2);
+        validate_non_negative_index("P1", "2", 2);
+        P1 = matrix_d(static_cast<Eigen::VectorXd::Index>(2),static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        size_t P1_m_mat_lim__ = 2;
+        size_t P1_n_mat_lim__ = 2;
+        for (size_t n_mat__ = 0; n_mat__ < P1_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < P1_m_mat_lim__; ++m_mat__) {
+                P1(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_means", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        sd_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        size_t sd_prior_means_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < sd_prior_means_i_vec_lim__; ++i_vec__) {
+            sd_prior_means[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_sds", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        sd_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        size_t sd_prior_sds_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < sd_prior_sds_i_vec_lim__; ++i_vec__) {
+            sd_prior_sds[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("beta_prior_means", "k", k);
+        context__.validate_dims("data initialization", "beta_prior_means", "vector_d", context__.to_vec(k));
+        validate_non_negative_index("beta_prior_means", "k", k);
+        beta_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("beta_prior_means");
+        pos__ = 0;
+        size_t beta_prior_means_i_vec_lim__ = k;
+        for (size_t i_vec__ = 0; i_vec__ < beta_prior_means_i_vec_lim__; ++i_vec__) {
+            beta_prior_means[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("beta_prior_sds", "k", k);
+        context__.validate_dims("data initialization", "beta_prior_sds", "vector_d", context__.to_vec(k));
+        validate_non_negative_index("beta_prior_sds", "k", k);
+        beta_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("beta_prior_sds");
+        pos__ = 0;
+        size_t beta_prior_sds_i_vec_lim__ = k;
+        for (size_t i_vec__ = 0; i_vec__ < beta_prior_sds_i_vec_lim__; ++i_vec__) {
+            beta_prior_sds[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("xreg", "n", n);
+        validate_non_negative_index("xreg", "k", k);
+        context__.validate_dims("data initialization", "xreg", "matrix_d", context__.to_vec(n,k));
+        validate_non_negative_index("xreg", "n", n);
+        validate_non_negative_index("xreg", "k", k);
+        xreg = matrix_d(static_cast<Eigen::VectorXd::Index>(n),static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("xreg");
+        pos__ = 0;
+        size_t xreg_m_mat_lim__ = n;
+        size_t xreg_n_mat_lim__ = k;
+        for (size_t n_mat__ = 0; n_mat__ < xreg_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < xreg_m_mat_lim__; ++m_mat__) {
+                xreg(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        check_greater_or_equal(function__,"k",k,0);
+        for (int k0__ = 0; k0__ < n; ++k0__) {
+            check_greater_or_equal(function__,"y[k0__]",y[k0__],0);
+        }
+        // initialize data variables
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        validate_non_negative_index("theta", "2", 2);
+        num_params_r__ += 2;
+        validate_non_negative_index("beta", "k", k);
+        num_params_r__ += k;
+        validate_non_negative_index("level", "n", n);
+        num_params_r__ += n;
+        validate_non_negative_index("slope", "n", n);
+        num_params_r__ += n;
+    }
+
+    ~model_x_llt_poisson2() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        validate_non_negative_index("theta", "2", 2);
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec(2));
+        // generate_declaration theta
+        std::vector<double> theta(2,double(0));
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            theta[i0__] = vals_r__[pos__++];
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            try {
+            writer__.scalar_lb_unconstrain(0,theta[i0__]);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("beta")))
+            throw std::runtime_error("variable beta missing");
+        vals_r__ = context__.vals_r("beta");
+        pos__ = 0U;
+        validate_non_negative_index("beta", "k", k);
+        context__.validate_dims("initialization", "beta", "vector_d", context__.to_vec(k));
+        // generate_declaration beta
+        vector_d beta(static_cast<Eigen::VectorXd::Index>(k));
+        for (int j1__ = 0U; j1__ < k; ++j1__)
+            beta(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(beta);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable beta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("level")))
+            throw std::runtime_error("variable level missing");
+        vals_r__ = context__.vals_r("level");
+        pos__ = 0U;
+        validate_non_negative_index("level", "n", n);
+        context__.validate_dims("initialization", "level", "vector_d", context__.to_vec(n));
+        // generate_declaration level
+        vector_d level(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
+            level(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(level);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable level: ") + e.what());
+        }
+
+        if (!(context__.contains_r("slope")))
+            throw std::runtime_error("variable slope missing");
+        vals_r__ = context__.vals_r("slope");
+        pos__ = 0U;
+        validate_non_negative_index("slope", "n", n);
+        context__.validate_dims("initialization", "slope", "vector_d", context__.to_vec(n));
+        // generate_declaration slope
+        vector_d slope(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
+            slope(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(slope);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable slope: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        vector<T__> theta;
+        size_t dim_theta_0__ = 2;
+        theta.reserve(dim_theta_0__);
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            if (jacobian__)
+                theta.push_back(in__.scalar_lb_constrain(0,lp__));
+            else
+                theta.push_back(in__.scalar_lb_constrain(0));
+        }
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  beta;
+        (void) beta;  // dummy to suppress unused var warning
+        if (jacobian__)
+            beta = in__.vector_constrain(k,lp__);
+        else
+            beta = in__.vector_constrain(k);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  level;
+        (void) level;  // dummy to suppress unused var warning
+        if (jacobian__)
+            level = in__.vector_constrain(n,lp__);
+        else
+            level = in__.vector_constrain(n);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  slope;
+        (void) slope;  // dummy to suppress unused var warning
+        if (jacobian__)
+            slope = in__.vector_constrain(n,lp__);
+        else
+            slope = in__.vector_constrain(n);
+
+
+        // transformed parameters
+        validate_non_negative_index("xbeta", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  xbeta(static_cast<Eigen::VectorXd::Index>(n));
+        (void) xbeta;  // dummy to suppress unused var warning
+
+        stan::math::initialize(xbeta, DUMMY_VAR__);
+        stan::math::fill(xbeta,DUMMY_VAR__);
+        stan::math::assign(xbeta,multiply(xreg,beta));
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(xbeta(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: xbeta" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log(get_base1(level,1,"level",1),get_base1(x1,1,"x1",1),sqrt(get_base1(P1,1,1,"P1",1))));
+            lp_accum__.add(normal_log(get_base1(slope,1,"slope",1),get_base1(x1,2,"x1",1),sqrt(get_base1(P1,2,2,"P1",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                lp_accum__.add(normal_log(get_base1(level,t,"level",1),(get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)),get_base1(theta,1,"theta",1)));
+                lp_accum__.add(normal_log(get_base1(slope,t,"slope",1),get_base1(slope,(t - 1),"slope",1),get_base1(theta,2,"theta",1)));
+            }
+            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("beta");
+        names__.push_back("level");
+        names__.push_back("slope");
+        names__.push_back("xbeta");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(k);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_x_llt_poisson2_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        vector<double> theta;
+        size_t dim_theta_0__ = 2;
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            theta.push_back(in__.scalar_lb_constrain(0));
+        }
+        vector_d beta = in__.vector_constrain(k);
+        vector_d level = in__.vector_constrain(n);
+        vector_d slope = in__.vector_constrain(n);
+        for (int k_0__ = 0; k_0__ < 2; ++k_0__) {
+            vars__.push_back(theta[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < k; ++k_0__) {
+            vars__.push_back(beta[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(level[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(slope[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("xbeta", "n", n);
+        vector_d xbeta(static_cast<Eigen::VectorXd::Index>(n));
+        (void) xbeta;  // dummy to suppress unused var warning
+
+        stan::math::initialize(xbeta, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(xbeta,DUMMY_VAR__);
+        stan::math::assign(xbeta,multiply(xreg,beta));
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(xbeta[k_0__]);
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_x_llt_poisson2";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "level" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "slope" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "xbeta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "level" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "slope" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "xbeta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
     }
 
 }; // model

@@ -14,28 +14,22 @@ data {
 parameters {
   real<lower=0> theta[2];
   vector[k] beta;
-  vector[n] level_std;
-  vector[n] slope_std;
+  vector[n] level;
+  vector[n] slope;
 }
 
 transformed parameters {
   vector[n] xbeta = xreg * beta;
-  vector[n] level;
-  vector[n] slope;
-  
-  level[1] = x1[1] + sqrt(P1[1,1]) * level_std[1];
-  slope[1] = x1[2] + sqrt(P1[2,2]) * slope_std[1];
-  for(t in 2:n) {
-    level[t] = (level[t-1] + slope[t-1] + level_std[t]) * theta[1];
-    slope[t] = (slope[t-1] + slope_std[t]) * theta[2];
-    //level[t] = level[t-1] + slope[t-1] + theta[1] * level_std[t];
-    //slope[t] = slope[t-1] + theta[2] * slope_std[t];
-  }
+
 }
 model {
   target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
   target += normal_lpdf(beta | beta_prior_means, beta_prior_sds);
-  target += normal_lpdf(level_std | 0, 1);
-  target += normal_lpdf(slope_std | 0, 1);
+  target += normal_lpdf(level[1] | x1[1], sqrt(P1[1, 1]));
+  target += normal_lpdf(slope[1] | x1[2], sqrt(P1[2, 2]));
+  for(t in 2:n) {
+    target += normal_lpdf(level[t] | level[t - 1] + slope[t - 1], theta[1]);
+    target += normal_lpdf(slope[t] | slope[t - 1], theta[2]);
+  }
   target += poisson_log_lpmf(y | xbeta + level);
 }
