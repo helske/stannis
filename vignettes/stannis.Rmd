@@ -1,0 +1,408 @@
+---
+title: "Computational efficiency comparison of MCMC algorithms for state space models"
+author: "Jouni Helske"
+date: "9 June 2017"
+output:
+   pdf_document:
+     keep_tex: yes
+link-citations: yes
+bibliography: stannis.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stannis)
+library(rstan)
+library(bssm)
+```
+
+## Introduction
+
+The `R` [@R] package `stannis` ("Stan 'n' IS") provides a case study for Bayesian inference of structural time series [@harvey1989] with Poisson distributed observations with different Markov chain Monte Carlo algorithms. Our model belongs to a class of exponential family state space models. These models contain a Gaussian latent process $\alpha_1\ldots, \alpha_n$ evolving in time, which is only undirectly observed through observing $y_1,\ldots,y_n$. Consider for example a random walk model
+
+$$
+y_t \sim Poisson(\exp(x_t)),\\
+\alpha_{t+1} = \alpha_t + \eta_t, \\
+\eta_t \sim N(0, \sigma^2_{\eta})
+$$
+with prior $\alpha_1 \sim N(a_1, P_1)$ and unknown $\sigma^2_{\eta}$. Performing computationally efficient inference of these type of models using `Stan` [@stan] can be difficult in practice due to large parameter space (here $n+1$ parameters corresponding to the unknown states $\alpha$ and standard deviation $\sigma^2_{\eta}$) with strong correlation structures. On the other hand, in case of Gaussian observations, the marginal likelihood $p(y)$ is tractable via the Kalman filter, so a simple Metropolis-type Markov chain Monte Carlo (MCMC) targeting the hyperparameters $\theta$ (here $\sigma^2_{\eta}$) can be easily constructed. Then, using the samples $\{\theta^{(i)}\}^N_{i=1}$, we can obtain samples from the joint posterior $(\alpha,\theta)$ by sampling the states $\alpha^{(i)}$ given $y$ and $\theta^{(i)}$ using efficient simulation smoother [@durbin-koopman2002] algorithms for $i=1,\ldots,N$. This approach reduces the scale of the MCMC problem significantly as the dimension of $\theta$ is typically much smaller than $n$.
+
+Unfortunately, the marginal likelihood $p(y)$ is intractable in case of non-Gaussian observations. In this case, one option is to use so called pseudo-marginal MCMC, or more specifically particle MCMC approach [@], where we replace $p(y)$, with its unbiased estimate, which can be found using some variant particle filter Monte Carlo algorithms [@]. However, these methods are often computationally unless good proposals for the particle filter are available.
+
+@vihola-helske-franks introduces an alternative approach based on importance sampling type correction (IS-MCMC), where first an MCMC run targeting approximate marginal posterior is performed, and then an straighforwardly parallelisable importance sampling type scheme is used to correct for the bias. The MCMC algorithms used in @vihola-helske-franks were based on robust adaptive random walk Metropolis algorithm [@vihola], implemented in the `bssm` package [@helske-vihola]. This vignette provides short non-exhaustive simulation study of the computational efficiency of several Metropolis-type MCMC algorithms as in @vihola-helske-franks, NUTS-MCMC of `Stan` [@hoffman-gelman], and hybrid NUTS-IS-MCMC provided by `stannis` package.
+
+The core pieces of the `bssm` package are written in `C++` using `Armadillo` [@armadillo] linear algebra library, interfaced with `Rcpp` [@Rcpp] and `RcppArmadillo` [@RcppArmadillo] packages, whereas `Stan` was used via the `rstan` package [@rstan]. The `stannis` package contains some partially modified parts of `bssm` for the particle filtering task, where as the NUTS-sampler of `Stan`is used via calls to functions of `rstan`.
+
+
+## Model and data
+
+Consider a local linear trend model with Poisson observations 
+local linear trend model of form
+
+$$
+\begin{aligned}
+y_t &\sim \textrm{Poisson}( \textrm{exp}(\mu_t))\\
+\mu_{t+1} &= \mu_t + \nu_t + \sigma_{\eta} \eta_t, &\quad \eta_t \sim N(0,1)\\
+\mu_{t+1} &= \nu_t + \sigma_{\xi}\xi_t, &\quad \xi_t \sim N(0,1).
+\end{aligned}
+$$
+
+We simulated times series of length $n = 100$ with $\sigma_{\eta} = \sigma_{\xi} = 0.01$, and $\mu_1=\nu_1=0$.
+
+```{r data}
+set.seed(123)
+n <- 100
+
+slope <- cumsum(c(0, rnorm(n - 1, sd = 0.01)))
+level <- cumsum(slope + c(0, rnorm(n - 1, sd = 0.01)))
+y <- rpois(n, exp(level))
+
+ts.plot(y)
+```
+
+### bssm
+
+We can run different MCMC algorithms with `bssm` by first building the model:
+```{r bssm}
+model <- ng_bsm(y, P1 = diag(c(10, 0.1)),
+  sd_level = halfnormal(0.01, 1), 
+  sd_slope = halfnormal(0.01, 0.1), distribution = "poisson")
+```
+We define half-Normal priors (i.e. zero-mean Gaussian distribution folded at zero) for the standard deviation parameters. The first argument to `halfnormal` defines the initial value, whereas the second defines the standard deviation of half-Normal distribution. For illustrative purposes the initial values correspond to the true values.
+
+Function `run_mcmc` performs the Markov chain Monte Carlo, where the actual algorithm depends on several arguments:
+
+```{r da_mcmc}
+da_mcmc <- run_mcmc(model, n_iter = 2000, nsim_states = 10) 
+```
+
+The default option for non-Gaussian non-linear state space models is the delayed acceptance pseudo-marginal algorithm using $\psi$-particle filter [@vihola-helske-franks] with `nsim_states` particles. The $\psi$-PF takes account the available approximations of the non-Gaussian model in order to construct a highly efficient particle filter which needs only few particles for accurate log-likelihood estimation. $\psi$-PF is also used in `stannis`.
+
+Here we use `n_iter = 2000` MCMC iterations (by default, first half is discarded as burnin), which is typically too little for reliable inference but illustrates the workflow. The print method of the `run_mcmc` output gives basic information about the MCMC run:
+```{r da_summary}
+da_mcmc
+```
+
+
+### Stan
+
+For `Stan`, users typically need to write their own model using Stan language (see Appendix A), which is then automatically compiled to C++ when calling `stan` or `sampling` functions of `rstan`. But in this case the `stannis` package contains our models as a precombiled object, which we can access as `stannis:::stanmodels$llt_poisson`. First we define our data as a list `stan_data` and similarly for initial values `stan_inits` (this is optional, and not all initial values need to be provided), where the latter is a a list of lists (one for each chain). We then call the function `sampling`, again and print some summary statistics using appropriate printing method.
+
+```{r stan}
+stan_data <- list(n = n, y = y, a1 = c(0, 0), P1 = diag(c(10, 0.1)), 
+  sd_prior_means = rep(0, 2), sd_prior_sds = c(1, 0.1))
+stan_inits <- list(list(theta = c(0.01, 0.01), 
+  slope_std = rep(0, n), level = rep(0, n)))
+
+stan_mcmc <- sampling(stannis:::stanmodels$llt_poisson, iter = 500,
+  init = stan_inits, data = stan_data, refresh = 0, chains = 1)
+print(stan_mcmc, pars ="theta")
+```
+
+### stannis
+
+With `stannis`, priors for $\sigma_\eta$ and $\sigma_xi$ are defined via vectors of length two, where the first value is the mean and second the standard deviation of the Gaussian prior distribution. The output of `stannis` function is currently somewhat limited compared to other packages, as `stannis` is specifically built for studying the potential computational benefits of combining the HMC algorithms of `Stan` and the importance sampling correction approach, without putting too much effort into actual usability.  
+
+```{r stannis}
+stannis_mcmc <- stannis(y, iter = 500, level = c(0, 1), slope = c(0, 0.1), 
+  refresh = 0, a1 = c(0, 0), P1 = diag(c(10, 0.1)),
+  stan_inits = list(list(theta = c(0.01, 0.01))))
+stannis_mcmc$mean_theta
+stannis_mcmc$ess_theta
+stannis_mcmc$stan_time
+stannis_mcmc$correction_time
+```
+
+## Computational efficiency experiment
+
+We will use the same local linear trend model and the data as in previous section. As prior distributions we used $\mu_1 \sim N(0, 10^2)$, $\nu_1 \sim N(0, 0.1^2)$, $\sigma_{\eta} \sim N(0, 1^2)$, and $\sigma_{\xi} \sim N(0, 0.1^2)$, with latter two truncated to positive real axis. We compare following algorithms:
+
+* HMC: HMC using NUTS algorithm (from `Stan`)
+* PM: Pseudo-marginal MCMC (`bssm`)
+* DA: Delayed acceptance PM (`bssm`)
+* IS-RWM: IS type correction of MCMC with RWM (`bssm`)
+* IS-HMC: IS type correction of MCMC with HMC (`stannis`)
+
+As a measure of efficiency, we use inverse relative efficiency (IRE), defined as 
+\[
+IRE = 100\frac{\bar T}{N}\sum_{i=1}^N (\hat \theta_i - \theta)^2,
+\]
+where $\bar T$ is the average running time, $\hat \theta_i$ is the estimate from $i$th run, and $\theta$ is the estimate based on 1,000,000 iterations of pseudo-marginal MCMC.
+
+We ran all algorithms $N=100$ times with $20,000 + 20,000$ iterations, where first half was discarded as a burnin.
+For standard HMC, default parameters governing the sampler's behaviour caused severe amount of divergent transitions. We were able to get rid of most these by changing the `adapt_delta` parameter (corresponding to the target average proposal acceptance probability in the adaptation phase) from the default 0.8 to 0.99, and the maximum treedepth (argument `max_treedepth`) from 10 to 15.
+
+
+```{r results}
+library("dplyr")
+
+results_stan <- readRDS("stan_llt_iter4e4.rda")
+results_stannis <- readRDS("stannis_llt_iter4e4.rda")
+results_is <- readRDS("is_llt_iter4e4.rda")
+results_da <- readRDS("da_llt_iter4e4.rda")
+results_pm <- readRDS("pm_llt_iter4e4.rda")
+
+results <-rbind(results_stan, results_stannis, results_is, results_da, results_pm)
+grouped <- group_by(results, method)
+IRE <- function(x, time, variable) {
+  mean((x - reference[variable])^2) * mean(time)
+}
+reference <- readRDS("reference_llt.rda")
+```
+
+The following table summarises the results for $\sigma_{eta}$:
+```{r theta_1}
+sumr <- summarise(grouped, mean = mean(theta_1),
+  SE = sd(theta_1),
+  IRE = 100 * IRE(theta_1, time, "theta_1"),
+  "time (s)" = mean(time)) %>% arrange(IRE)
+print.data.frame(sumr, digits = 2)
+```
+
+We see that given the equal amount of MCMC iterations, the standard deviation of $\textrm{E}(\sigma_{\eta} | y)$ over 100 replications with `Stan` is over two times smaller than the Metropolis-based algorithms. However, the computation time of `Stan` is also two orders of magnitude higher, and thus in terms of IRE, `Stan` performs poorly compared to standard pseudo-marginal MCMC algorithm of `bssm`. As expected, DA approach provides improvements over PM by decreasing the computation time with only negligible increase in SE. Here the IS approach gives small additional boost compared to DA. The hybrid method combining the IS-correction with HMC decreases the standard errors obtained with standard HMC approach, and also almost halves the computation time. Still, the resulting IRE is clearly higher than with random-walk based algorithms.
+
+For state variables we see similar differences between the algorithms:
+
+```{r level}
+sumr <- summarise(grouped, mean = mean(level_1),
+  SE = sd(level_1),
+  IRE = 100 * IRE(level_1, time, "level_1"),
+  "time (s)" = mean(time)) %>% arrange(IRE)
+print.data.frame(sumr, digits = 2)
+sumr <- summarise(grouped, mean = mean(slope_1),
+  SE = sd(slope_1),
+  IRE = 100 * IRE(slope_1, time, "slope_1"),
+  "time (s)" = mean(time)) %>% arrange(IRE)
+print.data.frame(sumr, digits = 2)
+sumr <- summarise(grouped, mean = mean(level_n),
+  SE = sd(level_n),
+  IRE = 100 * IRE(level_n, time, "level_n"),
+  "time (s)" = mean(time)) %>% arrange(IRE)
+print.data.frame(sumr, digits = 2)
+sumr <- summarise(grouped, mean = mean(slope_n),
+  SE = sd(slope_n),
+  IRE = 100 * IRE(slope_n, time, "slope_n"),
+  "time (s)" = mean(time)) %>% arrange(IRE)
+print.data.frame(sumr, digits = 2)
+```
+
+## Discussion
+
+In this vignette we compared computational aspects of different MCMC algorithms for Poisson state space model using a simple simulation experiment. We also experimented with new hybrid method combining the IS correction with HMC algorithm. Although theoretically valid, the benefits of this new method are not clear. Although it improved the basic approach with `Stan`, it was still found to be less efficient than the random-walk based approaches. In hindsight this is not suprising, as repeated runs of Kalman filter and smoother used in the Laplace approximation algorithm can be problematic for the automatic differention used in `Stan`. It should also be noted that the performance of `Stan` varied heavily between different state space models we initially tested, and some amount of tuning of the NUTS algorithm was needed in all cases.
+
+## References
+
+## Appendix A: Stan model for Poisson local linear trend model
+
+```{stan stan_model, eval = FALSE, output.var="llt_poisson"}
+data {
+  int<lower=0> n;             // number of data points
+  int<lower=0> y[n];          // time series
+  vector[2] a1;               // prior mean for the initial state
+  matrix[2, 2] P1;            // prior covariance for the initial state
+  vector[2] sd_prior_means;   // prior means for the sd parameters
+  vector[2] sd_prior_sds;     // prior sds for the sd parameters
+}
+
+parameters {
+  real<lower=0> theta[2];     // sd parameters for level and slope
+  // instead of working directly with true states level and slope
+  // it is often suggested use standard normal variables in sampling
+  // and reconstruct the true parameters in transformed parameters block
+  // this should make sampling more efficient although coding the model 
+  // is less intuitive...
+  vector[n] level_std;        // N(0, 1) level noise
+  vector[n] slope_std;        // N(0, 1) slope noise
+}
+
+transformed parameters {
+  vector[n] level;
+  vector[n] slope;
+  // construct the actual states
+  // note that although P1 was allowed to have general form here
+  // it is assumed that it is diagonal... laziness (and covers typical cases)
+  level[1] = a1[1] + sqrt(P1[1,1]) * level_std[1];
+  slope[1] = a1[2] + sqrt(P1[2,2]) * slope_std[1];
+  for(t in 2:n) {
+    level[t] = level[t-1] + slope[t-1] + theta[1] * level_std[t];
+    slope[t] = slope[t-1] + theta[2] * slope_std[t];
+  }
+}
+
+model {
+  // priors for theta
+  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
+  // standardised noise terms
+  target += normal_lpdf(level_std | 0, 1);
+  target += normal_lpdf(slope_std | 0, 1);
+  // Poisson likelihood
+  target += poisson_log_lpmf(y | level);
+} 
+
+
+```
+
+## Appendix B: Codes for simulation experiment
+
+```{r simulation, eval = FALSE}
+library("devtools")
+install_github("helske/bssm")
+install_github("helske/stannis")
+library("bssm")
+library("coda")
+library("rstan")
+library("diagis")
+library("stannis")
+library("doParallel")
+library("foreach")
+
+ire_experiment_llt <- function(n_iter,
+  nsim_states = 10, seed = sample(.Machine$integer.max, 1), method){
+  
+  # simulate the data (with fixed seed)
+  set.seed(123)
+  n <- 100
+  
+  slope <- cumsum(c(0, rnorm(n - 1, sd = 0.01)))
+  level <- cumsum(slope + c(0, rnorm(n - 1, sd = 0.01)))
+  y <- rpois(n, exp(level))
+  
+  
+  results <- data.frame(method = method, 
+    time = 0, "theta_1" = 0, "theta_2" = 0, 
+    "level_1" = 0, "slope_1" = 0, 
+    "level_n" = 0, "slope_n" = 0, 
+    "divergent" = 0, "treedepth" = 0)
+  
+  set.seed(seed)
+  
+  if(method == "stannis") {
+    
+    res <- stannis(y, iter = n_iter, 
+      level = c(0, 1), slope = c(0, 0.1), refresh = 0, a1 = c(0, 0), P1 = diag(c(10, 0.1)),
+      stan_inits = list(list(theta = c(0.01, 0.01))))
+    
+    results[1, 2] <- res$stan_time + res$correction_time
+    results[1, 3:4] <- res$mean_theta
+    results[1, 5:6] <- weighted_mean(t(res$states[1,,]), res$weights)
+    results[1, 7:8] <- weighted_mean(t(res$states[n,,]), res$weights)
+    saveRDS(results, file = paste0("stannis_llt_preresults100_",seed,".rda"))
+    
+    return(results)
+  }
+  if(method == "Stan") {
+    stan_data <- list(n = n, y = y, a1 = c(0, 0), P1 = diag(c(10, 0.1)), 
+      sd_prior_means = rep(0, 2), sd_prior_sds = c(1, 0.1))
+    stan_inits <- list(list(theta = c(0.01, 0.01), 
+      slope_std = rep(0, n), level = rep(0, n)))
+    
+    res <- sampling(stannis:::stanmodels$llt_poisson, 
+      control = list(adapt_delta = 0.99, max_treedepth = 15),
+      data = stan_data, refresh = 0, 
+      iter = n_iter, chains = 1, cores = 1, init = stan_inits)
+    results[1, 2] <- sum(get_elapsed_time(res))
+    results[1, 3:4] <- summary(res, pars = "theta")$summary[, "mean"]
+    results[1, 5] <- summary(res, pars = "level[1]")$summary[, "mean"]
+    results[1, 6] <- summary(res, pars = "slope[1]")$summary[, "mean"]
+    results[1, 7] <- summary(res, pars = paste0("level[",n,"]"))$summary[, "mean"]
+    results[1, 8] <- summary(res, pars = paste0("slope[",n,"]"))$summary[, "mean"]
+    diags <- get_sampler_params(res, inc_warmup = FALSE)[[1]]
+    results[1, 9] <- sum(diags[, "divergent__"])
+    results[1, 10] <- sum(diags[, "treedepth__"] >= 15)
+    saveRDS(results, file = paste0("stan_llt_preresults100_",seed,".rda"))
+    
+    return(results)
+  }
+  
+  model <- ng_bsm(y, P1 = diag(c(10, 0.1)),
+    sd_level = halfnormal(0.01, 1), 
+    sd_slope = halfnormal(0.01, 0.1), distribution = "poisson")
+  if(method == "isc") {
+    res <- run_mcmc(model, n_iter = n_iter, nsim_states = 10, 
+      method = "isc", n_threads = 1) 
+    results[1, 2] <- res$time[3]
+    results[1, 3:4] <- weighted_mean(res$theta, res$weights * res$counts)
+    results[1, 5:6] <- weighted_mean(t(res$alpha[1,,]), res$weights * res$counts)
+    results[1, 7:8] <- weighted_mean(t(res$alpha[n,,]), res$weights * res$counts)
+    
+    return(results)
+  }
+  if(method == "da") {
+    res <- run_mcmc(model, n_iter = n_iter, nsim_states = 10, method = "pm") 
+    results[1, 2] <- res$time[3]
+    results[1, 3:4] <- weighted_mean(res$theta, res$counts)
+    results[1, 5:6] <- weighted_mean(t(res$alpha[1,,]), res$counts)
+    results[1, 7:8] <- weighted_mean(t(res$alpha[n,,]), res$counts)
+    
+    return(results)
+  }
+  
+  res <- run_mcmc(model, n_iter = n_iter, nsim_states = 10, method = "pm", 
+    delayed_acceptance = FALSE) 
+  results[1, 2] <- res$time[3]
+  results[1, 3:4] <- weighted_mean(res$theta, res$counts)
+  results[1, 5:6] <- weighted_mean(t(res$alpha[1,,]), res$counts)
+  results[1, 7:8] <- weighted_mean(t(res$alpha[n,,]), res$counts)
+  results
+}
+
+
+cl<-makeCluster(16)
+registerDoParallel(cl)
+
+results <- 
+  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "Stan")
+saveRDS(results, file = "stan_llt_iter4e4.rda")
+
+
+results <- 
+  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "stannis")
+saveRDS(results, file = "stannis_llt_iter4e4.rda")
+
+
+results <- 
+  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "isc")
+saveRDS(results, file = "is_llt_iter4e4.rda")
+
+results <- 
+  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "da")
+saveRDS(results, file = "da_llt_iter4e4.rda")
+
+results <- 
+  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "pm")
+saveRDS(results, file = "pm_llt_iter4e4.rda")
+
+
+
+stopCluster(cl)
+
+## reference values
+
+set.seed(123)
+n <- 100
+
+slope <- cumsum(c(0, rnorm(n - 1, sd = 0.01)))
+level <- cumsum(slope + c(0, rnorm(n - 1, sd = 0.01)))
+y <- rpois(n, exp(level))
+
+model <- ng_bsm(y, P1 = diag(c(10, 0.1)),
+  sd_level = halfnormal(0.01, 1), 
+  sd_slope = halfnormal(0.01, 0.1), distribution = "poisson")
+res <- run_mcmc(model, n_iter = 1.1e6, n_burnin = 1e5, delayed_acceptance = FALSE, nsim = 10)
+
+theta <- weighted_mean(res$theta, res$counts)
+level_1 <- weighted_mean(res$alpha[1,1,], res$counts)
+level_n <- weighted_mean(res$alpha[n,1,], res$counts)
+slope_1 <- weighted_mean(res$alpha[1,2,], res$counts)
+slope_n <- weighted_mean(res$alpha[n,2,], res$counts)
+reference_llt <- c(theta_1 = theta[1], theta_2 = theta[2],
+  level_1 = level_1, level_n = level_n, 
+  slope_1 = slope_1, slope_n = slope_n)
+saveRDS(reference_llt, file = "reference_llt.rda")
+
+```

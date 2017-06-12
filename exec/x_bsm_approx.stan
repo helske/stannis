@@ -7,7 +7,7 @@ data {
   int<lower=0> k;
   int<lower=0> period;
   vector[n] y;
-  vector[2 + period] x1;
+  vector[2 + period] a1;
   matrix[2 + period, 2 + period] P1;
   vector[3] sd_prior_means;
   vector[3] sd_prior_sds;
@@ -16,6 +16,8 @@ data {
   vector[n+1] initial_mode;
   matrix[n, k] xreg;
   int distribution;
+  int max_iter;
+  real conv_tol;
 }
 
 transformed data {
@@ -47,7 +49,8 @@ transformed parameters {
   Rt[1, 1] = theta[1]^2;
   Rt[2, 2] = theta[2]^2;
   Rt[3, 3] = theta[3]^2;
-  approx_results = approx(y, x1, P1, Zt, Tt, Rt, initial_mode, xbeta, distribution);
+  approx_results = approx(y, a1, P1, Zt, Tt, Rt, initial_mode, xbeta, distribution,
+  max_iter, conv_tol);
 }
 model {
   target += normal_lpdf(beta | beta_prior_means, beta_prior_sds);

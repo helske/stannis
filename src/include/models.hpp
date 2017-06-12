@@ -27,7 +27,7 @@ static int current_statement_begin__;
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
 gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -52,7 +52,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -65,7 +65,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -128,20 +128,20 @@ struct gaussian_filter_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                     const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                     const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_filter(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_filter(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
 gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -166,7 +166,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -185,7 +185,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -285,7 +285,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmpr)), 
+                        add(a1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
                 {
@@ -330,28 +330,30 @@ struct gaussian_smoother_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_smoother(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type fun_scalar_t__;
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -406,12 +408,12 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) i;  // dummy to suppress unused var warning
 
             stan::math::fill(i, std::numeric_limits<int>::min());
-            stan::math::assign(i,1);
+            stan::math::assign(i,0);
 
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -425,7 +427,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,max_iter)) && primitive_value(logical_gt(diff,conv_tol))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -435,19 +437,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::fill(mode_new,DUMMY_VAR__);
 
 
-                    if (as_bool(logical_eq(distribution,1))) {
-
-                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                    } else {
-
-                        if (as_bool(logical_eq(distribution,2))) {
-
-                        } else {
-
-                        }
-                    }
-                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,a1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
                     if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
 
                         std::stringstream errmsg_stream__;
@@ -462,7 +454,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,100))) {
+            if (as_bool(logical_eq(i,max_iter))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -502,18 +494,20 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct approx_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) const {
-        return approx(y, x1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, pstream__);
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) const {
+        return approx(y, a1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, max_iter, conv_tol, pstream__);
     }
 };
 
@@ -522,12 +516,14 @@ private:
     int n;
     int period;
     vector_d y;
-    vector_d x1;
+    vector_d a1;
     matrix_d P1;
     vector_d sd_prior_means;
     vector_d sd_prior_sds;
     vector_d initial_mode;
     int distribution;
+    int max_iter;
+    double conv_tol;
     vector_d xbeta;
     int m;
     row_vector_d Zt;
@@ -585,15 +581,15 @@ public:
         for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
             y[i_vec__] = vals_r__[pos__++];
         }
-        validate_non_negative_index("x1", "(2 + period)", (2 + period));
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec((2 + period)));
-        validate_non_negative_index("x1", "(2 + period)", (2 + period));
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>((2 + period)));
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "(2 + period)", (2 + period));
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec((2 + period)));
+        validate_non_negative_index("a1", "(2 + period)", (2 + period));
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>((2 + period)));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        size_t x1_i_vec_lim__ = (2 + period);
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
+        size_t a1_i_vec_lim__ = (2 + period);
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("P1", "(2 + period)", (2 + period));
         validate_non_negative_index("P1", "(2 + period)", (2 + period));
@@ -645,6 +641,16 @@ public:
         vals_i__ = context__.vals_i("distribution");
         pos__ = 0;
         distribution = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "max_iter", "int", context__.to_vec());
+        max_iter = int(0);
+        vals_i__ = context__.vals_i("max_iter");
+        pos__ = 0;
+        max_iter = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "conv_tol", "double", context__.to_vec());
+        conv_tol = double(0);
+        vals_r__ = context__.vals_r("conv_tol");
+        pos__ = 0;
+        conv_tol = vals_r__[pos__++];
 
         // validate, data variables
         check_greater_or_equal(function__,"n",n,0);
@@ -789,7 +795,7 @@ public:
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,3,3,"Rt",1), pow(get_base1(theta,3,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -922,7 +928,7 @@ public:
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,3,3,"Rt",1), pow(get_base1(theta,3,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -1060,6 +1066,1939 @@ public:
 
 #include <stan/model/model_header.hpp>
 
+namespace model_gaussian_ll_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+class model_gaussian_ll : public prob_grad {
+private:
+    int n;
+    vector<double> y;
+    double a1;
+    double P1;
+    vector<double> sd_prior_means;
+    vector<double> sd_prior_sds;
+public:
+    model_gaussian_ll(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_gaussian_ll(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_gaussian_ll_namespace::model_gaussian_ll";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "double", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = std::vector<double>(n,double(0));
+        vals_r__ = context__.vals_r("y");
+        pos__ = 0;
+        size_t y_limit_0__ = n;
+        for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
+            y[i_0__] = vals_r__[pos__++];
+        }
+        context__.validate_dims("data initialization", "a1", "double", context__.to_vec());
+        a1 = double(0);
+        vals_r__ = context__.vals_r("a1");
+        pos__ = 0;
+        a1 = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "P1", "double", context__.to_vec());
+        P1 = double(0);
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        P1 = vals_r__[pos__++];
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        sd_prior_means = std::vector<double>(2,double(0));
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        size_t sd_prior_means_limit_0__ = 2;
+        for (size_t i_0__ = 0; i_0__ < sd_prior_means_limit_0__; ++i_0__) {
+            sd_prior_means[i_0__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        sd_prior_sds = std::vector<double>(2,double(0));
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        size_t sd_prior_sds_limit_0__ = 2;
+        for (size_t i_0__ = 0; i_0__ < sd_prior_sds_limit_0__; ++i_0__) {
+            sd_prior_sds[i_0__] = vals_r__[pos__++];
+        }
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        // initialize data variables
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        validate_non_negative_index("theta", "2", 2);
+        num_params_r__ += 2;
+        validate_non_negative_index("x_raw", "n", n);
+        num_params_r__ += n;
+    }
+
+    ~model_gaussian_ll() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        validate_non_negative_index("theta", "2", 2);
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec(2));
+        // generate_declaration theta
+        std::vector<double> theta(2,double(0));
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            theta[i0__] = vals_r__[pos__++];
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            try {
+            writer__.scalar_lb_unconstrain(0,theta[i0__]);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("x_raw")))
+            throw std::runtime_error("variable x_raw missing");
+        vals_r__ = context__.vals_r("x_raw");
+        pos__ = 0U;
+        validate_non_negative_index("x_raw", "n", n);
+        context__.validate_dims("initialization", "x_raw", "vector_d", context__.to_vec(n));
+        // generate_declaration x_raw
+        vector_d x_raw(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
+            x_raw(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(x_raw);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable x_raw: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        vector<T__> theta;
+        size_t dim_theta_0__ = 2;
+        theta.reserve(dim_theta_0__);
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            if (jacobian__)
+                theta.push_back(in__.scalar_lb_constrain(0,lp__));
+            else
+                theta.push_back(in__.scalar_lb_constrain(0));
+        }
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  x_raw;
+        (void) x_raw;  // dummy to suppress unused var warning
+        if (jacobian__)
+            x_raw = in__.vector_constrain(n,lp__);
+        else
+            x_raw = in__.vector_constrain(n);
+
+
+        // transformed parameters
+        validate_non_negative_index("x", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(n));
+        (void) x;  // dummy to suppress unused var warning
+
+        stan::math::initialize(x, DUMMY_VAR__);
+        stan::math::fill(x,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(x,1,"x",1), (a1 + (sqrt(P1) * get_base1(x_raw,1,"x_raw",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(x,t,"x",1), (get_base1(x,(t - 1),"x",1) + (get_base1(theta,1,"theta",1) * get_base1(x_raw,t,"x_raw",1))));
+            }
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(x(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: x" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log(x_raw,0,1));
+            lp_accum__.add(normal_log(y,x,get_base1(theta,2,"theta",1)));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("x_raw");
+        names__.push_back("x");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_gaussian_ll_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        vector<double> theta;
+        size_t dim_theta_0__ = 2;
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            theta.push_back(in__.scalar_lb_constrain(0));
+        }
+        vector_d x_raw = in__.vector_constrain(n);
+        for (int k_0__ = 0; k_0__ < 2; ++k_0__) {
+            vars__.push_back(theta[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(x_raw[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("x", "n", n);
+        vector_d x(static_cast<Eigen::VectorXd::Index>(n));
+        (void) x;  // dummy to suppress unused var warning
+
+        stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(x,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(x,1,"x",1), (a1 + (sqrt(P1) * get_base1(x_raw,1,"x_raw",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(x,t,"x",1), (get_base1(x,(t - 1),"x",1) + (get_base1(theta,1,"theta",1) * get_base1(x_raw,t,"x_raw",1))));
+            }
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(x[k_0__]);
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_gaussian_ll";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x_raw" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x_raw" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
+namespace model_gaussian_ll_kalman_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
+gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                    const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                    const T3__& Ht,
+                    const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                    const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                    const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type fun_scalar_t__;
+    typedef fun_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        fun_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+            int n(0);
+            (void) n;  // dummy to suppress unused var warning
+
+            stan::math::fill(n, std::numeric_limits<int>::min());
+            stan::math::assign(n,rows(y));
+            int m(0);
+            (void) m;  // dummy to suppress unused var warning
+
+            stan::math::fill(m, std::numeric_limits<int>::min());
+            stan::math::assign(m,rows(a1));
+            fun_scalar_t__ loglik;
+            (void) loglik;  // dummy to suppress unused var warning
+
+            stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(loglik,DUMMY_VAR__);
+            stan::math::assign(loglik,0.0);
+            validate_non_negative_index("x", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(m));
+            (void) x;  // dummy to suppress unused var warning
+
+            stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(x,DUMMY_VAR__);
+            stan::math::assign(x,a1);
+            validate_non_negative_index("P", "m", m);
+            validate_non_negative_index("P", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+            (void) P;  // dummy to suppress unused var warning
+
+            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(P,DUMMY_VAR__);
+            stan::math::assign(P,P1);
+
+
+            for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + Ht));
+
+
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            validate_non_negative_index("K", "m", m);
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
+
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
+                }
+            }
+            return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e,current_statement_begin__);
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct gaussian_filter_functor__ {
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+        typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                    const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                    const T3__& Ht,
+                    const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                    const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                    const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
+        return gaussian_filter(y, a1, P1, Ht, Zt, Tt, Rt, pstream__);
+    }
+};
+
+class model_gaussian_ll_kalman : public prob_grad {
+private:
+    int n;
+    vector_d y;
+    vector_d a1;
+    matrix_d P1;
+    vector<double> sd_prior_means;
+    vector<double> sd_prior_sds;
+    int m;
+    row_vector_d Zt;
+    matrix_d Tt;
+public:
+    model_gaussian_ll_kalman(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_gaussian_ll_kalman(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_gaussian_ll_kalman_namespace::model_gaussian_ll_kalman";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "vector_d", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = vector_d(static_cast<Eigen::VectorXd::Index>(n));
+        vals_r__ = context__.vals_r("y");
+        pos__ = 0;
+        size_t y_i_vec_lim__ = n;
+        for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
+            y[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("a1", "1", 1);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(1));
+        validate_non_negative_index("a1", "1", 1);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("a1");
+        pos__ = 0;
+        size_t a1_i_vec_lim__ = 1;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("P1", "1", 1);
+        validate_non_negative_index("P1", "1", 1);
+        context__.validate_dims("data initialization", "P1", "matrix_d", context__.to_vec(1,1));
+        validate_non_negative_index("P1", "1", 1);
+        validate_non_negative_index("P1", "1", 1);
+        P1 = matrix_d(static_cast<Eigen::VectorXd::Index>(1),static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        size_t P1_m_mat_lim__ = 1;
+        size_t P1_n_mat_lim__ = 1;
+        for (size_t n_mat__ = 0; n_mat__ < P1_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < P1_m_mat_lim__; ++m_mat__) {
+                P1(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        sd_prior_means = std::vector<double>(2,double(0));
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        size_t sd_prior_means_limit_0__ = 2;
+        for (size_t i_0__ = 0; i_0__ < sd_prior_means_limit_0__; ++i_0__) {
+            sd_prior_means[i_0__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        sd_prior_sds = std::vector<double>(2,double(0));
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        size_t sd_prior_sds_limit_0__ = 2;
+        for (size_t i_0__ = 0; i_0__ < sd_prior_sds_limit_0__; ++i_0__) {
+            sd_prior_sds[i_0__] = vals_r__[pos__++];
+        }
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        // initialize data variables
+        m = int(0);
+        stan::math::fill(m, std::numeric_limits<int>::min());
+        stan::math::assign(m,1);
+        validate_non_negative_index("Zt", "m", m);
+        Zt = row_vector_d(static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(Zt,DUMMY_VAR__);
+        validate_non_negative_index("Tt", "m", m);
+        validate_non_negative_index("Tt", "m", m);
+        Tt = matrix_d(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(Tt,DUMMY_VAR__);
+
+        try {
+            stan::math::assign(get_base1_lhs(Zt,1,"Zt",1), 1.0);
+            stan::math::assign(get_base1_lhs(Tt,1,1,"Tt",1), 1.0);
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+        check_greater_or_equal(function__,"m",m,0);
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        validate_non_negative_index("theta", "2", 2);
+        num_params_r__ += 2;
+    }
+
+    ~model_gaussian_ll_kalman() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        validate_non_negative_index("theta", "2", 2);
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec(2));
+        // generate_declaration theta
+        std::vector<double> theta(2,double(0));
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            theta[i0__] = vals_r__[pos__++];
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            try {
+            writer__.scalar_lb_unconstrain(0,theta[i0__]);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        vector<T__> theta;
+        size_t dim_theta_0__ = 2;
+        theta.reserve(dim_theta_0__);
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            if (jacobian__)
+                theta.push_back(in__.scalar_lb_constrain(0,lp__));
+            else
+                theta.push_back(in__.scalar_lb_constrain(0));
+        }
+
+
+        // transformed parameters
+        validate_non_negative_index("Rt", "m", m);
+        validate_non_negative_index("Rt", "m", m);
+        Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) Rt;  // dummy to suppress unused var warning
+
+        stan::math::initialize(Rt, DUMMY_VAR__);
+        stan::math::fill(Rt,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < m; ++i0__) {
+            for (int i1__ = 0; i1__ < m; ++i1__) {
+                if (stan::math::is_uninitialized(Rt(i0__,i1__))) {
+                    std::stringstream msg__;
+                    msg__ << "Undefined transformed parameter: Rt" << '[' << i0__ << ']' << '[' << i1__ << ']';
+                    throw std::runtime_error(msg__.str());
+                }
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(gaussian_filter(y,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("Rt");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(m);
+        dims__.push_back(m);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_gaussian_ll_kalman_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        vector<double> theta;
+        size_t dim_theta_0__ = 2;
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            theta.push_back(in__.scalar_lb_constrain(0));
+        }
+        for (int k_0__ = 0; k_0__ < 2; ++k_0__) {
+            vars__.push_back(theta[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("Rt", "m", m);
+        validate_non_negative_index("Rt", "m", m);
+        matrix_d Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) Rt;  // dummy to suppress unused var warning
+
+        stan::math::initialize(Rt, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(Rt,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_1__ = 0; k_1__ < m; ++k_1__) {
+            for (int k_0__ = 0; k_0__ < m; ++k_0__) {
+                vars__.push_back(Rt(k_0__, k_1__));
+            }
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_gaussian_ll_kalman";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+
+        if (!include_gqs__) return;
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+
+        if (!include_gqs__) return;
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
+namespace model_gaussian_ll_kalman2_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
+gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                    const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                    const T3__& Ht,
+                    const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                    const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                    const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type fun_scalar_t__;
+    typedef fun_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        fun_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+            int n(0);
+            (void) n;  // dummy to suppress unused var warning
+
+            stan::math::fill(n, std::numeric_limits<int>::min());
+            stan::math::assign(n,rows(y));
+            int m(0);
+            (void) m;  // dummy to suppress unused var warning
+
+            stan::math::fill(m, std::numeric_limits<int>::min());
+            stan::math::assign(m,rows(a1));
+            fun_scalar_t__ loglik;
+            (void) loglik;  // dummy to suppress unused var warning
+
+            stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(loglik,DUMMY_VAR__);
+            stan::math::assign(loglik,0.0);
+            validate_non_negative_index("x", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(m));
+            (void) x;  // dummy to suppress unused var warning
+
+            stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(x,DUMMY_VAR__);
+            stan::math::assign(x,a1);
+            validate_non_negative_index("P", "m", m);
+            validate_non_negative_index("P", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+            (void) P;  // dummy to suppress unused var warning
+
+            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(P,DUMMY_VAR__);
+            stan::math::assign(P,P1);
+
+
+            for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + Ht));
+
+
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            validate_non_negative_index("K", "m", m);
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
+
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
+                }
+            }
+            return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e,current_statement_begin__);
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct gaussian_filter_functor__ {
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+        typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                    const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                    const T3__& Ht,
+                    const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                    const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                    const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
+        return gaussian_filter(y, a1, P1, Ht, Zt, Tt, Rt, pstream__);
+    }
+};
+
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,Eigen::Dynamic>
+gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                      const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                      const T3__& var_y,
+                      const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                      const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                      const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type fun_scalar_t__;
+    typedef fun_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        fun_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+            int n(0);
+            (void) n;  // dummy to suppress unused var warning
+
+            stan::math::fill(n, std::numeric_limits<int>::min());
+            stan::math::assign(n,rows(y));
+            int m(0);
+            (void) m;  // dummy to suppress unused var warning
+
+            stan::math::fill(m, std::numeric_limits<int>::min());
+            stan::math::assign(m,rows(a1));
+            fun_scalar_t__ loglik;
+            (void) loglik;  // dummy to suppress unused var warning
+
+            stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(loglik,DUMMY_VAR__);
+            stan::math::assign(loglik,0.0);
+            validate_non_negative_index("x", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(m));
+            (void) x;  // dummy to suppress unused var warning
+
+            stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(x,DUMMY_VAR__);
+            stan::math::assign(x,a1);
+            validate_non_negative_index("P", "m", m);
+            validate_non_negative_index("P", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+            (void) P;  // dummy to suppress unused var warning
+
+            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(P,DUMMY_VAR__);
+            stan::math::assign(P,P1);
+            validate_non_negative_index("v", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  v(static_cast<Eigen::VectorXd::Index>(n));
+            (void) v;  // dummy to suppress unused var warning
+
+            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(v,DUMMY_VAR__);
+            validate_non_negative_index("F", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  F(static_cast<Eigen::VectorXd::Index>(n));
+            (void) F;  // dummy to suppress unused var warning
+
+            stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(F,DUMMY_VAR__);
+            validate_non_negative_index("K", "m", m);
+            validate_non_negative_index("K", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  K(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(n));
+            (void) K;  // dummy to suppress unused var warning
+
+            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(K,DUMMY_VAR__);
+            validate_non_negative_index("r", "m", m);
+            validate_non_negative_index("r", "(n + 1)", (n + 1));
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  r(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>((n + 1)));
+            (void) r;  // dummy to suppress unused var warning
+
+            stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(r,DUMMY_VAR__);
+            validate_non_negative_index("tmpr", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmpr(static_cast<Eigen::VectorXd::Index>(m));
+            (void) tmpr;  // dummy to suppress unused var warning
+
+            stan::math::initialize(tmpr, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(tmpr,DUMMY_VAR__);
+
+
+            for (int t = 1; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(F,t,"F",1), (quad_form(P,transpose(Zt)) + var_y));
+                if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
+
+                    stan::math::assign(get_base1_lhs(v,t,"v",1), (get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                    stan::model::assign(K, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                divide(multiply(P,transpose(Zt)),get_base1(F,t,"F",1)), 
+                                "assigning variable K");
+                    stan::math::assign(x, multiply(Tt,add(x,multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),get_base1(v,t,"v",1)))));
+                    stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),transpose(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"))),get_base1(F,t,"F",1))),transpose(Tt)),Rt));
+                    stan::math::assign(loglik, (loglik - (0.5 * (log(get_base1(F,t,"F",1)) + ((get_base1(v,t,"v",1) * get_base1(v,t,"v",1)) / get_base1(F,t,"F",1))))));
+                } else {
+
+                    stan::math::assign(x, multiply(Tt,x));
+                    stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                }
+            }
+            stan::model::assign(r, 
+                        stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((n + 1)), stan::model::nil_index_list())), 
+                        rep_vector(0.0,m), 
+                        "assigning variable r");
+            for (int tt = 1; tt <= n; ++tt) {
+                {
+                    int t(0);
+                    (void) t;  // dummy to suppress unused var warning
+
+                    stan::math::fill(t, std::numeric_limits<int>::min());
+                    stan::math::assign(t,((n + 1) - tt));
+                    validate_non_negative_index("tmp", "m", m);
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
+
+
+                    if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
+
+                        stan::model::assign(r, 
+                                    stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                    add(divide(multiply(transpose(Zt),get_base1(v,t,"v",1)),get_base1(F,t,"F",1)),multiply(transpose(subtract(Tt,multiply(multiply(Tt,stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K")),Zt))),tmp)), 
+                                    "assigning variable r");
+                    } else {
+
+                        stan::model::assign(r, 
+                                    stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                    multiply(transpose(Tt),tmp), 
+                                    "assigning variable r");
+                    }
+                }
+            }
+            stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
+            stan::model::assign(r, 
+                        stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
+                        add(a1,multiply(P1,tmpr)), 
+                        "assigning variable r");
+            for (int t = 2; t <= n; ++t) {
+                {
+                    validate_non_negative_index("tmp", "m", m);
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
+                    validate_non_negative_index("tmp2", "m", m);
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp2;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp2,DUMMY_VAR__);
+                    stan::math::assign(tmp2,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
+
+
+                    stan::model::assign(r, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
+                                "assigning variable r");
+                }
+            }
+            return stan::math::promote_scalar<fun_return_scalar_t__>(stan::model::rvalue(r, stan::model::cons_list(stan::model::index_min_max(1, m), stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list())), "r"));
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e,current_statement_begin__);
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct gaussian_smoother_functor__ {
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,Eigen::Dynamic>
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                      const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                      const T3__& var_y,
+                      const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                      const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                      const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
+    }
+};
+
+class model_gaussian_ll_kalman2 : public prob_grad {
+private:
+    int n;
+    vector_d y;
+    vector_d a1;
+    matrix_d P1;
+    vector<double> sd_prior_means;
+    vector<double> sd_prior_sds;
+    int m;
+    row_vector_d Zt;
+    matrix_d Tt;
+    matrix_d P_L;
+public:
+    model_gaussian_ll_kalman2(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_gaussian_ll_kalman2(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_gaussian_ll_kalman2_namespace::model_gaussian_ll_kalman2";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "vector_d", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = vector_d(static_cast<Eigen::VectorXd::Index>(n));
+        vals_r__ = context__.vals_r("y");
+        pos__ = 0;
+        size_t y_i_vec_lim__ = n;
+        for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
+            y[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("a1", "1", 1);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(1));
+        validate_non_negative_index("a1", "1", 1);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("a1");
+        pos__ = 0;
+        size_t a1_i_vec_lim__ = 1;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("P1", "1", 1);
+        validate_non_negative_index("P1", "1", 1);
+        context__.validate_dims("data initialization", "P1", "matrix_d", context__.to_vec(1,1));
+        validate_non_negative_index("P1", "1", 1);
+        validate_non_negative_index("P1", "1", 1);
+        P1 = matrix_d(static_cast<Eigen::VectorXd::Index>(1),static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        size_t P1_m_mat_lim__ = 1;
+        size_t P1_n_mat_lim__ = 1;
+        for (size_t n_mat__ = 0; n_mat__ < P1_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < P1_m_mat_lim__; ++m_mat__) {
+                P1(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        sd_prior_means = std::vector<double>(2,double(0));
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        size_t sd_prior_means_limit_0__ = 2;
+        for (size_t i_0__ = 0; i_0__ < sd_prior_means_limit_0__; ++i_0__) {
+            sd_prior_means[i_0__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        sd_prior_sds = std::vector<double>(2,double(0));
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        size_t sd_prior_sds_limit_0__ = 2;
+        for (size_t i_0__ = 0; i_0__ < sd_prior_sds_limit_0__; ++i_0__) {
+            sd_prior_sds[i_0__] = vals_r__[pos__++];
+        }
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        // initialize data variables
+        m = int(0);
+        stan::math::fill(m, std::numeric_limits<int>::min());
+        stan::math::assign(m,1);
+        validate_non_negative_index("Zt", "m", m);
+        Zt = row_vector_d(static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(Zt,DUMMY_VAR__);
+        validate_non_negative_index("Tt", "m", m);
+        validate_non_negative_index("Tt", "m", m);
+        Tt = matrix_d(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(Tt,DUMMY_VAR__);
+        validate_non_negative_index("P_L", "m", m);
+        validate_non_negative_index("P_L", "m", m);
+        P_L = matrix_d(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(P_L,DUMMY_VAR__);
+
+        try {
+            stan::math::assign(P_L, cholesky_decompose(P1));
+            stan::math::assign(get_base1_lhs(Zt,1,"Zt",1), 1.0);
+            stan::math::assign(get_base1_lhs(Tt,1,1,"Tt",1), 1.0);
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+        check_greater_or_equal(function__,"m",m,0);
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        validate_non_negative_index("theta", "2", 2);
+        num_params_r__ += 2;
+    }
+
+    ~model_gaussian_ll_kalman2() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        validate_non_negative_index("theta", "2", 2);
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec(2));
+        // generate_declaration theta
+        std::vector<double> theta(2,double(0));
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            theta[i0__] = vals_r__[pos__++];
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            try {
+            writer__.scalar_lb_unconstrain(0,theta[i0__]);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        vector<T__> theta;
+        size_t dim_theta_0__ = 2;
+        theta.reserve(dim_theta_0__);
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            if (jacobian__)
+                theta.push_back(in__.scalar_lb_constrain(0,lp__));
+            else
+                theta.push_back(in__.scalar_lb_constrain(0));
+        }
+
+
+        // transformed parameters
+        validate_non_negative_index("Rt", "m", m);
+        validate_non_negative_index("Rt", "m", m);
+        Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) Rt;  // dummy to suppress unused var warning
+
+        stan::math::initialize(Rt, DUMMY_VAR__);
+        stan::math::fill(Rt,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < m; ++i0__) {
+            for (int i1__ = 0; i1__ < m; ++i1__) {
+                if (stan::math::is_uninitialized(Rt(i0__,i1__))) {
+                    std::stringstream msg__;
+                    msg__ << "Undefined transformed parameter: Rt" << '[' << i0__ << ']' << '[' << i1__ << ']';
+                    throw std::runtime_error(msg__.str());
+                }
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(gaussian_filter(y,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("Rt");
+        names__.push_back("y_sim");
+        names__.push_back("a_sim");
+        names__.push_back("R_L");
+        names__.push_back("tmpm");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(m);
+        dims__.push_back(m);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(m);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(m);
+        dims__.push_back(m);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(m);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_gaussian_ll_kalman2_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        vector<double> theta;
+        size_t dim_theta_0__ = 2;
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            theta.push_back(in__.scalar_lb_constrain(0));
+        }
+        for (int k_0__ = 0; k_0__ < 2; ++k_0__) {
+            vars__.push_back(theta[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("Rt", "m", m);
+        validate_non_negative_index("Rt", "m", m);
+        matrix_d Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) Rt;  // dummy to suppress unused var warning
+
+        stan::math::initialize(Rt, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(Rt,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_1__ = 0; k_1__ < m; ++k_1__) {
+            for (int k_0__ = 0; k_0__ < m; ++k_0__) {
+                vars__.push_back(Rt(k_0__, k_1__));
+            }
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+        validate_non_negative_index("y_sim", "n", n);
+        vector_d y_sim(static_cast<Eigen::VectorXd::Index>(n));
+        (void) y_sim;  // dummy to suppress unused var warning
+
+        stan::math::initialize(y_sim, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(y_sim,DUMMY_VAR__);
+        validate_non_negative_index("a_sim", "m", m);
+        validate_non_negative_index("a_sim", "n", n);
+        matrix_d a_sim(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(n));
+        (void) a_sim;  // dummy to suppress unused var warning
+
+        stan::math::initialize(a_sim, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(a_sim,DUMMY_VAR__);
+        validate_non_negative_index("R_L", "m", m);
+        validate_non_negative_index("R_L", "m", m);
+        matrix_d R_L(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) R_L;  // dummy to suppress unused var warning
+
+        stan::math::initialize(R_L, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(R_L,DUMMY_VAR__);
+        validate_non_negative_index("tmpm", "m", m);
+        vector_d tmpm(static_cast<Eigen::VectorXd::Index>(m));
+        (void) tmpm;  // dummy to suppress unused var warning
+
+        stan::math::initialize(tmpm, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(tmpm,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(R_L, cholesky_decompose(Rt));
+            stan::model::assign(a_sim, 
+                        stan::model::cons_list(stan::model::index_min_max(1, m), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
+                        multi_normal_cholesky_rng(a1,P_L, base_rng__), 
+                        "assigning variable a_sim");
+            for (int t = 1; t <= (n - 1); ++t) {
+
+                stan::math::assign(tmpm, stan::model::rvalue(a_sim, stan::model::cons_list(stan::model::index_min_max(1, m), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "a_sim"));
+                stan::model::assign(a_sim, 
+                            stan::model::cons_list(stan::model::index_min_max(1, m), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), 
+                            multi_normal_cholesky_rng(multiply(Tt,tmpm),R_L, base_rng__), 
+                            "assigning variable a_sim");
+            }
+            for (int t = 1; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(y_sim,t,"y_sim",1), ((get_base1(y,t,"y",1) - multiply(Zt,stan::model::rvalue(a_sim, stan::model::cons_list(stan::model::index_min_max(1, m), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "a_sim"))) + normal_rng(0,get_base1(theta,2,"theta",1), base_rng__)));
+            }
+            stan::math::assign(a_sim, add(a_sim,gaussian_smoother(y_sim,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__)));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(y_sim[k_0__]);
+        }
+        for (int k_1__ = 0; k_1__ < n; ++k_1__) {
+            for (int k_0__ = 0; k_0__ < m; ++k_0__) {
+                vars__.push_back(a_sim(k_0__, k_1__));
+            }
+        }
+        for (int k_1__ = 0; k_1__ < m; ++k_1__) {
+            for (int k_0__ = 0; k_0__ < m; ++k_0__) {
+                vars__.push_back(R_L(k_0__, k_1__));
+            }
+        }
+        for (int k_0__ = 0; k_0__ < m; ++k_0__) {
+            vars__.push_back(tmpm[k_0__]);
+        }
+
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_gaussian_ll_kalman2";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+
+        if (!include_gqs__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "y_sim" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_1__ = 1; k_1__ <= n; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "a_sim" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "R_L" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "tmpm" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+
+        if (!include_gqs__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "y_sim" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_1__ = 1; k_1__ <= n; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "a_sim" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "R_L" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+        for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "tmpm" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
 namespace model_ll_approx_namespace {
 
 using std::istream;
@@ -1080,7 +3019,7 @@ static int current_statement_begin__;
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
 gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -1105,7 +3044,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -1118,7 +3057,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -1181,20 +3120,20 @@ struct gaussian_filter_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                     const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                     const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_filter(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_filter(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
 gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -1219,7 +3158,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -1238,7 +3177,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -1338,7 +3277,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmpr)), 
+                        add(a1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
                 {
@@ -1383,28 +3322,30 @@ struct gaussian_smoother_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_smoother(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type fun_scalar_t__;
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -1459,12 +3400,12 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) i;  // dummy to suppress unused var warning
 
             stan::math::fill(i, std::numeric_limits<int>::min());
-            stan::math::assign(i,1);
+            stan::math::assign(i,0);
 
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -1478,7 +3419,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,max_iter)) && primitive_value(logical_gt(diff,conv_tol))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -1488,19 +3429,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::fill(mode_new,DUMMY_VAR__);
 
 
-                    if (as_bool(logical_eq(distribution,1))) {
-
-                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                    } else {
-
-                        if (as_bool(logical_eq(distribution,2))) {
-
-                        } else {
-
-                        }
-                    }
-                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,a1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
                     if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
 
                         std::stringstream errmsg_stream__;
@@ -1515,7 +3446,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,100))) {
+            if (as_bool(logical_eq(i,max_iter))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -1555,18 +3486,20 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct approx_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) const {
-        return approx(y, x1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, pstream__);
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) const {
+        return approx(y, a1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, max_iter, conv_tol, pstream__);
     }
 };
 
@@ -1574,12 +3507,14 @@ class model_ll_approx : public prob_grad {
 private:
     int n;
     vector_d y;
-    vector_d x1;
+    vector_d a1;
     matrix_d P1;
-    vector_d sd_prior_means;
-    vector_d sd_prior_sds;
+    double sd_prior_means;
+    double sd_prior_sds;
     vector_d initial_mode;
     int distribution;
+    int max_iter;
+    double conv_tol;
     int m;
     row_vector_d Zt;
     matrix_d Tt;
@@ -1632,15 +3567,15 @@ public:
         for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
             y[i_vec__] = vals_r__[pos__++];
         }
-        validate_non_negative_index("x1", "1", 1);
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec(1));
-        validate_non_negative_index("x1", "1", 1);
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>(1));
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "1", 1);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(1));
+        validate_non_negative_index("a1", "1", 1);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        size_t x1_i_vec_lim__ = 1;
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
+        size_t a1_i_vec_lim__ = 1;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("P1", "1", 1);
         validate_non_negative_index("P1", "1", 1);
@@ -1657,26 +3592,16 @@ public:
                 P1(m_mat__,n_mat__) = vals_r__[pos__++];
             }
         }
-        validate_non_negative_index("sd_prior_means", "1", 1);
-        context__.validate_dims("data initialization", "sd_prior_means", "vector_d", context__.to_vec(1));
-        validate_non_negative_index("sd_prior_means", "1", 1);
-        sd_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(1));
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec());
+        sd_prior_means = double(0);
         vals_r__ = context__.vals_r("sd_prior_means");
         pos__ = 0;
-        size_t sd_prior_means_i_vec_lim__ = 1;
-        for (size_t i_vec__ = 0; i_vec__ < sd_prior_means_i_vec_lim__; ++i_vec__) {
-            sd_prior_means[i_vec__] = vals_r__[pos__++];
-        }
-        validate_non_negative_index("sd_prior_sds", "1", 1);
-        context__.validate_dims("data initialization", "sd_prior_sds", "vector_d", context__.to_vec(1));
-        validate_non_negative_index("sd_prior_sds", "1", 1);
-        sd_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(1));
+        sd_prior_means = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec());
+        sd_prior_sds = double(0);
         vals_r__ = context__.vals_r("sd_prior_sds");
         pos__ = 0;
-        size_t sd_prior_sds_i_vec_lim__ = 1;
-        for (size_t i_vec__ = 0; i_vec__ < sd_prior_sds_i_vec_lim__; ++i_vec__) {
-            sd_prior_sds[i_vec__] = vals_r__[pos__++];
-        }
+        sd_prior_sds = vals_r__[pos__++];
         validate_non_negative_index("initial_mode", "(n + 1)", (n + 1));
         context__.validate_dims("data initialization", "initial_mode", "vector_d", context__.to_vec((n + 1)));
         validate_non_negative_index("initial_mode", "(n + 1)", (n + 1));
@@ -1692,6 +3617,16 @@ public:
         vals_i__ = context__.vals_i("distribution");
         pos__ = 0;
         distribution = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "max_iter", "int", context__.to_vec());
+        max_iter = int(0);
+        vals_i__ = context__.vals_i("max_iter");
+        pos__ = 0;
+        max_iter = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "conv_tol", "double", context__.to_vec());
+        conv_tol = double(0);
+        vals_r__ = context__.vals_r("conv_tol");
+        pos__ = 0;
+        conv_tol = vals_r__[pos__++];
 
         // validate, data variables
         check_greater_or_equal(function__,"n",n,0);
@@ -1812,7 +3747,7 @@ public:
 
         try {
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(theta,2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -1935,7 +3870,7 @@ public:
 
         try {
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(theta,2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -2069,6 +4004,445 @@ public:
 
 #include <stan/model/model_header.hpp>
 
+namespace model_ll_poisson_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+class model_ll_poisson : public prob_grad {
+private:
+    int n;
+    vector<int> y;
+    double a1;
+    double P1;
+    double sd_prior_means;
+    double sd_prior_sds;
+public:
+    model_ll_poisson(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_ll_poisson(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_ll_poisson_namespace::model_ll_poisson";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "int", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = std::vector<int>(n,int(0));
+        vals_i__ = context__.vals_i("y");
+        pos__ = 0;
+        size_t y_limit_0__ = n;
+        for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
+            y[i_0__] = vals_i__[pos__++];
+        }
+        context__.validate_dims("data initialization", "a1", "double", context__.to_vec());
+        a1 = double(0);
+        vals_r__ = context__.vals_r("a1");
+        pos__ = 0;
+        a1 = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "P1", "double", context__.to_vec());
+        P1 = double(0);
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        P1 = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec());
+        sd_prior_means = double(0);
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        sd_prior_means = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec());
+        sd_prior_sds = double(0);
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        sd_prior_sds = vals_r__[pos__++];
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        // initialize data variables
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        ++num_params_r__;
+        validate_non_negative_index("x_raw", "n", n);
+        num_params_r__ += n;
+    }
+
+    ~model_ll_poisson() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec());
+        // generate_declaration theta
+        double theta(0);
+        theta = vals_r__[pos__++];
+        try {
+            writer__.scalar_lb_unconstrain(0,theta);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("x_raw")))
+            throw std::runtime_error("variable x_raw missing");
+        vals_r__ = context__.vals_r("x_raw");
+        pos__ = 0U;
+        validate_non_negative_index("x_raw", "n", n);
+        context__.validate_dims("initialization", "x_raw", "vector_d", context__.to_vec(n));
+        // generate_declaration x_raw
+        vector_d x_raw(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
+            x_raw(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(x_raw);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable x_raw: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        T__ theta;
+        (void) theta;  // dummy to suppress unused var warning
+        if (jacobian__)
+            theta = in__.scalar_lb_constrain(0,lp__);
+        else
+            theta = in__.scalar_lb_constrain(0);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  x_raw;
+        (void) x_raw;  // dummy to suppress unused var warning
+        if (jacobian__)
+            x_raw = in__.vector_constrain(n,lp__);
+        else
+            x_raw = in__.vector_constrain(n);
+
+
+        // transformed parameters
+        validate_non_negative_index("x", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(n));
+        (void) x;  // dummy to suppress unused var warning
+
+        stan::math::initialize(x, DUMMY_VAR__);
+        stan::math::fill(x,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(x,1,"x",1), (a1 + (sqrt(P1) * get_base1(x_raw,1,"x_raw",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(x,t,"x",1), (get_base1(x,(t - 1),"x",1) + (theta * get_base1(x_raw,t,"x_raw",1))));
+            }
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(x(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: x" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log(x_raw,0,1));
+            lp_accum__.add(poisson_log_log(y,x));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("x_raw");
+        names__.push_back("x");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_ll_poisson_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        double theta = in__.scalar_lb_constrain(0);
+        vector_d x_raw = in__.vector_constrain(n);
+        vars__.push_back(theta);
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(x_raw[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("x", "n", n);
+        vector_d x(static_cast<Eigen::VectorXd::Index>(n));
+        (void) x;  // dummy to suppress unused var warning
+
+        stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(x,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(x,1,"x",1), (a1 + (sqrt(P1) * get_base1(x_raw,1,"x_raw",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(x,t,"x",1), (get_base1(x,(t - 1),"x",1) + (theta * get_base1(x_raw,t,"x_raw",1))));
+            }
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(x[k_0__]);
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_ll_poisson";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "theta";
+        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x_raw" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "theta";
+        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x_raw" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "x" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
 namespace model_llt_approx_namespace {
 
 using std::istream;
@@ -2089,7 +4463,7 @@ static int current_statement_begin__;
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
 gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -2114,7 +4488,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -2127,7 +4501,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -2190,20 +4564,20 @@ struct gaussian_filter_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                     const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                     const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_filter(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_filter(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
 gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -2228,7 +4602,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -2247,7 +4621,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -2347,7 +4721,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmpr)), 
+                        add(a1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
                 {
@@ -2392,28 +4766,30 @@ struct gaussian_smoother_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_smoother(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type fun_scalar_t__;
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -2468,12 +4844,12 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) i;  // dummy to suppress unused var warning
 
             stan::math::fill(i, std::numeric_limits<int>::min());
-            stan::math::assign(i,1);
+            stan::math::assign(i,0);
 
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -2487,7 +4863,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,max_iter)) && primitive_value(logical_gt(diff,conv_tol))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -2497,19 +4873,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::fill(mode_new,DUMMY_VAR__);
 
 
-                    if (as_bool(logical_eq(distribution,1))) {
-
-                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                    } else {
-
-                        if (as_bool(logical_eq(distribution,2))) {
-
-                        } else {
-
-                        }
-                    }
-                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,a1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
                     if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
 
                         std::stringstream errmsg_stream__;
@@ -2524,7 +4890,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,100))) {
+            if (as_bool(logical_eq(i,max_iter))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -2564,18 +4930,20 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct approx_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) const {
-        return approx(y, x1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, pstream__);
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) const {
+        return approx(y, a1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, max_iter, conv_tol, pstream__);
     }
 };
 
@@ -2583,12 +4951,14 @@ class model_llt_approx : public prob_grad {
 private:
     int n;
     vector_d y;
-    vector_d x1;
+    vector_d a1;
     matrix_d P1;
     vector_d sd_prior_means;
     vector_d sd_prior_sds;
     vector_d initial_mode;
     int distribution;
+    int max_iter;
+    double conv_tol;
     int m;
     row_vector_d Zt;
     matrix_d Tt;
@@ -2641,15 +5011,15 @@ public:
         for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
             y[i_vec__] = vals_r__[pos__++];
         }
-        validate_non_negative_index("x1", "2", 2);
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec(2));
-        validate_non_negative_index("x1", "2", 2);
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "2", 2);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("a1", "2", 2);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        size_t x1_i_vec_lim__ = 2;
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
+        size_t a1_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("P1", "2", 2);
         validate_non_negative_index("P1", "2", 2);
@@ -2701,6 +5071,16 @@ public:
         vals_i__ = context__.vals_i("distribution");
         pos__ = 0;
         distribution = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "max_iter", "int", context__.to_vec());
+        max_iter = int(0);
+        vals_i__ = context__.vals_i("max_iter");
+        pos__ = 0;
+        max_iter = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "conv_tol", "double", context__.to_vec());
+        conv_tol = double(0);
+        vals_r__ = context__.vals_r("conv_tol");
+        pos__ = 0;
+        conv_tol = vals_r__[pos__++];
 
         // validate, data variables
         check_greater_or_equal(function__,"n",n,0);
@@ -2834,7 +5214,7 @@ public:
         try {
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -2966,7 +5346,7 @@ public:
         try {
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -3104,7 +5484,7 @@ public:
 
 #include <stan/model/model_header.hpp>
 
-namespace model_poisson_ll_namespace {
+namespace model_llt_poisson_namespace {
 
 using std::istream;
 using std::string;
@@ -3121,16 +5501,16 @@ typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
 
 static int current_statement_begin__;
 
-class model_poisson_ll : public prob_grad {
+class model_llt_poisson : public prob_grad {
 private:
     int n;
     vector<int> y;
-    double x1;
-    double P1;
-    double prior_mean;
-    double prior_sd;
+    vector_d a1;
+    matrix_d P1;
+    vector_d sd_prior_means;
+    vector_d sd_prior_sds;
 public:
-    model_poisson_ll(stan::io::var_context& context__,
+    model_llt_poisson(stan::io::var_context& context__,
         std::ostream* pstream__ = 0)
         : prob_grad(0) {
         typedef boost::ecuyer1988 rng_t;
@@ -3139,7 +5519,7 @@ public:
     }
 
     template <class RNG>
-    model_poisson_ll(stan::io::var_context& context__,
+    model_llt_poisson(stan::io::var_context& context__,
         RNG& base_rng__,
         std::ostream* pstream__ = 0)
         : prob_grad(0) {
@@ -3152,7 +5532,7 @@ public:
                    std::ostream* pstream__) {
         current_statement_begin__ = -1;
 
-        static const char* function__ = "model_poisson_ll_namespace::model_poisson_ll";
+        static const char* function__ = "model_llt_poisson_namespace::model_llt_poisson";
         (void) function__;  // dummy to suppress unused var warning
         size_t pos__;
         (void) pos__;  // dummy to suppress unused var warning
@@ -3177,29 +5557,57 @@ public:
         for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
             y[i_0__] = vals_i__[pos__++];
         }
-        context__.validate_dims("data initialization", "x1", "double", context__.to_vec());
-        x1 = double(0);
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "2", 2);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("a1", "2", 2);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        x1 = vals_r__[pos__++];
-        context__.validate_dims("data initialization", "P1", "double", context__.to_vec());
-        P1 = double(0);
+        size_t a1_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("P1", "2", 2);
+        validate_non_negative_index("P1", "2", 2);
+        context__.validate_dims("data initialization", "P1", "matrix_d", context__.to_vec(2,2));
+        validate_non_negative_index("P1", "2", 2);
+        validate_non_negative_index("P1", "2", 2);
+        P1 = matrix_d(static_cast<Eigen::VectorXd::Index>(2),static_cast<Eigen::VectorXd::Index>(2));
         vals_r__ = context__.vals_r("P1");
         pos__ = 0;
-        P1 = vals_r__[pos__++];
-        context__.validate_dims("data initialization", "prior_mean", "double", context__.to_vec());
-        prior_mean = double(0);
-        vals_r__ = context__.vals_r("prior_mean");
+        size_t P1_m_mat_lim__ = 2;
+        size_t P1_n_mat_lim__ = 2;
+        for (size_t n_mat__ = 0; n_mat__ < P1_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < P1_m_mat_lim__; ++m_mat__) {
+                P1(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_means", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_means", "2", 2);
+        sd_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("sd_prior_means");
         pos__ = 0;
-        prior_mean = vals_r__[pos__++];
-        context__.validate_dims("data initialization", "prior_sd", "double", context__.to_vec());
-        prior_sd = double(0);
-        vals_r__ = context__.vals_r("prior_sd");
+        size_t sd_prior_means_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < sd_prior_means_i_vec_lim__; ++i_vec__) {
+            sd_prior_means[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        context__.validate_dims("data initialization", "sd_prior_sds", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("sd_prior_sds", "2", 2);
+        sd_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("sd_prior_sds");
         pos__ = 0;
-        prior_sd = vals_r__[pos__++];
+        size_t sd_prior_sds_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < sd_prior_sds_i_vec_lim__; ++i_vec__) {
+            sd_prior_sds[i_vec__] = vals_r__[pos__++];
+        }
 
         // validate, data variables
         check_greater_or_equal(function__,"n",n,0);
+        for (int k0__ = 0; k0__ < n; ++k0__) {
+            check_greater_or_equal(function__,"y[k0__]",y[k0__],0);
+        }
         // initialize data variables
 
         try {
@@ -3214,12 +5622,15 @@ public:
         // validate, set parameter ranges
         num_params_r__ = 0U;
         param_ranges_i__.clear();
-        ++num_params_r__;
-        validate_non_negative_index("x_raw", "n", n);
+        validate_non_negative_index("theta", "2", 2);
+        num_params_r__ += 2;
+        validate_non_negative_index("level_std", "n", n);
+        num_params_r__ += n;
+        validate_non_negative_index("slope_std", "n", n);
         num_params_r__ += n;
     }
 
-    ~model_poisson_ll() { }
+    ~model_llt_poisson() { }
 
 
     void transform_inits(const stan::io::var_context& context__,
@@ -3232,34 +5643,53 @@ public:
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
 
-        if (!(context__.contains_r("sd_x")))
-            throw std::runtime_error("variable sd_x missing");
-        vals_r__ = context__.vals_r("sd_x");
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
         pos__ = 0U;
-        context__.validate_dims("initialization", "sd_x", "double", context__.to_vec());
-        // generate_declaration sd_x
-        double sd_x(0);
-        sd_x = vals_r__[pos__++];
-        try {
-            writer__.scalar_lb_unconstrain(0,sd_x);
+        validate_non_negative_index("theta", "2", 2);
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec(2));
+        // generate_declaration theta
+        std::vector<double> theta(2,double(0));
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            theta[i0__] = vals_r__[pos__++];
+        for (int i0__ = 0U; i0__ < 2; ++i0__)
+            try {
+            writer__.scalar_lb_unconstrain(0,theta[i0__]);
         } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable sd_x: ") + e.what());
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
         }
 
-        if (!(context__.contains_r("x_raw")))
-            throw std::runtime_error("variable x_raw missing");
-        vals_r__ = context__.vals_r("x_raw");
+        if (!(context__.contains_r("level_std")))
+            throw std::runtime_error("variable level_std missing");
+        vals_r__ = context__.vals_r("level_std");
         pos__ = 0U;
-        validate_non_negative_index("x_raw", "n", n);
-        context__.validate_dims("initialization", "x_raw", "vector_d", context__.to_vec(n));
-        // generate_declaration x_raw
-        vector_d x_raw(static_cast<Eigen::VectorXd::Index>(n));
+        validate_non_negative_index("level_std", "n", n);
+        context__.validate_dims("initialization", "level_std", "vector_d", context__.to_vec(n));
+        // generate_declaration level_std
+        vector_d level_std(static_cast<Eigen::VectorXd::Index>(n));
         for (int j1__ = 0U; j1__ < n; ++j1__)
-            x_raw(j1__) = vals_r__[pos__++];
+            level_std(j1__) = vals_r__[pos__++];
         try {
-            writer__.vector_unconstrain(x_raw);
+            writer__.vector_unconstrain(level_std);
         } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable x_raw: ") + e.what());
+            throw std::runtime_error(std::string("Error transforming variable level_std: ") + e.what());
+        }
+
+        if (!(context__.contains_r("slope_std")))
+            throw std::runtime_error("variable slope_std missing");
+        vals_r__ = context__.vals_r("slope_std");
+        pos__ = 0U;
+        validate_non_negative_index("slope_std", "n", n);
+        context__.validate_dims("initialization", "slope_std", "vector_d", context__.to_vec(n));
+        // generate_declaration slope_std
+        vector_d slope_std(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
+            slope_std(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(slope_std);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable slope_std: ") + e.what());
         }
 
         params_r__ = writer__.data_r();
@@ -3292,35 +5722,53 @@ public:
         // model parameters
         stan::io::reader<T__> in__(params_r__,params_i__);
 
-        T__ sd_x;
-        (void) sd_x;  // dummy to suppress unused var warning
-        if (jacobian__)
-            sd_x = in__.scalar_lb_constrain(0,lp__);
-        else
-            sd_x = in__.scalar_lb_constrain(0);
+        vector<T__> theta;
+        size_t dim_theta_0__ = 2;
+        theta.reserve(dim_theta_0__);
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            if (jacobian__)
+                theta.push_back(in__.scalar_lb_constrain(0,lp__));
+            else
+                theta.push_back(in__.scalar_lb_constrain(0));
+        }
 
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  x_raw;
-        (void) x_raw;  // dummy to suppress unused var warning
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  level_std;
+        (void) level_std;  // dummy to suppress unused var warning
         if (jacobian__)
-            x_raw = in__.vector_constrain(n,lp__);
+            level_std = in__.vector_constrain(n,lp__);
         else
-            x_raw = in__.vector_constrain(n);
+            level_std = in__.vector_constrain(n);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  slope_std;
+        (void) slope_std;  // dummy to suppress unused var warning
+        if (jacobian__)
+            slope_std = in__.vector_constrain(n,lp__);
+        else
+            slope_std = in__.vector_constrain(n);
 
 
         // transformed parameters
-        validate_non_negative_index("x", "n", n);
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(n));
-        (void) x;  // dummy to suppress unused var warning
+        validate_non_negative_index("level", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  level(static_cast<Eigen::VectorXd::Index>(n));
+        (void) level;  // dummy to suppress unused var warning
 
-        stan::math::initialize(x, DUMMY_VAR__);
-        stan::math::fill(x,DUMMY_VAR__);
+        stan::math::initialize(level, DUMMY_VAR__);
+        stan::math::fill(level,DUMMY_VAR__);
+        validate_non_negative_index("slope", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  slope(static_cast<Eigen::VectorXd::Index>(n));
+        (void) slope;  // dummy to suppress unused var warning
+
+        stan::math::initialize(slope, DUMMY_VAR__);
+        stan::math::fill(slope,DUMMY_VAR__);
 
 
         try {
-            stan::math::assign(get_base1_lhs(x,1,"x",1), (x1 + (sqrt(P1) * get_base1(x_raw,1,"x_raw",1))));
+            stan::math::assign(get_base1_lhs(level,1,"level",1), (get_base1(a1,1,"a1",1) + (sqrt(get_base1(P1,1,1,"P1",1)) * get_base1(level_std,1,"level_std",1))));
+            stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(a1,2,"a1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(x,t,"x",1), (get_base1(x,(t - 1),"x",1) + (sd_x * get_base1(x_raw,t,"x_raw",1))));
+                stan::math::assign(get_base1_lhs(level,t,"level",1), ((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + (get_base1(theta,1,"theta",1) * get_base1(level_std,t,"level_std",1))));
+                stan::math::assign(get_base1_lhs(slope,t,"slope",1), (get_base1(slope,(t - 1),"slope",1) + (get_base1(theta,2,"theta",1) * get_base1(slope_std,t,"slope_std",1))));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -3330,9 +5778,16 @@ public:
 
         // validate transformed parameters
         for (int i0__ = 0; i0__ < n; ++i0__) {
-            if (stan::math::is_uninitialized(x(i0__))) {
+            if (stan::math::is_uninitialized(level(i0__))) {
                 std::stringstream msg__;
-                msg__ << "Undefined transformed parameter: x" << '[' << i0__ << ']';
+                msg__ << "Undefined transformed parameter: level" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(slope(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: slope" << '[' << i0__ << ']';
                 throw std::runtime_error(msg__.str());
             }
         }
@@ -3343,8 +5798,10 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(x_raw,0,1));
-            lp_accum__.add(poisson_log(y,exp(x)));
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log(level_std,0,1));
+            lp_accum__.add(normal_log(slope_std,0,1));
+            lp_accum__.add(poisson_log_log(y,level));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -3370,9 +5827,11 @@ public:
 
     void get_param_names(std::vector<std::string>& names__) const {
         names__.resize(0);
-        names__.push_back("sd_x");
-        names__.push_back("x_raw");
-        names__.push_back("x");
+        names__.push_back("theta");
+        names__.push_back("level_std");
+        names__.push_back("slope_std");
+        names__.push_back("level");
+        names__.push_back("slope");
     }
 
 
@@ -3380,6 +5839,13 @@ public:
         dimss__.resize(0);
         std::vector<size_t> dims__;
         dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(n);
@@ -3399,14 +5865,24 @@ public:
                      std::ostream* pstream__ = 0) const {
         vars__.resize(0);
         stan::io::reader<double> in__(params_r__,params_i__);
-        static const char* function__ = "model_poisson_ll_namespace::write_array";
+        static const char* function__ = "model_llt_poisson_namespace::write_array";
         (void) function__;  // dummy to suppress unused var warning
         // read-transform, write parameters
-        double sd_x = in__.scalar_lb_constrain(0);
-        vector_d x_raw = in__.vector_constrain(n);
-        vars__.push_back(sd_x);
+        vector<double> theta;
+        size_t dim_theta_0__ = 2;
+        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
+            theta.push_back(in__.scalar_lb_constrain(0));
+        }
+        vector_d level_std = in__.vector_constrain(n);
+        vector_d slope_std = in__.vector_constrain(n);
+        for (int k_0__ = 0; k_0__ < 2; ++k_0__) {
+            vars__.push_back(theta[k_0__]);
+        }
         for (int k_0__ = 0; k_0__ < n; ++k_0__) {
-            vars__.push_back(x_raw[k_0__]);
+            vars__.push_back(level_std[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(slope_std[k_0__]);
         }
 
         if (!include_tparams__) return;
@@ -3418,19 +5894,27 @@ public:
         double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
         (void) DUMMY_VAR__;  // suppress unused var warning
 
-        validate_non_negative_index("x", "n", n);
-        vector_d x(static_cast<Eigen::VectorXd::Index>(n));
-        (void) x;  // dummy to suppress unused var warning
+        validate_non_negative_index("level", "n", n);
+        vector_d level(static_cast<Eigen::VectorXd::Index>(n));
+        (void) level;  // dummy to suppress unused var warning
 
-        stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
-        stan::math::fill(x,DUMMY_VAR__);
+        stan::math::initialize(level, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(level,DUMMY_VAR__);
+        validate_non_negative_index("slope", "n", n);
+        vector_d slope(static_cast<Eigen::VectorXd::Index>(n));
+        (void) slope;  // dummy to suppress unused var warning
+
+        stan::math::initialize(slope, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(slope,DUMMY_VAR__);
 
 
         try {
-            stan::math::assign(get_base1_lhs(x,1,"x",1), (x1 + (sqrt(P1) * get_base1(x_raw,1,"x_raw",1))));
+            stan::math::assign(get_base1_lhs(level,1,"level",1), (get_base1(a1,1,"a1",1) + (sqrt(get_base1(P1,1,1,"P1",1)) * get_base1(level_std,1,"level_std",1))));
+            stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(a1,2,"a1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(x,t,"x",1), (get_base1(x,(t - 1),"x",1) + (sd_x * get_base1(x_raw,t,"x_raw",1))));
+                stan::math::assign(get_base1_lhs(level,t,"level",1), ((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + (get_base1(theta,1,"theta",1) * get_base1(level_std,t,"level_std",1))));
+                stan::math::assign(get_base1_lhs(slope,t,"slope",1), (get_base1(slope,(t - 1),"slope",1) + (get_base1(theta,2,"theta",1) * get_base1(slope_std,t,"slope_std",1))));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -3442,7 +5926,10 @@ public:
 
         // write transformed parameters
         for (int k_0__ = 0; k_0__ < n; ++k_0__) {
-            vars__.push_back(x[k_0__]);
+            vars__.push_back(level[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(slope[k_0__]);
         }
 
         if (!include_gqs__) return;
@@ -3480,7 +5967,7 @@ public:
     }
 
     static std::string model_name() {
-        return "model_poisson_ll";
+        return "model_llt_poisson";
     }
 
 
@@ -3488,19 +5975,31 @@ public:
                                  bool include_tparams__ = true,
                                  bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "sd_x";
-        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "x_raw" << '.' << k_0__;
+            param_name_stream__ << "level_std" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "slope_std" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 
         if (!include_gqs__ && !include_tparams__) return;
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "x" << '.' << k_0__;
+            param_name_stream__ << "level" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "slope" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 
@@ -3512,19 +6011,31 @@ public:
                                    bool include_tparams__ = true,
                                    bool include_gqs__ = true) const {
         std::stringstream param_name_stream__;
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "sd_x";
-        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "theta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "x_raw" << '.' << k_0__;
+            param_name_stream__ << "level_std" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "slope_std" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 
         if (!include_gqs__ && !include_tparams__) return;
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
-            param_name_stream__ << "x" << '.' << k_0__;
+            param_name_stream__ << "level" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "slope" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 
@@ -3562,7 +6073,7 @@ static int current_statement_begin__;
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
 gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -3587,7 +6098,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -3600,7 +6111,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -3663,20 +6174,20 @@ struct gaussian_filter_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                     const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                     const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_filter(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_filter(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
 gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -3701,7 +6212,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -3720,7 +6231,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -3820,7 +6331,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmpr)), 
+                        add(a1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
                 {
@@ -3865,28 +6376,30 @@ struct gaussian_smoother_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_smoother(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type fun_scalar_t__;
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -3941,12 +6454,12 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) i;  // dummy to suppress unused var warning
 
             stan::math::fill(i, std::numeric_limits<int>::min());
-            stan::math::assign(i,1);
+            stan::math::assign(i,0);
 
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -3960,7 +6473,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,max_iter)) && primitive_value(logical_gt(diff,conv_tol))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -3970,19 +6483,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::fill(mode_new,DUMMY_VAR__);
 
 
-                    if (as_bool(logical_eq(distribution,1))) {
-
-                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                    } else {
-
-                        if (as_bool(logical_eq(distribution,2))) {
-
-                        } else {
-
-                        }
-                    }
-                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,a1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
                     if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
 
                         std::stringstream errmsg_stream__;
@@ -3997,7 +6500,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,100))) {
+            if (as_bool(logical_eq(i,max_iter))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -4037,18 +6540,20 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct approx_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) const {
-        return approx(y, x1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, pstream__);
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) const {
+        return approx(y, a1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, max_iter, conv_tol, pstream__);
     }
 };
 
@@ -4058,7 +6563,7 @@ private:
     int k;
     int period;
     vector_d y;
-    vector_d x1;
+    vector_d a1;
     matrix_d P1;
     vector_d sd_prior_means;
     vector_d sd_prior_sds;
@@ -4067,6 +6572,8 @@ private:
     vector_d initial_mode;
     matrix_d xreg;
     int distribution;
+    int max_iter;
+    double conv_tol;
     int m;
     row_vector_d Zt;
     matrix_d Tt;
@@ -4128,15 +6635,15 @@ public:
         for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
             y[i_vec__] = vals_r__[pos__++];
         }
-        validate_non_negative_index("x1", "(2 + period)", (2 + period));
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec((2 + period)));
-        validate_non_negative_index("x1", "(2 + period)", (2 + period));
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>((2 + period)));
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "(2 + period)", (2 + period));
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec((2 + period)));
+        validate_non_negative_index("a1", "(2 + period)", (2 + period));
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>((2 + period)));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        size_t x1_i_vec_lim__ = (2 + period);
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
+        size_t a1_i_vec_lim__ = (2 + period);
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("P1", "(2 + period)", (2 + period));
         validate_non_negative_index("P1", "(2 + period)", (2 + period));
@@ -4223,6 +6730,16 @@ public:
         vals_i__ = context__.vals_i("distribution");
         pos__ = 0;
         distribution = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "max_iter", "int", context__.to_vec());
+        max_iter = int(0);
+        vals_i__ = context__.vals_i("max_iter");
+        pos__ = 0;
+        max_iter = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "conv_tol", "double", context__.to_vec());
+        conv_tol = double(0);
+        vals_r__ = context__.vals_r("conv_tol");
+        pos__ = 0;
+        conv_tol = vals_r__[pos__++];
 
         // validate, data variables
         check_greater_or_equal(function__,"n",n,0);
@@ -4396,7 +6913,7 @@ public:
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,3,3,"Rt",1), pow(get_base1(theta,3,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -4556,7 +7073,7 @@ public:
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,3,3,"Rt",1), pow(get_base1(theta,3,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -4717,7 +7234,7 @@ public:
 
 #include <stan/model/model_header.hpp>
 
-namespace model_x_llt_approx_namespace {
+namespace model_x_ll_approx_namespace {
 
 using std::istream;
 using std::string;
@@ -4737,7 +7254,7 @@ static int current_statement_begin__;
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
 gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -4762,7 +7279,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -4775,7 +7292,7 @@ gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -4838,20 +7355,20 @@ struct gaussian_filter_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                     const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                     const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                     const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                     const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                     const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_filter(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_filter(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
 template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
 Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
 gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
@@ -4876,7 +7393,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) m;  // dummy to suppress unused var warning
 
             stan::math::fill(m, std::numeric_limits<int>::min());
-            stan::math::assign(m,rows(x1));
+            stan::math::assign(m,rows(a1));
             fun_scalar_t__ loglik;
             (void) loglik;  // dummy to suppress unused var warning
 
@@ -4895,7 +7412,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
             stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(x,DUMMY_VAR__);
-            stan::math::assign(x,x1);
+            stan::math::assign(x,a1);
             validate_non_negative_index("P", "m", m);
             validate_non_negative_index("P", "m", m);
             Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
@@ -4995,7 +7512,7 @@ gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
             stan::model::assign(r, 
                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
-                        add(x1,multiply(P1,tmpr)), 
+                        add(a1,multiply(P1,tmpr)), 
                         "assigning variable r");
             for (int t = 2; t <= n; ++t) {
                 {
@@ -5040,28 +7557,30 @@ struct gaussian_smoother_functor__ {
     template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
         Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
                       const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
                       const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
                       const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
                       const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
                       const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
-        return gaussian_smoother(y, x1, P1, var_y, Zt, Tt, Rt, pstream__);
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
     }
 };
 
-template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
 approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) {
-    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type fun_scalar_t__;
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
     typedef fun_scalar_t__ fun_return_scalar_t__;
     const static bool propto__ = true;
     (void) propto__;
@@ -5116,12 +7635,12 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
             (void) i;  // dummy to suppress unused var warning
 
             stan::math::fill(i, std::numeric_limits<int>::min());
-            stan::math::assign(i,1);
+            stan::math::assign(i,0);
 
 
             stan::model::assign(mode, 
                         stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
-                        stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
                         "assigning variable mode");
             if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
 
@@ -5135,7 +7654,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                 errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
                 throw std::domain_error(errmsg_stream__.str());
             }
-            while (as_bool((primitive_value(logical_lt(i,100)) && primitive_value(logical_gt(diff,1e-08))))) {
+            while (as_bool((primitive_value(logical_lt(i,max_iter)) && primitive_value(logical_gt(diff,conv_tol))))) {
                 {
                     validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
                     Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
@@ -5145,19 +7664,9 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::fill(mode_new,DUMMY_VAR__);
 
 
-                    if (as_bool(logical_eq(distribution,1))) {
-
-                        stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
-                        stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
-                    } else {
-
-                        if (as_bool(logical_eq(distribution,2))) {
-
-                        } else {
-
-                        }
-                    }
-                    stan::math::assign(mode_new, gaussian_smoother(approx_y,x1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,a1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
                     if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
 
                         std::stringstream errmsg_stream__;
@@ -5172,7 +7681,7 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
                     stan::math::assign(i, (i + 1));
                 }
             }
-            if (as_bool(logical_eq(i,100))) {
+            if (as_bool(logical_eq(i,max_iter))) {
 
                 std::stringstream errmsg_stream__;
                 errmsg_stream__ << "Maximum number of iterations for approximation used. ";
@@ -5212,18 +7721,1716 @@ approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
 
 
 struct approx_functor__ {
-    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__>
-        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__>::type>::type, Eigen::Dynamic,1>
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
     operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
-           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& x1,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
            const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
            const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
            const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
            const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
            const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
            const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
-           const int& distribution, std::ostream* pstream__) const {
-        return approx(y, x1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, pstream__);
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) const {
+        return approx(y, a1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, max_iter, conv_tol, pstream__);
+    }
+};
+
+class model_x_ll_approx : public prob_grad {
+private:
+    int n;
+    int k;
+    vector_d y;
+    vector_d a1;
+    matrix_d P1;
+    double sd_prior_means;
+    double sd_prior_sds;
+    vector_d beta_prior_means;
+    vector_d beta_prior_sds;
+    vector_d initial_mode;
+    matrix_d xreg;
+    int distribution;
+    int max_iter;
+    double conv_tol;
+    int m;
+    row_vector_d Zt;
+    matrix_d Tt;
+public:
+    model_x_ll_approx(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_x_ll_approx(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_x_ll_approx_namespace::model_x_ll_approx";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "k", "int", context__.to_vec());
+        k = int(0);
+        vals_i__ = context__.vals_i("k");
+        pos__ = 0;
+        k = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "vector_d", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = vector_d(static_cast<Eigen::VectorXd::Index>(n));
+        vals_r__ = context__.vals_r("y");
+        pos__ = 0;
+        size_t y_i_vec_lim__ = n;
+        for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
+            y[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("a1", "1", 1);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(1));
+        validate_non_negative_index("a1", "1", 1);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("a1");
+        pos__ = 0;
+        size_t a1_i_vec_lim__ = 1;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("P1", "1", 1);
+        validate_non_negative_index("P1", "1", 1);
+        context__.validate_dims("data initialization", "P1", "matrix_d", context__.to_vec(1,1));
+        validate_non_negative_index("P1", "1", 1);
+        validate_non_negative_index("P1", "1", 1);
+        P1 = matrix_d(static_cast<Eigen::VectorXd::Index>(1),static_cast<Eigen::VectorXd::Index>(1));
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        size_t P1_m_mat_lim__ = 1;
+        size_t P1_n_mat_lim__ = 1;
+        for (size_t n_mat__ = 0; n_mat__ < P1_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < P1_m_mat_lim__; ++m_mat__) {
+                P1(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec());
+        sd_prior_means = double(0);
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        sd_prior_means = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec());
+        sd_prior_sds = double(0);
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        sd_prior_sds = vals_r__[pos__++];
+        validate_non_negative_index("beta_prior_means", "k", k);
+        context__.validate_dims("data initialization", "beta_prior_means", "vector_d", context__.to_vec(k));
+        validate_non_negative_index("beta_prior_means", "k", k);
+        beta_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("beta_prior_means");
+        pos__ = 0;
+        size_t beta_prior_means_i_vec_lim__ = k;
+        for (size_t i_vec__ = 0; i_vec__ < beta_prior_means_i_vec_lim__; ++i_vec__) {
+            beta_prior_means[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("beta_prior_sds", "k", k);
+        context__.validate_dims("data initialization", "beta_prior_sds", "vector_d", context__.to_vec(k));
+        validate_non_negative_index("beta_prior_sds", "k", k);
+        beta_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("beta_prior_sds");
+        pos__ = 0;
+        size_t beta_prior_sds_i_vec_lim__ = k;
+        for (size_t i_vec__ = 0; i_vec__ < beta_prior_sds_i_vec_lim__; ++i_vec__) {
+            beta_prior_sds[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("initial_mode", "(n + 1)", (n + 1));
+        context__.validate_dims("data initialization", "initial_mode", "vector_d", context__.to_vec((n + 1)));
+        validate_non_negative_index("initial_mode", "(n + 1)", (n + 1));
+        initial_mode = vector_d(static_cast<Eigen::VectorXd::Index>((n + 1)));
+        vals_r__ = context__.vals_r("initial_mode");
+        pos__ = 0;
+        size_t initial_mode_i_vec_lim__ = (n + 1);
+        for (size_t i_vec__ = 0; i_vec__ < initial_mode_i_vec_lim__; ++i_vec__) {
+            initial_mode[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("xreg", "n", n);
+        validate_non_negative_index("xreg", "k", k);
+        context__.validate_dims("data initialization", "xreg", "matrix_d", context__.to_vec(n,k));
+        validate_non_negative_index("xreg", "n", n);
+        validate_non_negative_index("xreg", "k", k);
+        xreg = matrix_d(static_cast<Eigen::VectorXd::Index>(n),static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("xreg");
+        pos__ = 0;
+        size_t xreg_m_mat_lim__ = n;
+        size_t xreg_n_mat_lim__ = k;
+        for (size_t n_mat__ = 0; n_mat__ < xreg_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < xreg_m_mat_lim__; ++m_mat__) {
+                xreg(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+        context__.validate_dims("data initialization", "distribution", "int", context__.to_vec());
+        distribution = int(0);
+        vals_i__ = context__.vals_i("distribution");
+        pos__ = 0;
+        distribution = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "max_iter", "int", context__.to_vec());
+        max_iter = int(0);
+        vals_i__ = context__.vals_i("max_iter");
+        pos__ = 0;
+        max_iter = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "conv_tol", "double", context__.to_vec());
+        conv_tol = double(0);
+        vals_r__ = context__.vals_r("conv_tol");
+        pos__ = 0;
+        conv_tol = vals_r__[pos__++];
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        check_greater_or_equal(function__,"k",k,0);
+        // initialize data variables
+        m = int(0);
+        stan::math::fill(m, std::numeric_limits<int>::min());
+        stan::math::assign(m,1);
+        validate_non_negative_index("Zt", "m", m);
+        Zt = row_vector_d(static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(Zt,DUMMY_VAR__);
+        validate_non_negative_index("Tt", "m", m);
+        validate_non_negative_index("Tt", "m", m);
+        Tt = matrix_d(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        stan::math::fill(Tt,DUMMY_VAR__);
+
+        try {
+            stan::math::assign(get_base1_lhs(Zt,1,"Zt",1), 1.0);
+            stan::math::assign(get_base1_lhs(Tt,1,1,"Tt",1), 1.0);
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+        check_greater_or_equal(function__,"m",m,0);
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        ++num_params_r__;
+        validate_non_negative_index("beta", "k", k);
+        num_params_r__ += k;
+    }
+
+    ~model_x_ll_approx() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec());
+        // generate_declaration theta
+        double theta(0);
+        theta = vals_r__[pos__++];
+        try {
+            writer__.scalar_lb_unconstrain(0,theta);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("beta")))
+            throw std::runtime_error("variable beta missing");
+        vals_r__ = context__.vals_r("beta");
+        pos__ = 0U;
+        validate_non_negative_index("beta", "k", k);
+        context__.validate_dims("initialization", "beta", "vector_d", context__.to_vec(k));
+        // generate_declaration beta
+        vector_d beta(static_cast<Eigen::VectorXd::Index>(k));
+        for (int j1__ = 0U; j1__ < k; ++j1__)
+            beta(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(beta);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable beta: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        T__ theta;
+        (void) theta;  // dummy to suppress unused var warning
+        if (jacobian__)
+            theta = in__.scalar_lb_constrain(0,lp__);
+        else
+            theta = in__.scalar_lb_constrain(0);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  beta;
+        (void) beta;  // dummy to suppress unused var warning
+        if (jacobian__)
+            beta = in__.vector_constrain(k,lp__);
+        else
+            beta = in__.vector_constrain(k);
+
+
+        // transformed parameters
+        validate_non_negative_index("xbeta", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  xbeta(static_cast<Eigen::VectorXd::Index>(n));
+        (void) xbeta;  // dummy to suppress unused var warning
+
+        stan::math::initialize(xbeta, DUMMY_VAR__);
+        stan::math::fill(xbeta,DUMMY_VAR__);
+        stan::math::assign(xbeta,multiply(xreg,beta));
+        validate_non_negative_index("approx_results", "((3 * n) + 1)", ((3 * n) + 1));
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
+        (void) approx_results;  // dummy to suppress unused var warning
+
+        stan::math::initialize(approx_results, DUMMY_VAR__);
+        stan::math::fill(approx_results,DUMMY_VAR__);
+        validate_non_negative_index("Rt", "m", m);
+        validate_non_negative_index("Rt", "m", m);
+        Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) Rt;  // dummy to suppress unused var warning
+
+        stan::math::initialize(Rt, DUMMY_VAR__);
+        stan::math::fill(Rt,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(theta,2));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(xbeta(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: xbeta" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+        for (int i0__ = 0; i0__ < ((3 * n) + 1); ++i0__) {
+            if (stan::math::is_uninitialized(approx_results(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: approx_results" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+        for (int i0__ = 0; i0__ < m; ++i0__) {
+            for (int i1__ = 0; i1__ < m; ++i1__) {
+                if (stan::math::is_uninitialized(Rt(i0__,i1__))) {
+                    std::stringstream msg__;
+                    msg__ << "Undefined transformed parameter: Rt" << '[' << i0__ << ']' << '[' << i1__ << ']';
+                    throw std::runtime_error(msg__.str());
+                }
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("beta");
+        names__.push_back("xbeta");
+        names__.push_back("approx_results");
+        names__.push_back("Rt");
+        names__.push_back("jacobian");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(k);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(((3 * n) + 1));
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(m);
+        dims__.push_back(m);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_x_ll_approx_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        double theta = in__.scalar_lb_constrain(0);
+        vector_d beta = in__.vector_constrain(k);
+        vars__.push_back(theta);
+        for (int k_0__ = 0; k_0__ < k; ++k_0__) {
+            vars__.push_back(beta[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("xbeta", "n", n);
+        vector_d xbeta(static_cast<Eigen::VectorXd::Index>(n));
+        (void) xbeta;  // dummy to suppress unused var warning
+
+        stan::math::initialize(xbeta, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(xbeta,DUMMY_VAR__);
+        stan::math::assign(xbeta,multiply(xreg,beta));
+        validate_non_negative_index("approx_results", "((3 * n) + 1)", ((3 * n) + 1));
+        vector_d approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
+        (void) approx_results;  // dummy to suppress unused var warning
+
+        stan::math::initialize(approx_results, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(approx_results,DUMMY_VAR__);
+        validate_non_negative_index("Rt", "m", m);
+        validate_non_negative_index("Rt", "m", m);
+        matrix_d Rt(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+        (void) Rt;  // dummy to suppress unused var warning
+
+        stan::math::initialize(Rt, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(Rt,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(theta,2));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(xbeta[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < ((3 * n) + 1); ++k_0__) {
+            vars__.push_back(approx_results[k_0__]);
+        }
+        for (int k_1__ = 0; k_1__ < m; ++k_1__) {
+            for (int k_0__ = 0; k_0__ < m; ++k_0__) {
+                vars__.push_back(Rt(k_0__, k_1__));
+            }
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+        double jacobian(0.0);
+        (void) jacobian;  // dummy to suppress unused var warning
+
+        stan::math::initialize(jacobian, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(jacobian,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(jacobian, -(log(theta)));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+        vars__.push_back(jacobian);
+
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_x_ll_approx";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "theta";
+        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "xbeta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= ((3 * n) + 1); ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "approx_results" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+
+        if (!include_gqs__) return;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "jacobian";
+        param_names__.push_back(param_name_stream__.str());
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "theta";
+        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "xbeta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= ((3 * n) + 1); ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "approx_results" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_1__ = 1; k_1__ <= m; ++k_1__) {
+            for (int k_0__ = 1; k_0__ <= m; ++k_0__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "Rt" << '.' << k_0__ << '.' << k_1__;
+                param_names__.push_back(param_name_stream__.str());
+            }
+        }
+
+        if (!include_gqs__) return;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "jacobian";
+        param_names__.push_back(param_name_stream__.str());
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
+namespace model_x_ll_poisson_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+class model_x_ll_poisson : public prob_grad {
+private:
+    int n;
+    int k;
+    vector<int> y;
+    double a1;
+    double P1;
+    double sd_prior_means;
+    double sd_prior_sds;
+    vector_d beta_prior_means;
+    vector_d beta_prior_sds;
+    matrix_d xreg;
+public:
+    model_x_ll_poisson(stan::io::var_context& context__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        typedef boost::ecuyer1988 rng_t;
+        rng_t base_rng(0);  // 0 seed default
+        ctor_body(context__, base_rng, pstream__);
+    }
+
+    template <class RNG>
+    model_x_ll_poisson(stan::io::var_context& context__,
+        RNG& base_rng__,
+        std::ostream* pstream__ = 0)
+        : prob_grad(0) {
+        ctor_body(context__, base_rng__, pstream__);
+    }
+
+    template <class RNG>
+    void ctor_body(stan::io::var_context& context__,
+                   RNG& base_rng__,
+                   std::ostream* pstream__) {
+        current_statement_begin__ = -1;
+
+        static const char* function__ = "model_x_ll_poisson_namespace::model_x_ll_poisson";
+        (void) function__;  // dummy to suppress unused var warning
+        size_t pos__;
+        (void) pos__;  // dummy to suppress unused var warning
+        std::vector<int> vals_i__;
+        std::vector<double> vals_r__;
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        // initialize member variables
+        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+        n = int(0);
+        vals_i__ = context__.vals_i("n");
+        pos__ = 0;
+        n = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "k", "int", context__.to_vec());
+        k = int(0);
+        vals_i__ = context__.vals_i("k");
+        pos__ = 0;
+        k = vals_i__[pos__++];
+        validate_non_negative_index("y", "n", n);
+        context__.validate_dims("data initialization", "y", "int", context__.to_vec(n));
+        validate_non_negative_index("y", "n", n);
+        y = std::vector<int>(n,int(0));
+        vals_i__ = context__.vals_i("y");
+        pos__ = 0;
+        size_t y_limit_0__ = n;
+        for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
+            y[i_0__] = vals_i__[pos__++];
+        }
+        context__.validate_dims("data initialization", "a1", "double", context__.to_vec());
+        a1 = double(0);
+        vals_r__ = context__.vals_r("a1");
+        pos__ = 0;
+        a1 = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "P1", "double", context__.to_vec());
+        P1 = double(0);
+        vals_r__ = context__.vals_r("P1");
+        pos__ = 0;
+        P1 = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "sd_prior_means", "double", context__.to_vec());
+        sd_prior_means = double(0);
+        vals_r__ = context__.vals_r("sd_prior_means");
+        pos__ = 0;
+        sd_prior_means = vals_r__[pos__++];
+        context__.validate_dims("data initialization", "sd_prior_sds", "double", context__.to_vec());
+        sd_prior_sds = double(0);
+        vals_r__ = context__.vals_r("sd_prior_sds");
+        pos__ = 0;
+        sd_prior_sds = vals_r__[pos__++];
+        validate_non_negative_index("beta_prior_means", "k", k);
+        context__.validate_dims("data initialization", "beta_prior_means", "vector_d", context__.to_vec(k));
+        validate_non_negative_index("beta_prior_means", "k", k);
+        beta_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("beta_prior_means");
+        pos__ = 0;
+        size_t beta_prior_means_i_vec_lim__ = k;
+        for (size_t i_vec__ = 0; i_vec__ < beta_prior_means_i_vec_lim__; ++i_vec__) {
+            beta_prior_means[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("beta_prior_sds", "k", k);
+        context__.validate_dims("data initialization", "beta_prior_sds", "vector_d", context__.to_vec(k));
+        validate_non_negative_index("beta_prior_sds", "k", k);
+        beta_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("beta_prior_sds");
+        pos__ = 0;
+        size_t beta_prior_sds_i_vec_lim__ = k;
+        for (size_t i_vec__ = 0; i_vec__ < beta_prior_sds_i_vec_lim__; ++i_vec__) {
+            beta_prior_sds[i_vec__] = vals_r__[pos__++];
+        }
+        validate_non_negative_index("xreg", "n", n);
+        validate_non_negative_index("xreg", "k", k);
+        context__.validate_dims("data initialization", "xreg", "matrix_d", context__.to_vec(n,k));
+        validate_non_negative_index("xreg", "n", n);
+        validate_non_negative_index("xreg", "k", k);
+        xreg = matrix_d(static_cast<Eigen::VectorXd::Index>(n),static_cast<Eigen::VectorXd::Index>(k));
+        vals_r__ = context__.vals_r("xreg");
+        pos__ = 0;
+        size_t xreg_m_mat_lim__ = n;
+        size_t xreg_n_mat_lim__ = k;
+        for (size_t n_mat__ = 0; n_mat__ < xreg_n_mat_lim__; ++n_mat__) {
+            for (size_t m_mat__ = 0; m_mat__ < xreg_m_mat_lim__; ++m_mat__) {
+                xreg(m_mat__,n_mat__) = vals_r__[pos__++];
+            }
+        }
+
+        // validate, data variables
+        check_greater_or_equal(function__,"n",n,0);
+        check_greater_or_equal(function__,"k",k,0);
+        for (int k0__ = 0; k0__ < n; ++k0__) {
+            check_greater_or_equal(function__,"y[k0__]",y[k0__],0);
+        }
+        // initialize data variables
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed data
+
+        // validate, set parameter ranges
+        num_params_r__ = 0U;
+        param_ranges_i__.clear();
+        ++num_params_r__;
+        validate_non_negative_index("beta", "k", k);
+        num_params_r__ += k;
+        validate_non_negative_index("level_std", "n", n);
+        num_params_r__ += n;
+    }
+
+    ~model_x_ll_poisson() { }
+
+
+    void transform_inits(const stan::io::var_context& context__,
+                         std::vector<int>& params_i__,
+                         std::vector<double>& params_r__,
+                         std::ostream* pstream__) const {
+        stan::io::writer<double> writer__(params_r__,params_i__);
+        size_t pos__;
+        (void) pos__; // dummy call to supress warning
+        std::vector<double> vals_r__;
+        std::vector<int> vals_i__;
+
+        if (!(context__.contains_r("theta")))
+            throw std::runtime_error("variable theta missing");
+        vals_r__ = context__.vals_r("theta");
+        pos__ = 0U;
+        context__.validate_dims("initialization", "theta", "double", context__.to_vec());
+        // generate_declaration theta
+        double theta(0);
+        theta = vals_r__[pos__++];
+        try {
+            writer__.scalar_lb_unconstrain(0,theta);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("beta")))
+            throw std::runtime_error("variable beta missing");
+        vals_r__ = context__.vals_r("beta");
+        pos__ = 0U;
+        validate_non_negative_index("beta", "k", k);
+        context__.validate_dims("initialization", "beta", "vector_d", context__.to_vec(k));
+        // generate_declaration beta
+        vector_d beta(static_cast<Eigen::VectorXd::Index>(k));
+        for (int j1__ = 0U; j1__ < k; ++j1__)
+            beta(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(beta);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable beta: ") + e.what());
+        }
+
+        if (!(context__.contains_r("level_std")))
+            throw std::runtime_error("variable level_std missing");
+        vals_r__ = context__.vals_r("level_std");
+        pos__ = 0U;
+        validate_non_negative_index("level_std", "n", n);
+        context__.validate_dims("initialization", "level_std", "vector_d", context__.to_vec(n));
+        // generate_declaration level_std
+        vector_d level_std(static_cast<Eigen::VectorXd::Index>(n));
+        for (int j1__ = 0U; j1__ < n; ++j1__)
+            level_std(j1__) = vals_r__[pos__++];
+        try {
+            writer__.vector_unconstrain(level_std);
+        } catch (const std::exception& e) { 
+            throw std::runtime_error(std::string("Error transforming variable level_std: ") + e.what());
+        }
+
+        params_r__ = writer__.data_r();
+        params_i__ = writer__.data_i();
+    }
+
+    void transform_inits(const stan::io::var_context& context,
+                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                         std::ostream* pstream__) const {
+      std::vector<double> params_r_vec;
+      std::vector<int> params_i_vec;
+      transform_inits(context, params_i_vec, params_r_vec, pstream__);
+      params_r.resize(params_r_vec.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r(i) = params_r_vec[i];
+    }
+
+
+    template <bool propto__, bool jacobian__, typename T__>
+    T__ log_prob(vector<T__>& params_r__,
+                 vector<int>& params_i__,
+                 std::ostream* pstream__ = 0) const {
+
+        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        T__ lp__(0.0);
+        stan::math::accumulator<T__> lp_accum__;
+
+        // model parameters
+        stan::io::reader<T__> in__(params_r__,params_i__);
+
+        T__ theta;
+        (void) theta;  // dummy to suppress unused var warning
+        if (jacobian__)
+            theta = in__.scalar_lb_constrain(0,lp__);
+        else
+            theta = in__.scalar_lb_constrain(0);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  beta;
+        (void) beta;  // dummy to suppress unused var warning
+        if (jacobian__)
+            beta = in__.vector_constrain(k,lp__);
+        else
+            beta = in__.vector_constrain(k);
+
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  level_std;
+        (void) level_std;  // dummy to suppress unused var warning
+        if (jacobian__)
+            level_std = in__.vector_constrain(n,lp__);
+        else
+            level_std = in__.vector_constrain(n);
+
+
+        // transformed parameters
+        validate_non_negative_index("xbeta", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  xbeta(static_cast<Eigen::VectorXd::Index>(n));
+        (void) xbeta;  // dummy to suppress unused var warning
+
+        stan::math::initialize(xbeta, DUMMY_VAR__);
+        stan::math::fill(xbeta,DUMMY_VAR__);
+        stan::math::assign(xbeta,multiply(xreg,beta));
+        validate_non_negative_index("level", "n", n);
+        Eigen::Matrix<T__,Eigen::Dynamic,1>  level(static_cast<Eigen::VectorXd::Index>(n));
+        (void) level;  // dummy to suppress unused var warning
+
+        stan::math::initialize(level, DUMMY_VAR__);
+        stan::math::fill(level,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(level,1,"level",1), (a1 + (sqrt(P1) * get_base1(level_std,1,"level_std",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(level,t,"level",1), (get_base1(level,(t - 1),"level",1) + (theta * get_base1(level_std,t,"level_std",1))));
+            }
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(xbeta(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: xbeta" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+        for (int i0__ = 0; i0__ < n; ++i0__) {
+            if (stan::math::is_uninitialized(level(i0__))) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: level" << '[' << i0__ << ']';
+                throw std::runtime_error(msg__.str());
+            }
+        }
+
+        const char* function__ = "validate transformed params";
+        (void) function__;  // dummy to suppress unused var warning
+
+        // model body
+        try {
+
+            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log(level_std,0,1));
+            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        lp_accum__.add(lp__);
+        return lp_accum__.sum();
+
+    } // log_prob()
+
+    template <bool propto, bool jacobian, typename T_>
+    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
+               std::ostream* pstream = 0) const {
+      std::vector<T_> vec_params_r;
+      vec_params_r.reserve(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        vec_params_r.push_back(params_r(i));
+      std::vector<int> vec_params_i;
+      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
+    }
+
+
+    void get_param_names(std::vector<std::string>& names__) const {
+        names__.resize(0);
+        names__.push_back("theta");
+        names__.push_back("beta");
+        names__.push_back("level_std");
+        names__.push_back("xbeta");
+        names__.push_back("level");
+    }
+
+
+    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
+        dimss__.resize(0);
+        std::vector<size_t> dims__;
+        dims__.resize(0);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(k);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(n);
+        dimss__.push_back(dims__);
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng__,
+                     std::vector<double>& params_r__,
+                     std::vector<int>& params_i__,
+                     std::vector<double>& vars__,
+                     bool include_tparams__ = true,
+                     bool include_gqs__ = true,
+                     std::ostream* pstream__ = 0) const {
+        vars__.resize(0);
+        stan::io::reader<double> in__(params_r__,params_i__);
+        static const char* function__ = "model_x_ll_poisson_namespace::write_array";
+        (void) function__;  // dummy to suppress unused var warning
+        // read-transform, write parameters
+        double theta = in__.scalar_lb_constrain(0);
+        vector_d beta = in__.vector_constrain(k);
+        vector_d level_std = in__.vector_constrain(n);
+        vars__.push_back(theta);
+        for (int k_0__ = 0; k_0__ < k; ++k_0__) {
+            vars__.push_back(beta[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(level_std[k_0__]);
+        }
+
+        if (!include_tparams__) return;
+        // declare and define transformed parameters
+        double lp__ = 0.0;
+        (void) lp__;  // dummy to suppress unused var warning
+        stan::math::accumulator<double> lp_accum__;
+
+        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+        validate_non_negative_index("xbeta", "n", n);
+        vector_d xbeta(static_cast<Eigen::VectorXd::Index>(n));
+        (void) xbeta;  // dummy to suppress unused var warning
+
+        stan::math::initialize(xbeta, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(xbeta,DUMMY_VAR__);
+        stan::math::assign(xbeta,multiply(xreg,beta));
+        validate_non_negative_index("level", "n", n);
+        vector_d level(static_cast<Eigen::VectorXd::Index>(n));
+        (void) level;  // dummy to suppress unused var warning
+
+        stan::math::initialize(level, std::numeric_limits<double>::quiet_NaN());
+        stan::math::fill(level,DUMMY_VAR__);
+
+
+        try {
+            stan::math::assign(get_base1_lhs(level,1,"level",1), (a1 + (sqrt(P1) * get_base1(level_std,1,"level_std",1))));
+            for (int t = 2; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(level,t,"level",1), (get_base1(level,(t - 1),"level",1) + (theta * get_base1(level_std,t,"level_std",1))));
+            }
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate transformed parameters
+
+        // write transformed parameters
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(xbeta[k_0__]);
+        }
+        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
+            vars__.push_back(level[k_0__]);
+        }
+
+        if (!include_gqs__) return;
+        // declare and define generated quantities
+
+
+        try {
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(e,current_statement_begin__);
+            // Next line prevents compiler griping about no return
+            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+        }
+
+        // validate generated quantities
+
+        // write generated quantities
+    }
+
+    template <typename RNG>
+    void write_array(RNG& base_rng,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
+                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
+                     bool include_tparams = true,
+                     bool include_gqs = true,
+                     std::ostream* pstream = 0) const {
+      std::vector<double> params_r_vec(params_r.size());
+      for (int i = 0; i < params_r.size(); ++i)
+        params_r_vec[i] = params_r(i);
+      std::vector<double> vars_vec;
+      std::vector<int> params_i_vec;
+      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
+      vars.resize(vars_vec.size());
+      for (int i = 0; i < vars.size(); ++i)
+        vars(i) = vars_vec[i];
+    }
+
+    static std::string model_name() {
+        return "model_x_ll_poisson";
+    }
+
+
+    void constrained_param_names(std::vector<std::string>& param_names__,
+                                 bool include_tparams__ = true,
+                                 bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "theta";
+        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "level_std" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "xbeta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "level" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+
+    void unconstrained_param_names(std::vector<std::string>& param_names__,
+                                   bool include_tparams__ = true,
+                                   bool include_gqs__ = true) const {
+        std::stringstream param_name_stream__;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "theta";
+        param_names__.push_back(param_name_stream__.str());
+        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "beta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "level_std" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__ && !include_tparams__) return;
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "xbeta" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "level" << '.' << k_0__;
+            param_names__.push_back(param_name_stream__.str());
+        }
+
+        if (!include_gqs__) return;
+    }
+
+}; // model
+
+}
+
+
+
+
+// Code generated by Stan version 2.15.0
+
+#include <stan/model/model_header.hpp>
+
+namespace model_x_llt_approx_namespace {
+
+using std::istream;
+using std::string;
+using std::stringstream;
+using std::vector;
+using stan::io::dump;
+using stan::math::lgamma;
+using stan::model::prob_grad;
+using namespace stan::math;
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
+typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
+typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
+
+static int current_statement_begin__;
+
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
+gaussian_filter(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                    const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                    const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
+                    const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                    const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                    const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type fun_scalar_t__;
+    typedef fun_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        fun_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+            int n(0);
+            (void) n;  // dummy to suppress unused var warning
+
+            stan::math::fill(n, std::numeric_limits<int>::min());
+            stan::math::assign(n,rows(y));
+            int m(0);
+            (void) m;  // dummy to suppress unused var warning
+
+            stan::math::fill(m, std::numeric_limits<int>::min());
+            stan::math::assign(m,rows(a1));
+            fun_scalar_t__ loglik;
+            (void) loglik;  // dummy to suppress unused var warning
+
+            stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(loglik,DUMMY_VAR__);
+            stan::math::assign(loglik,0.0);
+            validate_non_negative_index("x", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(m));
+            (void) x;  // dummy to suppress unused var warning
+
+            stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(x,DUMMY_VAR__);
+            stan::math::assign(x,a1);
+            validate_non_negative_index("P", "m", m);
+            validate_non_negative_index("P", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+            (void) P;  // dummy to suppress unused var warning
+
+            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(P,DUMMY_VAR__);
+            stan::math::assign(P,P1);
+
+
+            for (int t = 1; t <= n; ++t) {
+                {
+                    fun_scalar_t__ F;
+                    (void) F;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(F,DUMMY_VAR__);
+                    stan::math::assign(F,(quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
+
+
+                    if (as_bool(logical_gt(F,1e-08))) {
+                        {
+                            fun_scalar_t__ v;
+                            (void) v;  // dummy to suppress unused var warning
+
+                            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(v,DUMMY_VAR__);
+                            stan::math::assign(v,(get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                            validate_non_negative_index("K", "m", m);
+                            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  K(static_cast<Eigen::VectorXd::Index>(m));
+                            (void) K;  // dummy to suppress unused var warning
+
+                            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+                            stan::math::fill(K,DUMMY_VAR__);
+                            stan::math::assign(K,divide(multiply(P,transpose(Zt)),F));
+
+
+                            stan::math::assign(x, multiply(Tt,add(x,multiply(K,v))));
+                            stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(K,transpose(K)),F)),transpose(Tt)),Rt));
+                            stan::math::assign(loglik, (loglik - (0.5 * (log(F) + ((v * v) / F)))));
+                        }
+                    } else {
+
+                        stan::math::assign(x, multiply(Tt,x));
+                        stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                    }
+                }
+            }
+            return stan::math::promote_scalar<fun_return_scalar_t__>(loglik);
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e,current_statement_begin__);
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct gaussian_filter_functor__ {
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+        typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                    const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                    const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                    const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
+                    const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                    const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                    const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
+        return gaussian_filter(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
+    }
+};
+
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
+gaussian_smoother(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                      const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                      const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
+                      const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                      const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                      const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type fun_scalar_t__;
+    typedef fun_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        fun_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+            int n(0);
+            (void) n;  // dummy to suppress unused var warning
+
+            stan::math::fill(n, std::numeric_limits<int>::min());
+            stan::math::assign(n,rows(y));
+            int m(0);
+            (void) m;  // dummy to suppress unused var warning
+
+            stan::math::fill(m, std::numeric_limits<int>::min());
+            stan::math::assign(m,rows(a1));
+            fun_scalar_t__ loglik;
+            (void) loglik;  // dummy to suppress unused var warning
+
+            stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(loglik,DUMMY_VAR__);
+            stan::math::assign(loglik,0.0);
+            validate_non_negative_index("mode", "(n + 1)", (n + 1));
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode(static_cast<Eigen::VectorXd::Index>((n + 1)));
+            (void) mode;  // dummy to suppress unused var warning
+
+            stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(mode,DUMMY_VAR__);
+            validate_non_negative_index("x", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  x(static_cast<Eigen::VectorXd::Index>(m));
+            (void) x;  // dummy to suppress unused var warning
+
+            stan::math::initialize(x, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(x,DUMMY_VAR__);
+            stan::math::assign(x,a1);
+            validate_non_negative_index("P", "m", m);
+            validate_non_negative_index("P", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  P(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(m));
+            (void) P;  // dummy to suppress unused var warning
+
+            stan::math::initialize(P, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(P,DUMMY_VAR__);
+            stan::math::assign(P,P1);
+            validate_non_negative_index("v", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  v(static_cast<Eigen::VectorXd::Index>(n));
+            (void) v;  // dummy to suppress unused var warning
+
+            stan::math::initialize(v, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(v,DUMMY_VAR__);
+            validate_non_negative_index("F", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  F(static_cast<Eigen::VectorXd::Index>(n));
+            (void) F;  // dummy to suppress unused var warning
+
+            stan::math::initialize(F, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(F,DUMMY_VAR__);
+            validate_non_negative_index("K", "m", m);
+            validate_non_negative_index("K", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  K(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>(n));
+            (void) K;  // dummy to suppress unused var warning
+
+            stan::math::initialize(K, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(K,DUMMY_VAR__);
+            validate_non_negative_index("r", "m", m);
+            validate_non_negative_index("r", "(n + 1)", (n + 1));
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,Eigen::Dynamic>  r(static_cast<Eigen::VectorXd::Index>(m),static_cast<Eigen::VectorXd::Index>((n + 1)));
+            (void) r;  // dummy to suppress unused var warning
+
+            stan::math::initialize(r, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(r,DUMMY_VAR__);
+            validate_non_negative_index("tmpr", "m", m);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmpr(static_cast<Eigen::VectorXd::Index>(m));
+            (void) tmpr;  // dummy to suppress unused var warning
+
+            stan::math::initialize(tmpr, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(tmpr,DUMMY_VAR__);
+
+
+            for (int t = 1; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(F,t,"F",1), (quad_form(P,transpose(Zt)) + get_base1(var_y,t,"var_y",1)));
+                if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
+
+                    stan::math::assign(get_base1_lhs(v,t,"v",1), (get_base1(y,t,"y",1) - dot_product(Zt,x)));
+                    stan::model::assign(K, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                divide(multiply(P,transpose(Zt)),get_base1(F,t,"F",1)), 
+                                "assigning variable K");
+                    stan::math::assign(x, multiply(Tt,add(x,multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),get_base1(v,t,"v",1)))));
+                    stan::math::assign(P, add(quad_form_sym(subtract(P,multiply(multiply(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"),transpose(stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K"))),get_base1(F,t,"F",1))),transpose(Tt)),Rt));
+                    stan::math::assign(loglik, (loglik - (0.5 * (log(get_base1(F,t,"F",1)) + ((get_base1(v,t,"v",1) * get_base1(v,t,"v",1)) / get_base1(F,t,"F",1))))));
+                } else {
+
+                    stan::math::assign(x, multiply(Tt,x));
+                    stan::math::assign(P, add(quad_form_sym(P,transpose(Tt)),Rt));
+                }
+            }
+            stan::model::assign(r, 
+                        stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((n + 1)), stan::model::nil_index_list())), 
+                        rep_vector(0.0,m), 
+                        "assigning variable r");
+            for (int tt = 1; tt <= n; ++tt) {
+                {
+                    int t(0);
+                    (void) t;  // dummy to suppress unused var warning
+
+                    stan::math::fill(t, std::numeric_limits<int>::min());
+                    stan::math::assign(t,((n + 1) - tt));
+                    validate_non_negative_index("tmp", "m", m);
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t + 1)), stan::model::nil_index_list())), "r"));
+
+
+                    if (as_bool(logical_gt(get_base1(F,t,"F",1),1e-08))) {
+
+                        stan::model::assign(r, 
+                                    stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                    add(divide(multiply(transpose(Zt),get_base1(v,t,"v",1)),get_base1(F,t,"F",1)),multiply(transpose(subtract(Tt,multiply(multiply(Tt,stan::model::rvalue(K, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "K")),Zt))),tmp)), 
+                                    "assigning variable r");
+                    } else {
+
+                        stan::model::assign(r, 
+                                    stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                    multiply(transpose(Tt),tmp), 
+                                    "assigning variable r");
+                    }
+                }
+            }
+            stan::math::assign(tmpr, stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "r"));
+            stan::model::assign(r, 
+                        stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
+                        add(a1,multiply(P1,tmpr)), 
+                        "assigning variable r");
+            for (int t = 2; t <= n; ++t) {
+                {
+                    validate_non_negative_index("tmp", "m", m);
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(tmp, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp,DUMMY_VAR__);
+                    stan::math::assign(tmp,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni((t - 1)), stan::model::nil_index_list())), "r"));
+                    validate_non_negative_index("tmp2", "m", m);
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  tmp2(static_cast<Eigen::VectorXd::Index>(m));
+                    (void) tmp2;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(tmp2, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(tmp2,DUMMY_VAR__);
+                    stan::math::assign(tmp2,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r"));
+
+
+                    stan::model::assign(r, 
+                                stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), 
+                                add(multiply(Tt,tmp),multiply(Rt,tmp2)), 
+                                "assigning variable r");
+                }
+            }
+            for (int t = 1; t <= n; ++t) {
+
+                stan::math::assign(get_base1_lhs(mode,t,"mode",1), multiply(Zt,stan::model::rvalue(r, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(t), stan::model::nil_index_list())), "r")));
+            }
+            stan::math::assign(get_base1_lhs(mode,(n + 1),"mode",1), loglik);
+            return stan::math::promote_scalar<fun_return_scalar_t__>(mode);
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e,current_statement_begin__);
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct gaussian_smoother_functor__ {
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__>::type>::type, Eigen::Dynamic,1>
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+                      const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+                      const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+                      const Eigen::Matrix<T3__, Eigen::Dynamic,1>& var_y,
+                      const Eigen::Matrix<T4__, 1,Eigen::Dynamic>& Zt,
+                      const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+                      const Eigen::Matrix<T6__, Eigen::Dynamic,Eigen::Dynamic>& Rt, std::ostream* pstream__) const {
+        return gaussian_smoother(y, a1, P1, var_y, Zt, Tt, Rt, pstream__);
+    }
+};
+
+template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
+approx(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+           const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+           const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
+           const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+           const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
+           const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
+           const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) {
+    typedef typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type fun_scalar_t__;
+    typedef fun_scalar_t__ fun_return_scalar_t__;
+    const static bool propto__ = true;
+    (void) propto__;
+        fun_scalar_t__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
+        (void) DUMMY_VAR__;  // suppress unused var warning
+
+    int current_statement_begin__ = -1;
+    try {
+        {
+            int n(0);
+            (void) n;  // dummy to suppress unused var warning
+
+            stan::math::fill(n, std::numeric_limits<int>::min());
+            stan::math::assign(n,rows(y));
+            validate_non_negative_index("approx_y", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_y(static_cast<Eigen::VectorXd::Index>(n));
+            (void) approx_y;  // dummy to suppress unused var warning
+
+            stan::math::initialize(approx_y, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(approx_y,DUMMY_VAR__);
+            validate_non_negative_index("approx_var_y", "n", n);
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_var_y(static_cast<Eigen::VectorXd::Index>(n));
+            (void) approx_var_y;  // dummy to suppress unused var warning
+
+            stan::math::initialize(approx_var_y, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(approx_var_y,DUMMY_VAR__);
+            validate_non_negative_index("mode", "(n + 1)", (n + 1));
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode(static_cast<Eigen::VectorXd::Index>((n + 1)));
+            (void) mode;  // dummy to suppress unused var warning
+
+            stan::math::initialize(mode, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(mode,DUMMY_VAR__);
+            validate_non_negative_index("approx_results", "((3 * n) + 1)", ((3 * n) + 1));
+            Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  approx_results(static_cast<Eigen::VectorXd::Index>(((3 * n) + 1)));
+            (void) approx_results;  // dummy to suppress unused var warning
+
+            stan::math::initialize(approx_results, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(approx_results,DUMMY_VAR__);
+            fun_scalar_t__ loglik;
+            (void) loglik;  // dummy to suppress unused var warning
+
+            stan::math::initialize(loglik, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(loglik,DUMMY_VAR__);
+            stan::math::assign(loglik,get_base1(mode_,(n + 1),"mode_",1));
+            fun_scalar_t__ diff;
+            (void) diff;  // dummy to suppress unused var warning
+
+            stan::math::initialize(diff, std::numeric_limits<double>::quiet_NaN());
+            stan::math::fill(diff,DUMMY_VAR__);
+            stan::math::assign(diff,1.0);
+            int i(0);
+            (void) i;  // dummy to suppress unused var warning
+
+            stan::math::fill(i, std::numeric_limits<int>::min());
+            stan::math::assign(i,0);
+
+
+            stan::model::assign(mode, 
+                        stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
+                        subtract(stan::model::rvalue(mode_, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_"),xbeta), 
+                        "assigning variable mode");
+            if (as_bool(logical_lt(min(diagonal(Rt)),0.0))) {
+
+                std::stringstream errmsg_stream__;
+                errmsg_stream__ << "Negative standard deviation. ";
+                throw std::domain_error(errmsg_stream__.str());
+            }
+            if (as_bool((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode"))),50))))) {
+
+                std::stringstream errmsg_stream__;
+                errmsg_stream__ << "Mean of the Poisson/negbin distribution > exp(50). ";
+                throw std::domain_error(errmsg_stream__.str());
+            }
+            while (as_bool((primitive_value(logical_lt(i,max_iter)) && primitive_value(logical_gt(diff,conv_tol))))) {
+                {
+                    validate_non_negative_index("mode_new", "(n + 1)", (n + 1));
+                    Eigen::Matrix<fun_scalar_t__,Eigen::Dynamic,1>  mode_new(static_cast<Eigen::VectorXd::Index>((n + 1)));
+                    (void) mode_new;  // dummy to suppress unused var warning
+
+                    stan::math::initialize(mode_new, std::numeric_limits<double>::quiet_NaN());
+                    stan::math::fill(mode_new,DUMMY_VAR__);
+
+
+                    stan::math::assign(approx_var_y, elt_divide(1.0,exp(add(xbeta,stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(approx_y, subtract(add(elt_multiply(y,approx_var_y),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")),1.0));
+                    stan::math::assign(mode_new, gaussian_smoother(approx_y,a1,P1,approx_var_y,Zt,Tt,Rt, pstream__));
+                    if (as_bool((primitive_value((primitive_value(is_nan(get_base1(mode_new,(n + 1),"mode_new",1))) || primitive_value(is_inf(get_base1(mode_new,(n + 1),"mode_new",1))))) || primitive_value((primitive_value(logical_neq(distribution,2)) && primitive_value(logical_gt(max(add(xbeta,stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"))),50))))))) {
+
+                        std::stringstream errmsg_stream__;
+                        errmsg_stream__ << "Error at iteration ";
+                        errmsg_stream__ << i;
+                        errmsg_stream__ << " of the approximation.";
+                        throw std::domain_error(errmsg_stream__.str());
+                    }
+                    stan::math::assign(diff, mean(square(subtract(stan::model::rvalue(mode_new, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode_new"),stan::model::rvalue(mode, stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), "mode")))));
+                    stan::math::assign(mode, mode_new);
+                    stan::math::assign(loglik, get_base1(mode,(n + 1),"mode",1));
+                    stan::math::assign(i, (i + 1));
+                }
+            }
+            if (as_bool(logical_eq(i,max_iter))) {
+
+                std::stringstream errmsg_stream__;
+                errmsg_stream__ << "Maximum number of iterations for approximation used. ";
+                throw std::domain_error(errmsg_stream__.str());
+            }
+            stan::model::assign(approx_results, 
+                        stan::model::cons_list(stan::model::index_min_max(1, n), stan::model::nil_index_list()), 
+                        approx_y, 
+                        "assigning variable approx_results");
+            stan::model::assign(approx_results, 
+                        stan::model::cons_list(stan::model::index_min_max((n + 1), (2 * n)), stan::model::nil_index_list()), 
+                        approx_var_y, 
+                        "assigning variable approx_results");
+            if (as_bool(logical_eq(distribution,1))) {
+
+                for (int t = 1; t <= n; ++t) {
+
+                    stan::math::assign(get_base1_lhs(approx_results,((2 * n) + t),"approx_results",1), (((get_base1(y,t,"y",1) * (get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1))) - exp((get_base1(xbeta,t,"xbeta",1) + get_base1(mode,t,"mode",1)))) + (0.5 * (pow((get_base1(approx_y,t,"approx_y",1) - get_base1(mode,t,"mode",1)),2) / get_base1(approx_var_y,t,"approx_var_y",1)))));
+                }
+                stan::math::assign(get_base1_lhs(approx_results,((3 * n) + 1),"approx_results",1), ((loglik + sum(stan::model::rvalue(approx_results, stan::model::cons_list(stan::model::index_min_max(((2 * n) + 1), (3 * n)), stan::model::nil_index_list()), "approx_results"))) + (0.5 * sum(log(approx_var_y)))));
+            } else {
+
+                if (as_bool(logical_eq(distribution,2))) {
+
+                } else {
+
+                }
+            }
+            return stan::math::promote_scalar<fun_return_scalar_t__>(approx_results);
+        }
+    } catch (const std::exception& e) {
+        stan::lang::rethrow_located(e,current_statement_begin__);
+        // Next line prevents compiler griping about no return
+        throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
+    }
+}
+
+
+struct approx_functor__ {
+    template <typename T0__, typename T1__, typename T2__, typename T3__, typename T4__, typename T5__, typename T6__, typename T7__, typename T10__>
+        Eigen::Matrix<typename boost::math::tools::promote_args<T0__, T1__, T2__, T3__, typename boost::math::tools::promote_args<T4__, T5__, T6__, T7__, typename boost::math::tools::promote_args<T10__>::type>::type>::type, Eigen::Dynamic,1>
+    operator()(const Eigen::Matrix<T0__, Eigen::Dynamic,1>& y,
+           const Eigen::Matrix<T1__, Eigen::Dynamic,1>& a1,
+           const Eigen::Matrix<T2__, Eigen::Dynamic,Eigen::Dynamic>& P1,
+           const Eigen::Matrix<T3__, 1,Eigen::Dynamic>& Zt,
+           const Eigen::Matrix<T4__, Eigen::Dynamic,Eigen::Dynamic>& Tt,
+           const Eigen::Matrix<T5__, Eigen::Dynamic,Eigen::Dynamic>& Rt,
+           const Eigen::Matrix<T6__, Eigen::Dynamic,1>& mode_,
+           const Eigen::Matrix<T7__, Eigen::Dynamic,1>& xbeta,
+           const int& distribution,
+           const int& max_iter,
+           const T10__& conv_tol, std::ostream* pstream__) const {
+        return approx(y, a1, P1, Zt, Tt, Rt, mode_, xbeta, distribution, max_iter, conv_tol, pstream__);
     }
 };
 
@@ -5232,7 +9439,7 @@ private:
     int n;
     int k;
     vector_d y;
-    vector_d x1;
+    vector_d a1;
     matrix_d P1;
     vector_d sd_prior_means;
     vector_d sd_prior_sds;
@@ -5241,6 +9448,8 @@ private:
     vector_d initial_mode;
     matrix_d xreg;
     int distribution;
+    int max_iter;
+    double conv_tol;
     int m;
     row_vector_d Zt;
     matrix_d Tt;
@@ -5297,15 +9506,15 @@ public:
         for (size_t i_vec__ = 0; i_vec__ < y_i_vec_lim__; ++i_vec__) {
             y[i_vec__] = vals_r__[pos__++];
         }
-        validate_non_negative_index("x1", "2", 2);
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec(2));
-        validate_non_negative_index("x1", "2", 2);
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "2", 2);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("a1", "2", 2);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        size_t x1_i_vec_lim__ = 2;
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
+        size_t a1_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("P1", "2", 2);
         validate_non_negative_index("P1", "2", 2);
@@ -5392,6 +9601,16 @@ public:
         vals_i__ = context__.vals_i("distribution");
         pos__ = 0;
         distribution = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "max_iter", "int", context__.to_vec());
+        max_iter = int(0);
+        vals_i__ = context__.vals_i("max_iter");
+        pos__ = 0;
+        max_iter = vals_i__[pos__++];
+        context__.validate_dims("data initialization", "conv_tol", "double", context__.to_vec());
+        conv_tol = double(0);
+        vals_r__ = context__.vals_r("conv_tol");
+        pos__ = 0;
+        conv_tol = vals_r__[pos__++];
 
         // validate, data variables
         check_greater_or_equal(function__,"n",n,0);
@@ -5554,7 +9773,7 @@ public:
         try {
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -5713,7 +9932,7 @@ public:
         try {
             stan::math::assign(get_base1_lhs(Rt,1,1,"Rt",1), pow(get_base1(theta,1,"theta",1),2));
             stan::math::assign(get_base1_lhs(Rt,2,2,"Rt",1), pow(get_base1(theta,2,"theta",1),2));
-            stan::math::assign(approx_results, approx(y,x1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution, pstream__));
+            stan::math::assign(approx_results, approx(y,a1,P1,Zt,Tt,Rt,initial_mode,xbeta,distribution,max_iter,conv_tol, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -5896,7 +10115,7 @@ private:
     int n;
     int k;
     vector<int> y;
-    vector_d x1;
+    vector_d a1;
     matrix_d P1;
     vector_d sd_prior_means;
     vector_d sd_prior_sds;
@@ -5956,15 +10175,15 @@ public:
         for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
             y[i_0__] = vals_i__[pos__++];
         }
-        validate_non_negative_index("x1", "2", 2);
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec(2));
-        validate_non_negative_index("x1", "2", 2);
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("x1");
+        validate_non_negative_index("a1", "2", 2);
+        context__.validate_dims("data initialization", "a1", "vector_d", context__.to_vec(2));
+        validate_non_negative_index("a1", "2", 2);
+        a1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
+        vals_r__ = context__.vals_r("a1");
         pos__ = 0;
-        size_t x1_i_vec_lim__ = 2;
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
+        size_t a1_i_vec_lim__ = 2;
+        for (size_t i_vec__ = 0; i_vec__ < a1_i_vec_lim__; ++i_vec__) {
+            a1[i_vec__] = vals_r__[pos__++];
         }
         validate_non_negative_index("P1", "2", 2);
         validate_non_negative_index("P1", "2", 2);
@@ -6230,12 +10449,12 @@ public:
 
 
         try {
-            stan::math::assign(get_base1_lhs(level,1,"level",1), (get_base1(x1,1,"x1",1) + (sqrt(get_base1(P1,1,1,"P1",1)) * get_base1(level_std,1,"level_std",1))));
-            stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(x1,2,"x1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
+            stan::math::assign(get_base1_lhs(level,1,"level",1), (get_base1(a1,1,"a1",1) + (sqrt(get_base1(P1,1,1,"P1",1)) * get_base1(level_std,1,"level_std",1))));
+            stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(a1,2,"a1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(level,t,"level",1), (((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + get_base1(level_std,t,"level_std",1)) * get_base1(theta,1,"theta",1)));
-                stan::math::assign(get_base1_lhs(slope,t,"slope",1), ((get_base1(slope,(t - 1),"slope",1) + get_base1(slope_std,t,"slope_std",1)) * get_base1(theta,2,"theta",1)));
+                stan::math::assign(get_base1_lhs(level,t,"level",1), ((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + (get_base1(theta,1,"theta",1) * get_base1(level_std,t,"level_std",1))));
+                stan::math::assign(get_base1_lhs(slope,t,"slope",1), (get_base1(slope,(t - 1),"slope",1) + (get_base1(theta,2,"theta",1) * get_base1(slope_std,t,"slope_std",1))));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -6403,12 +10622,12 @@ public:
 
 
         try {
-            stan::math::assign(get_base1_lhs(level,1,"level",1), (get_base1(x1,1,"x1",1) + (sqrt(get_base1(P1,1,1,"P1",1)) * get_base1(level_std,1,"level_std",1))));
-            stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(x1,2,"x1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
+            stan::math::assign(get_base1_lhs(level,1,"level",1), (get_base1(a1,1,"a1",1) + (sqrt(get_base1(P1,1,1,"P1",1)) * get_base1(level_std,1,"level_std",1))));
+            stan::math::assign(get_base1_lhs(slope,1,"slope",1), (get_base1(a1,2,"a1",1) + (sqrt(get_base1(P1,2,2,"P1",1)) * get_base1(slope_std,1,"slope_std",1))));
             for (int t = 2; t <= n; ++t) {
 
-                stan::math::assign(get_base1_lhs(level,t,"level",1), (((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + get_base1(level_std,t,"level_std",1)) * get_base1(theta,1,"theta",1)));
-                stan::math::assign(get_base1_lhs(slope,t,"slope",1), ((get_base1(slope,(t - 1),"slope",1) + get_base1(slope_std,t,"slope_std",1)) * get_base1(theta,2,"theta",1)));
+                stan::math::assign(get_base1_lhs(level,t,"level",1), ((get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)) + (get_base1(theta,1,"theta",1) * get_base1(level_std,t,"level_std",1))));
+                stan::math::assign(get_base1_lhs(slope,t,"slope",1), (get_base1(slope,(t - 1),"slope",1) + (get_base1(theta,2,"theta",1) * get_base1(slope_std,t,"slope_std",1))));
             }
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -6553,621 +10772,6 @@ public:
         for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
             param_name_stream__.str(std::string());
             param_name_stream__ << "slope" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-
-        if (!include_gqs__) return;
-    }
-
-}; // model
-
-}
-
-
-
-
-// Code generated by Stan version 2.15.0
-
-#include <stan/model/model_header.hpp>
-
-namespace model_x_llt_poisson2_namespace {
-
-using std::istream;
-using std::string;
-using std::stringstream;
-using std::vector;
-using stan::io::dump;
-using stan::math::lgamma;
-using stan::model::prob_grad;
-using namespace stan::math;
-
-typedef Eigen::Matrix<double,Eigen::Dynamic,1> vector_d;
-typedef Eigen::Matrix<double,1,Eigen::Dynamic> row_vector_d;
-typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> matrix_d;
-
-static int current_statement_begin__;
-
-class model_x_llt_poisson2 : public prob_grad {
-private:
-    int n;
-    int k;
-    vector<int> y;
-    vector_d x1;
-    matrix_d P1;
-    vector_d sd_prior_means;
-    vector_d sd_prior_sds;
-    vector_d beta_prior_means;
-    vector_d beta_prior_sds;
-    matrix_d xreg;
-public:
-    model_x_llt_poisson2(stan::io::var_context& context__,
-        std::ostream* pstream__ = 0)
-        : prob_grad(0) {
-        typedef boost::ecuyer1988 rng_t;
-        rng_t base_rng(0);  // 0 seed default
-        ctor_body(context__, base_rng, pstream__);
-    }
-
-    template <class RNG>
-    model_x_llt_poisson2(stan::io::var_context& context__,
-        RNG& base_rng__,
-        std::ostream* pstream__ = 0)
-        : prob_grad(0) {
-        ctor_body(context__, base_rng__, pstream__);
-    }
-
-    template <class RNG>
-    void ctor_body(stan::io::var_context& context__,
-                   RNG& base_rng__,
-                   std::ostream* pstream__) {
-        current_statement_begin__ = -1;
-
-        static const char* function__ = "model_x_llt_poisson2_namespace::model_x_llt_poisson2";
-        (void) function__;  // dummy to suppress unused var warning
-        size_t pos__;
-        (void) pos__;  // dummy to suppress unused var warning
-        std::vector<int> vals_i__;
-        std::vector<double> vals_r__;
-        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
-        (void) DUMMY_VAR__;  // suppress unused var warning
-
-        // initialize member variables
-        context__.validate_dims("data initialization", "n", "int", context__.to_vec());
-        n = int(0);
-        vals_i__ = context__.vals_i("n");
-        pos__ = 0;
-        n = vals_i__[pos__++];
-        context__.validate_dims("data initialization", "k", "int", context__.to_vec());
-        k = int(0);
-        vals_i__ = context__.vals_i("k");
-        pos__ = 0;
-        k = vals_i__[pos__++];
-        validate_non_negative_index("y", "n", n);
-        context__.validate_dims("data initialization", "y", "int", context__.to_vec(n));
-        validate_non_negative_index("y", "n", n);
-        y = std::vector<int>(n,int(0));
-        vals_i__ = context__.vals_i("y");
-        pos__ = 0;
-        size_t y_limit_0__ = n;
-        for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
-            y[i_0__] = vals_i__[pos__++];
-        }
-        validate_non_negative_index("x1", "2", 2);
-        context__.validate_dims("data initialization", "x1", "vector_d", context__.to_vec(2));
-        validate_non_negative_index("x1", "2", 2);
-        x1 = vector_d(static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("x1");
-        pos__ = 0;
-        size_t x1_i_vec_lim__ = 2;
-        for (size_t i_vec__ = 0; i_vec__ < x1_i_vec_lim__; ++i_vec__) {
-            x1[i_vec__] = vals_r__[pos__++];
-        }
-        validate_non_negative_index("P1", "2", 2);
-        validate_non_negative_index("P1", "2", 2);
-        context__.validate_dims("data initialization", "P1", "matrix_d", context__.to_vec(2,2));
-        validate_non_negative_index("P1", "2", 2);
-        validate_non_negative_index("P1", "2", 2);
-        P1 = matrix_d(static_cast<Eigen::VectorXd::Index>(2),static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("P1");
-        pos__ = 0;
-        size_t P1_m_mat_lim__ = 2;
-        size_t P1_n_mat_lim__ = 2;
-        for (size_t n_mat__ = 0; n_mat__ < P1_n_mat_lim__; ++n_mat__) {
-            for (size_t m_mat__ = 0; m_mat__ < P1_m_mat_lim__; ++m_mat__) {
-                P1(m_mat__,n_mat__) = vals_r__[pos__++];
-            }
-        }
-        validate_non_negative_index("sd_prior_means", "2", 2);
-        context__.validate_dims("data initialization", "sd_prior_means", "vector_d", context__.to_vec(2));
-        validate_non_negative_index("sd_prior_means", "2", 2);
-        sd_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("sd_prior_means");
-        pos__ = 0;
-        size_t sd_prior_means_i_vec_lim__ = 2;
-        for (size_t i_vec__ = 0; i_vec__ < sd_prior_means_i_vec_lim__; ++i_vec__) {
-            sd_prior_means[i_vec__] = vals_r__[pos__++];
-        }
-        validate_non_negative_index("sd_prior_sds", "2", 2);
-        context__.validate_dims("data initialization", "sd_prior_sds", "vector_d", context__.to_vec(2));
-        validate_non_negative_index("sd_prior_sds", "2", 2);
-        sd_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(2));
-        vals_r__ = context__.vals_r("sd_prior_sds");
-        pos__ = 0;
-        size_t sd_prior_sds_i_vec_lim__ = 2;
-        for (size_t i_vec__ = 0; i_vec__ < sd_prior_sds_i_vec_lim__; ++i_vec__) {
-            sd_prior_sds[i_vec__] = vals_r__[pos__++];
-        }
-        validate_non_negative_index("beta_prior_means", "k", k);
-        context__.validate_dims("data initialization", "beta_prior_means", "vector_d", context__.to_vec(k));
-        validate_non_negative_index("beta_prior_means", "k", k);
-        beta_prior_means = vector_d(static_cast<Eigen::VectorXd::Index>(k));
-        vals_r__ = context__.vals_r("beta_prior_means");
-        pos__ = 0;
-        size_t beta_prior_means_i_vec_lim__ = k;
-        for (size_t i_vec__ = 0; i_vec__ < beta_prior_means_i_vec_lim__; ++i_vec__) {
-            beta_prior_means[i_vec__] = vals_r__[pos__++];
-        }
-        validate_non_negative_index("beta_prior_sds", "k", k);
-        context__.validate_dims("data initialization", "beta_prior_sds", "vector_d", context__.to_vec(k));
-        validate_non_negative_index("beta_prior_sds", "k", k);
-        beta_prior_sds = vector_d(static_cast<Eigen::VectorXd::Index>(k));
-        vals_r__ = context__.vals_r("beta_prior_sds");
-        pos__ = 0;
-        size_t beta_prior_sds_i_vec_lim__ = k;
-        for (size_t i_vec__ = 0; i_vec__ < beta_prior_sds_i_vec_lim__; ++i_vec__) {
-            beta_prior_sds[i_vec__] = vals_r__[pos__++];
-        }
-        validate_non_negative_index("xreg", "n", n);
-        validate_non_negative_index("xreg", "k", k);
-        context__.validate_dims("data initialization", "xreg", "matrix_d", context__.to_vec(n,k));
-        validate_non_negative_index("xreg", "n", n);
-        validate_non_negative_index("xreg", "k", k);
-        xreg = matrix_d(static_cast<Eigen::VectorXd::Index>(n),static_cast<Eigen::VectorXd::Index>(k));
-        vals_r__ = context__.vals_r("xreg");
-        pos__ = 0;
-        size_t xreg_m_mat_lim__ = n;
-        size_t xreg_n_mat_lim__ = k;
-        for (size_t n_mat__ = 0; n_mat__ < xreg_n_mat_lim__; ++n_mat__) {
-            for (size_t m_mat__ = 0; m_mat__ < xreg_m_mat_lim__; ++m_mat__) {
-                xreg(m_mat__,n_mat__) = vals_r__[pos__++];
-            }
-        }
-
-        // validate, data variables
-        check_greater_or_equal(function__,"n",n,0);
-        check_greater_or_equal(function__,"k",k,0);
-        for (int k0__ = 0; k0__ < n; ++k0__) {
-            check_greater_or_equal(function__,"y[k0__]",y[k0__],0);
-        }
-        // initialize data variables
-
-        try {
-        } catch (const std::exception& e) {
-            stan::lang::rethrow_located(e,current_statement_begin__);
-            // Next line prevents compiler griping about no return
-            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
-        }
-
-        // validate transformed data
-
-        // validate, set parameter ranges
-        num_params_r__ = 0U;
-        param_ranges_i__.clear();
-        validate_non_negative_index("theta", "2", 2);
-        num_params_r__ += 2;
-        validate_non_negative_index("beta", "k", k);
-        num_params_r__ += k;
-        validate_non_negative_index("level", "n", n);
-        num_params_r__ += n;
-        validate_non_negative_index("slope", "n", n);
-        num_params_r__ += n;
-    }
-
-    ~model_x_llt_poisson2() { }
-
-
-    void transform_inits(const stan::io::var_context& context__,
-                         std::vector<int>& params_i__,
-                         std::vector<double>& params_r__,
-                         std::ostream* pstream__) const {
-        stan::io::writer<double> writer__(params_r__,params_i__);
-        size_t pos__;
-        (void) pos__; // dummy call to supress warning
-        std::vector<double> vals_r__;
-        std::vector<int> vals_i__;
-
-        if (!(context__.contains_r("theta")))
-            throw std::runtime_error("variable theta missing");
-        vals_r__ = context__.vals_r("theta");
-        pos__ = 0U;
-        validate_non_negative_index("theta", "2", 2);
-        context__.validate_dims("initialization", "theta", "double", context__.to_vec(2));
-        // generate_declaration theta
-        std::vector<double> theta(2,double(0));
-        for (int i0__ = 0U; i0__ < 2; ++i0__)
-            theta[i0__] = vals_r__[pos__++];
-        for (int i0__ = 0U; i0__ < 2; ++i0__)
-            try {
-            writer__.scalar_lb_unconstrain(0,theta[i0__]);
-        } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable theta: ") + e.what());
-        }
-
-        if (!(context__.contains_r("beta")))
-            throw std::runtime_error("variable beta missing");
-        vals_r__ = context__.vals_r("beta");
-        pos__ = 0U;
-        validate_non_negative_index("beta", "k", k);
-        context__.validate_dims("initialization", "beta", "vector_d", context__.to_vec(k));
-        // generate_declaration beta
-        vector_d beta(static_cast<Eigen::VectorXd::Index>(k));
-        for (int j1__ = 0U; j1__ < k; ++j1__)
-            beta(j1__) = vals_r__[pos__++];
-        try {
-            writer__.vector_unconstrain(beta);
-        } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable beta: ") + e.what());
-        }
-
-        if (!(context__.contains_r("level")))
-            throw std::runtime_error("variable level missing");
-        vals_r__ = context__.vals_r("level");
-        pos__ = 0U;
-        validate_non_negative_index("level", "n", n);
-        context__.validate_dims("initialization", "level", "vector_d", context__.to_vec(n));
-        // generate_declaration level
-        vector_d level(static_cast<Eigen::VectorXd::Index>(n));
-        for (int j1__ = 0U; j1__ < n; ++j1__)
-            level(j1__) = vals_r__[pos__++];
-        try {
-            writer__.vector_unconstrain(level);
-        } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable level: ") + e.what());
-        }
-
-        if (!(context__.contains_r("slope")))
-            throw std::runtime_error("variable slope missing");
-        vals_r__ = context__.vals_r("slope");
-        pos__ = 0U;
-        validate_non_negative_index("slope", "n", n);
-        context__.validate_dims("initialization", "slope", "vector_d", context__.to_vec(n));
-        // generate_declaration slope
-        vector_d slope(static_cast<Eigen::VectorXd::Index>(n));
-        for (int j1__ = 0U; j1__ < n; ++j1__)
-            slope(j1__) = vals_r__[pos__++];
-        try {
-            writer__.vector_unconstrain(slope);
-        } catch (const std::exception& e) { 
-            throw std::runtime_error(std::string("Error transforming variable slope: ") + e.what());
-        }
-
-        params_r__ = writer__.data_r();
-        params_i__ = writer__.data_i();
-    }
-
-    void transform_inits(const stan::io::var_context& context,
-                         Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
-                         std::ostream* pstream__) const {
-      std::vector<double> params_r_vec;
-      std::vector<int> params_i_vec;
-      transform_inits(context, params_i_vec, params_r_vec, pstream__);
-      params_r.resize(params_r_vec.size());
-      for (int i = 0; i < params_r.size(); ++i)
-        params_r(i) = params_r_vec[i];
-    }
-
-
-    template <bool propto__, bool jacobian__, typename T__>
-    T__ log_prob(vector<T__>& params_r__,
-                 vector<int>& params_i__,
-                 std::ostream* pstream__ = 0) const {
-
-        T__ DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
-        (void) DUMMY_VAR__;  // suppress unused var warning
-
-        T__ lp__(0.0);
-        stan::math::accumulator<T__> lp_accum__;
-
-        // model parameters
-        stan::io::reader<T__> in__(params_r__,params_i__);
-
-        vector<T__> theta;
-        size_t dim_theta_0__ = 2;
-        theta.reserve(dim_theta_0__);
-        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
-            if (jacobian__)
-                theta.push_back(in__.scalar_lb_constrain(0,lp__));
-            else
-                theta.push_back(in__.scalar_lb_constrain(0));
-        }
-
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  beta;
-        (void) beta;  // dummy to suppress unused var warning
-        if (jacobian__)
-            beta = in__.vector_constrain(k,lp__);
-        else
-            beta = in__.vector_constrain(k);
-
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  level;
-        (void) level;  // dummy to suppress unused var warning
-        if (jacobian__)
-            level = in__.vector_constrain(n,lp__);
-        else
-            level = in__.vector_constrain(n);
-
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  slope;
-        (void) slope;  // dummy to suppress unused var warning
-        if (jacobian__)
-            slope = in__.vector_constrain(n,lp__);
-        else
-            slope = in__.vector_constrain(n);
-
-
-        // transformed parameters
-        validate_non_negative_index("xbeta", "n", n);
-        Eigen::Matrix<T__,Eigen::Dynamic,1>  xbeta(static_cast<Eigen::VectorXd::Index>(n));
-        (void) xbeta;  // dummy to suppress unused var warning
-
-        stan::math::initialize(xbeta, DUMMY_VAR__);
-        stan::math::fill(xbeta,DUMMY_VAR__);
-        stan::math::assign(xbeta,multiply(xreg,beta));
-
-
-        try {
-        } catch (const std::exception& e) {
-            stan::lang::rethrow_located(e,current_statement_begin__);
-            // Next line prevents compiler griping about no return
-            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
-        }
-
-        // validate transformed parameters
-        for (int i0__ = 0; i0__ < n; ++i0__) {
-            if (stan::math::is_uninitialized(xbeta(i0__))) {
-                std::stringstream msg__;
-                msg__ << "Undefined transformed parameter: xbeta" << '[' << i0__ << ']';
-                throw std::runtime_error(msg__.str());
-            }
-        }
-
-        const char* function__ = "validate transformed params";
-        (void) function__;  // dummy to suppress unused var warning
-
-        // model body
-        try {
-
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
-            lp_accum__.add(normal_log(get_base1(level,1,"level",1),get_base1(x1,1,"x1",1),sqrt(get_base1(P1,1,1,"P1",1))));
-            lp_accum__.add(normal_log(get_base1(slope,1,"slope",1),get_base1(x1,2,"x1",1),sqrt(get_base1(P1,2,2,"P1",1))));
-            for (int t = 2; t <= n; ++t) {
-
-                lp_accum__.add(normal_log(get_base1(level,t,"level",1),(get_base1(level,(t - 1),"level",1) + get_base1(slope,(t - 1),"slope",1)),get_base1(theta,1,"theta",1)));
-                lp_accum__.add(normal_log(get_base1(slope,t,"slope",1),get_base1(slope,(t - 1),"slope",1),get_base1(theta,2,"theta",1)));
-            }
-            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
-        } catch (const std::exception& e) {
-            stan::lang::rethrow_located(e,current_statement_begin__);
-            // Next line prevents compiler griping about no return
-            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
-        }
-
-        lp_accum__.add(lp__);
-        return lp_accum__.sum();
-
-    } // log_prob()
-
-    template <bool propto, bool jacobian, typename T_>
-    T_ log_prob(Eigen::Matrix<T_,Eigen::Dynamic,1>& params_r,
-               std::ostream* pstream = 0) const {
-      std::vector<T_> vec_params_r;
-      vec_params_r.reserve(params_r.size());
-      for (int i = 0; i < params_r.size(); ++i)
-        vec_params_r.push_back(params_r(i));
-      std::vector<int> vec_params_i;
-      return log_prob<propto,jacobian,T_>(vec_params_r, vec_params_i, pstream);
-    }
-
-
-    void get_param_names(std::vector<std::string>& names__) const {
-        names__.resize(0);
-        names__.push_back("theta");
-        names__.push_back("beta");
-        names__.push_back("level");
-        names__.push_back("slope");
-        names__.push_back("xbeta");
-    }
-
-
-    void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
-        dimss__.resize(0);
-        std::vector<size_t> dims__;
-        dims__.resize(0);
-        dims__.push_back(2);
-        dimss__.push_back(dims__);
-        dims__.resize(0);
-        dims__.push_back(k);
-        dimss__.push_back(dims__);
-        dims__.resize(0);
-        dims__.push_back(n);
-        dimss__.push_back(dims__);
-        dims__.resize(0);
-        dims__.push_back(n);
-        dimss__.push_back(dims__);
-        dims__.resize(0);
-        dims__.push_back(n);
-        dimss__.push_back(dims__);
-    }
-
-    template <typename RNG>
-    void write_array(RNG& base_rng__,
-                     std::vector<double>& params_r__,
-                     std::vector<int>& params_i__,
-                     std::vector<double>& vars__,
-                     bool include_tparams__ = true,
-                     bool include_gqs__ = true,
-                     std::ostream* pstream__ = 0) const {
-        vars__.resize(0);
-        stan::io::reader<double> in__(params_r__,params_i__);
-        static const char* function__ = "model_x_llt_poisson2_namespace::write_array";
-        (void) function__;  // dummy to suppress unused var warning
-        // read-transform, write parameters
-        vector<double> theta;
-        size_t dim_theta_0__ = 2;
-        for (size_t k_0__ = 0; k_0__ < dim_theta_0__; ++k_0__) {
-            theta.push_back(in__.scalar_lb_constrain(0));
-        }
-        vector_d beta = in__.vector_constrain(k);
-        vector_d level = in__.vector_constrain(n);
-        vector_d slope = in__.vector_constrain(n);
-        for (int k_0__ = 0; k_0__ < 2; ++k_0__) {
-            vars__.push_back(theta[k_0__]);
-        }
-        for (int k_0__ = 0; k_0__ < k; ++k_0__) {
-            vars__.push_back(beta[k_0__]);
-        }
-        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
-            vars__.push_back(level[k_0__]);
-        }
-        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
-            vars__.push_back(slope[k_0__]);
-        }
-
-        if (!include_tparams__) return;
-        // declare and define transformed parameters
-        double lp__ = 0.0;
-        (void) lp__;  // dummy to suppress unused var warning
-        stan::math::accumulator<double> lp_accum__;
-
-        double DUMMY_VAR__(std::numeric_limits<double>::quiet_NaN());
-        (void) DUMMY_VAR__;  // suppress unused var warning
-
-        validate_non_negative_index("xbeta", "n", n);
-        vector_d xbeta(static_cast<Eigen::VectorXd::Index>(n));
-        (void) xbeta;  // dummy to suppress unused var warning
-
-        stan::math::initialize(xbeta, std::numeric_limits<double>::quiet_NaN());
-        stan::math::fill(xbeta,DUMMY_VAR__);
-        stan::math::assign(xbeta,multiply(xreg,beta));
-
-
-        try {
-        } catch (const std::exception& e) {
-            stan::lang::rethrow_located(e,current_statement_begin__);
-            // Next line prevents compiler griping about no return
-            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
-        }
-
-        // validate transformed parameters
-
-        // write transformed parameters
-        for (int k_0__ = 0; k_0__ < n; ++k_0__) {
-            vars__.push_back(xbeta[k_0__]);
-        }
-
-        if (!include_gqs__) return;
-        // declare and define generated quantities
-
-
-        try {
-        } catch (const std::exception& e) {
-            stan::lang::rethrow_located(e,current_statement_begin__);
-            // Next line prevents compiler griping about no return
-            throw std::runtime_error("*** IF YOU SEE THIS, PLEASE REPORT A BUG ***");
-        }
-
-        // validate generated quantities
-
-        // write generated quantities
-    }
-
-    template <typename RNG>
-    void write_array(RNG& base_rng,
-                     Eigen::Matrix<double,Eigen::Dynamic,1>& params_r,
-                     Eigen::Matrix<double,Eigen::Dynamic,1>& vars,
-                     bool include_tparams = true,
-                     bool include_gqs = true,
-                     std::ostream* pstream = 0) const {
-      std::vector<double> params_r_vec(params_r.size());
-      for (int i = 0; i < params_r.size(); ++i)
-        params_r_vec[i] = params_r(i);
-      std::vector<double> vars_vec;
-      std::vector<int> params_i_vec;
-      write_array(base_rng,params_r_vec,params_i_vec,vars_vec,include_tparams,include_gqs,pstream);
-      vars.resize(vars_vec.size());
-      for (int i = 0; i < vars.size(); ++i)
-        vars(i) = vars_vec[i];
-    }
-
-    static std::string model_name() {
-        return "model_x_llt_poisson2";
-    }
-
-
-    void constrained_param_names(std::vector<std::string>& param_names__,
-                                 bool include_tparams__ = true,
-                                 bool include_gqs__ = true) const {
-        std::stringstream param_name_stream__;
-        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "theta" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "beta" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "level" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "slope" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-
-        if (!include_gqs__ && !include_tparams__) return;
-        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "xbeta" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-
-        if (!include_gqs__) return;
-    }
-
-
-    void unconstrained_param_names(std::vector<std::string>& param_names__,
-                                   bool include_tparams__ = true,
-                                   bool include_gqs__ = true) const {
-        std::stringstream param_name_stream__;
-        for (int k_0__ = 1; k_0__ <= 2; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "theta" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-        for (int k_0__ = 1; k_0__ <= k; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "beta" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "level" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "slope" << '.' << k_0__;
-            param_names__.push_back(param_name_stream__.str());
-        }
-
-        if (!include_gqs__ && !include_tparams__) return;
-        for (int k_0__ = 1; k_0__ <= n; ++k_0__) {
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "xbeta" << '.' << k_0__;
             param_names__.push_back(param_name_stream__.str());
         }
 

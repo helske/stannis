@@ -4,3 +4,5 @@ tmp
 test_stuff
 ^.*\.Rproj$
 ^\.Rproj\.user$
+vignettes/poisson_model_cache
+vignettes

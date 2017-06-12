@@ -1,12 +1,12 @@
-
-  real gaussian_filter(vector y, vector x1, matrix P1, vector var_y,
+// univariate Kalman filter, return log-likelihood
+real gaussian_filter(vector y, vector a1, matrix P1, vector var_y,
   row_vector Zt, matrix Tt, matrix Rt) {
 
   int n = rows(y);
-  int m = rows(x1);
+  int m = rows(a1);
   real loglik = 0.0;
 
-  vector[m] x = x1;
+  vector[m] x = a1;
   matrix[m, m] P = P1;
 
   for (t in 1:n) {
@@ -25,14 +25,17 @@
    return loglik;
   }
 
-vector gaussian_smoother(vector y, vector x1, matrix P1, vector var_y,
+// univariate Kalman smoothing
+// returns a vector of smoothed means  Z * alpha_t
+// and the log-likelihood as a last element of the vector
+vector gaussian_smoother(vector y, vector a1, matrix P1, vector var_y,
   row_vector Zt, matrix Tt, matrix Rt) {
 
   int n = rows(y);
-  int m = rows(x1);
+  int m = rows(a1);
   real loglik = 0.0;
   vector[n+1] mode;
-  vector[m] x = x1;
+  vector[m] x = a1;
   matrix[m, m] P = P1;
   vector[n] v;
   vector[n] F;
@@ -67,7 +70,7 @@ vector gaussian_smoother(vector y, vector x1, matrix P1, vector var_y,
   }
 
   tmpr = r[,1];
-  r[,1] = x1 + P1 * tmpr;
+  r[,1] = a1 + P1 * tmpr;
   for (t in 2:n) {
     vector[m] tmp = r[,t-1];
     vector[m] tmp2 = r[,t];
@@ -82,8 +85,10 @@ vector gaussian_smoother(vector y, vector x1, matrix P1, vector var_y,
   return mode;
 }
 
-vector approx(vector y, vector x1, matrix P1, row_vector Zt,
-  matrix Tt, matrix Rt, vector mode_, vector xbeta, int distribution) {
+// Gaussian approximation of Poisson model
+vector approx(vector y, vector a1, matrix P1, row_vector Zt,
+  matrix Tt, matrix Rt, vector mode_, vector xbeta, int distribution, 
+  int max_iter, real conv_tol) {
 
   int n = rows(y);
   vector[n] approx_y;
@@ -92,10 +97,10 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
   vector[3 * n + 1] approx_results; // y, var, scaling, loglik
   real loglik = mode_[n+1];
   real diff = 1.0;
-  int i = 1;
-  mode[1:n] = mode_[1:n]; 
+  int i = 0;
+  //mode[1:n] = mode_[1:n]; 
   
-  //mode[1:n] = mode_[1:n] - xbeta; //adjust initial estimate with xbeta
+  mode[1:n] = mode_[1:n] - xbeta; //adjust initial estimate with xbeta
   // check for bounds
   if (min(diagonal(Rt)) < 0.0) {
     reject("Negative standard deviation. ");
@@ -104,22 +109,14 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
     reject("Mean of the Poisson/negbin distribution > exp(50). ")
   }
 
-  while(i < 100 && diff > 1.0e-8) {
+  while(i < max_iter && diff > conv_tol) {
 
     vector[n+1] mode_new;
-    if(distribution == 1) {
-      approx_var_y = 1.0 ./ exp(xbeta + mode[1:n]);
+    approx_var_y = 1.0 ./ exp(xbeta + mode[1:n]);
       // note no xbeta here as it would be substracted in the smoother anyway
-      approx_y = y .* approx_var_y + mode[1:n] - 1.0;
-    } else {
-      if (distribution == 2) {
-
-      } else {
-
-      }
-    }
-
-    mode_new = gaussian_smoother(approx_y, x1, P1, approx_var_y, Zt, Tt, Rt);
+    approx_y = y .* approx_var_y + mode[1:n] - 1.0;
+   
+    mode_new = gaussian_smoother(approx_y, a1, P1, approx_var_y, Zt, Tt, Rt);
     // Problem with the approximation, potential divergence
     if (is_nan(mode_new[n+1]) || is_inf(mode_new[n+1]) ||
         (distribution != 2 && max(xbeta + mode_new[1:n]) > 50)) {
@@ -130,7 +127,7 @@ vector approx(vector y, vector x1, matrix P1, row_vector Zt,
     loglik = mode[n+1];
     i = i + 1;
   }
-  if (i == 100) {
+  if (i == max_iter) {
     reject("Maximum number of iterations for approximation used. ");
   }
 

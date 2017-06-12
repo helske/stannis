@@ -1,6 +1,6 @@
 Package: stannis
 Type: Package
-Title: Efficient importance sampling type corrected MCMC for state space models
+Title: Study of Different MCMC algorithms for state space models
 Version: 0.0.1
 Date: 2017-05-25
 Author: Jouni Helske
