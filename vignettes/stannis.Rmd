@@ -1,10 +1,7 @@
 ---
 title: "Computational efficiency comparison of MCMC algorithms for state space models"
 author: "Jouni Helske"
-date: "9 June 2017"
-output:
-   pdf_document:
-     keep_tex: yes
+date: "13 June 2017"
 link-citations: yes
 bibliography: stannis.bib
 ---
@@ -18,7 +15,7 @@ library(bssm)
 
 ## Introduction
 
-The `R` [@R] package `stannis` ("Stan 'n' IS") provides a case study for Bayesian inference of structural time series [@harvey1989] with Poisson distributed observations with different Markov chain Monte Carlo algorithms. Our model belongs to a class of exponential family state space models. These models contain a Gaussian latent process $\alpha_1\ldots, \alpha_n$ evolving in time, which is only undirectly observed through observing $y_1,\ldots,y_n$. Consider for example a random walk model
+The `R` [@R] package `stannis` ("Stan 'n' IS") provides a small case study for Bayesian inference of structural time series [@harvey1989] with Poisson distributed observations with different Markov chain Monte Carlo algorithms. Our model belongs to a class of exponential family state space models. These models contain a Gaussian latent process $\alpha_1\ldots, \alpha_n$ evolving in time, which is only undirectly observed through observing $y_1,\ldots,y_n$. Consider for example a random walk model
 
 $$
 y_t \sim Poisson(\exp(x_t)),\\
@@ -27,7 +24,7 @@ y_t \sim Poisson(\exp(x_t)),\\
 $$
 with prior $\alpha_1 \sim N(a_1, P_1)$ and unknown $\sigma^2_{\eta}$. Performing computationally efficient inference of these type of models using `Stan` [@stan] can be difficult in practice due to large parameter space (here $n+1$ parameters corresponding to the unknown states $\alpha$ and standard deviation $\sigma^2_{\eta}$) with strong correlation structures. On the other hand, in case of Gaussian observations, the marginal likelihood $p(y)$ is tractable via the Kalman filter, so a simple Metropolis-type Markov chain Monte Carlo (MCMC) targeting the hyperparameters $\theta$ (here $\sigma^2_{\eta}$) can be easily constructed. Then, using the samples $\{\theta^{(i)}\}^N_{i=1}$, we can obtain samples from the joint posterior $(\alpha,\theta)$ by sampling the states $\alpha^{(i)}$ given $y$ and $\theta^{(i)}$ using efficient simulation smoother [@durbin-koopman2002] algorithms for $i=1,\ldots,N$. This approach reduces the scale of the MCMC problem significantly as the dimension of $\theta$ is typically much smaller than $n$.
 
-Unfortunately, the marginal likelihood $p(y)$ is intractable in case of non-Gaussian observations. In this case, one option is to use so called pseudo-marginal MCMC, or more specifically particle MCMC approach [@], where we replace $p(y)$, with its unbiased estimate, which can be found using some variant particle filter Monte Carlo algorithms [@]. However, these methods are often computationally unless good proposals for the particle filter are available.
+Unfortunately, the marginal likelihood $p(y)$ is intractable in case of non-Gaussian observations. In this case, one option is to use so called pseudo-marginal MCMC, or more specifically particle MCMC approach [@andrieu-doucet-holenstein], where we replace $p(y)$, with its unbiased estimate, which can be found using some variant particle filter. However, these methods are often computationally unless good proposals for the particle filter are available.
 
 @vihola-helske-franks introduces an alternative approach based on importance sampling type correction (IS-MCMC), where first an MCMC run targeting approximate marginal posterior is performed, and then an straighforwardly parallelisable importance sampling type scheme is used to correct for the bias. The MCMC algorithms used in @vihola-helske-franks were based on robust adaptive random walk Metropolis algorithm [@vihola], implemented in the `bssm` package [@helske-vihola]. This vignette provides short non-exhaustive simulation study of the computational efficiency of several Metropolis-type MCMC algorithms as in @vihola-helske-franks, NUTS-MCMC of `Stan` [@hoffman-gelman], and hybrid NUTS-IS-MCMC provided by `stannis` package.
 
@@ -36,8 +33,7 @@ The core pieces of the `bssm` package are written in `C++` using `Armadillo` [@a
 
 ## Model and data
 
-Consider a local linear trend model with Poisson observations 
-local linear trend model of form
+In our experiment, we use a local linear trend model with Poisson observations, defined as
 
 $$
 \begin{aligned}
@@ -286,7 +282,6 @@ ire_experiment_llt <- function(n_iter,
     results[1, 3:4] <- res$mean_theta
     results[1, 5:6] <- weighted_mean(t(res$states[1,,]), res$weights)
     results[1, 7:8] <- weighted_mean(t(res$states[n,,]), res$weights)
-    saveRDS(results, file = paste0("stannis_llt_preresults100_",seed,".rda"))
     
     return(results)
   }
@@ -309,7 +304,6 @@ ire_experiment_llt <- function(n_iter,
     diags <- get_sampler_params(res, inc_warmup = FALSE)[[1]]
     results[1, 9] <- sum(diags[, "divergent__"])
     results[1, 10] <- sum(diags[, "treedepth__"] >= 15)
-    saveRDS(results, file = paste0("stan_llt_preresults100_",seed,".rda"))
     
     return(results)
   }
@@ -351,29 +345,29 @@ cl<-makeCluster(16)
 registerDoParallel(cl)
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "Stan")
 saveRDS(results, file = "stan_llt_iter4e4.rda")
 
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "stannis")
 saveRDS(results, file = "stannis_llt_iter4e4.rda")
 
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "isc")
 saveRDS(results, file = "is_llt_iter4e4.rda")
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "da")
 saveRDS(results, file = "da_llt_iter4e4.rda")
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "pm")
 saveRDS(results, file = "pm_llt_iter4e4.rda")
 

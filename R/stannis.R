@@ -1,14 +1,44 @@
-#' @importFrom rstan sampling
-#' @importFrom bssm ng_bsm
+#' Structural Poisson Time Series with External Covariates
+#' 
+#' \code{stannis} performs fully Bayesian inference of structural Poisson time series optionally with covariates. 
+#' 
+#' \code{stannis} first obtains approximate marginal posterior using Markov chain Monte Carlo via 
+#' Hamiltonian Monte Carlo sampler of \code{Stan}, and then performs importance sampling type correction of this 
+#' posterior sample in order to obtain "exact" joint posterior. The correction step is done using particle filtering.
+#'
+#' @import methods
+#' @importFrom rstan sampling get_elapsed_time extract
+#' @importFrom stats model.matrix model.response tsp frequency
+#' @importFrom Rcpp loadModule
+#' @importFrom bssm ng_bsm halfnormal normal smoother
 #' @importFrom dplyr select starts_with
 #' @importFrom coda spectrum0.ar
 #' @importFrom diagis weighted_mean weighted_var
+#' @param formula Object of class \code{formula} which defines the regression part. 
+#' Or a single vector of observations in case of no covariates.
+#' @param data Optional data frame (or object coercible to such) containing the data.
+#' @param level A vector of length two, defining the mean and standard deviation of the 
+#' truncated Gaussian prior for the standard deviation of the level noise term.
+#' @param slope A vector of length two, defining the mean and standard deviation of the 
+#' truncated Gaussian prior for the standard deviation of the slope noise term.
+#' @param seasonal A vector of length two, defining the mean and standard deviation of the 
+#' truncated Gaussian prior for the standard deviation of the seasonal noise term.
+#' @param a1 Prior mean for the state vector at time 1.
+#' @param P1 Prior covariance matrix for state vector at time 1.
+#' @param beta A matrix with \eqn{k} rows and 2 columns, where first columns defines the 
+#' prior means of the Gaussian priors of the corresponding \eqn{k} regression coefficients, 
+#' and the second column defines the the standard deviations of those prior distributions.
+#' @param iter Number of iterations for the MCMC.
+#' @param thin Thinning interval used in MCMC.
+#' @param nsim_states Number of particles used in particle filter.
+#' @param stan_inits Initial values for the MCMC as a list of lists.
+#' @param n_threads Number of threads to use in parallel.
+#' @param simplify_output If \code{TRUE} (default), does not return the original output from \code{Stan}.
+#' @param is_seed Seed for the importance sampling correction.
 #' @export
 stannis <- function(formula, data, level, slope, seasonal,
-  distribution = "poisson", a1, P1, beta, iter, thin = 1, nsim_states = 10, 
+ a1, P1, beta, iter, thin = 1, nsim_states = 10, 
   stan_inits, n_threads = 1, simplify_output = TRUE, is_seed = sample.int(.Machine$integer.max, 1), ...) {
-  
-  distr <- pmatch(distribution, "poisson") #pmatch(distribution, c("poisson", "binomial", "negative binomial"))
   
   # build xreg
   if(inherits(formula, "formula")) {
@@ -59,7 +89,7 @@ stannis <- function(formula, data, level, slope, seasonal,
     if (k == 0) {
       model <- ng_bsm(y, sd_level = halfnormal(level[1], level[2]),
         sd_slope = if(!missing(slope)) halfnormal(slope[1], slope[2]),
-        a1 = a1, P1 = as.matrix(P1), distribution = distribution)
+        a1 = a1, P1 = as.matrix(P1), distribution = "poisson")
       ## refine initial mode
       model$initial_mode[] <- smoother(model)$alphahat[, 1]
       stan_data <- list(y = y, n = length(y),
@@ -68,11 +98,11 @@ stannis <- function(formula, data, level, slope, seasonal,
           c(level[1], if(!missing(slope)) slope[1]), dim = 1 + !missing(slope),
         sd_prior_sds = 
           c(level[2], if(!missing(slope)) slope[2]), dim = 1 + !missing(slope),
-        initial_mode = c(model$initial_mode, -1e300), distribution = distr, 
+        initial_mode = c(model$initial_mode, -1e300), distribution = 1L, 
         max_iter = 100, conv_tol = 1e-8)
       
       fit <- sampling(
-        if(missing(slope)) stannis:::stanmodels$ll_approx else stannis:::stanmodels$llt_approx,
+        if(missing(slope)) stanmodels$ll_approx else stanmodels$llt_approx,
         data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = "Rt", include = FALSE,
@@ -81,7 +111,7 @@ stannis <- function(formula, data, level, slope, seasonal,
     } else {
       model <- ng_bsm(y, sd_level = halfnormal(level[1], level[2]),
         sd_slope = if(!missing(slope)) halfnormal(slope[1],slope[2]),
-        a1 = a1, P1 = as.matrix(P1), distribution = distribution, xreg = xreg,
+        a1 = a1, P1 = as.matrix(P1), distribution = "poisson", xreg = xreg,
         beta = normal(0, beta[, 1], beta[, 2]))
       ## refine initial mode
       model$initial_mode[] <- smoother(model)$alphahat[, 1]
@@ -92,13 +122,13 @@ stannis <- function(formula, data, level, slope, seasonal,
           c(level[1], if(!missing(slope)) slope[1]), dim = 1 + !missing(slope),
         sd_prior_sds = c(level[2], if(!missing(slope)) slope[2]), dim = 1 + !missing(slope),
         beta_prior_means = beta[, 1], beta_prior_sds = beta[, 2],
-        initial_mode = c(model$initial_mode, -1e300), xreg = xreg, distribution = distr,
+        initial_mode = c(model$initial_mode, -1e300), xreg = xreg, distribution = 1L,
         max_iter = 100, conv_tol = 1e-8)
       if (k == 1) {
         dim(stan_data$beta_prior_means) <- dim(stan_data$beta_prior_sds) <- 1
       }
       fit <- sampling( 
-        if(missing(slope)) stannis:::stanmodels$x_ll_approx else stannis:::stanmodels$x_llt_approx,
+        if(missing(slope)) stanmodels$x_ll_approx else stanmodels$x_llt_approx,
         data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = c("Rt", "xbeta"), include = FALSE,
@@ -116,17 +146,17 @@ stannis <- function(formula, data, level, slope, seasonal,
       model <- ng_bsm(y, sd_level = halfnormal(level[1], level[2]),
         sd_slope = halfnormal(slope[1], slope[2]),
         sd_seasonal = halfnormal(seasonal[1], seasonal[2]),  a1 = a1, P1 = as.matrix(P1),
-        distribution = distribution)
+        distribution = "poisson")
       ## refine initial mode
       model$initial_mode[] <- smoother(model)$alphahat[, 1] + smoother(model)$alphahat[, 3]
       
       stan_data <- list(y = y, n = length(y), period = period,
         a1 = structure(a1, dim = length(a1)), P1 = as.matrix(P1), sd_prior_means = c(level[1], slope[1], seasonal[1]),
         sd_prior_sds = c(level[2], slope[2], seasonal[2]),
-        initial_mode = c(model$initial_mode, -1e300), distribution = distr,
+        initial_mode = c(model$initial_mode, -1e300), distribution = 1L,
         max_iter = 100, conv_tol = 1e-8)
       
-      fit <- sampling(stannis:::stanmodels$bsm_approx, data = stan_data,
+      fit <- sampling(stanmodels$bsm_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = "Rt", include = FALSE,
         iter = iter,  thin = thin, cores = n_threads, ...)
@@ -135,7 +165,7 @@ stannis <- function(formula, data, level, slope, seasonal,
       model <- ng_bsm(y, sd_level = halfnormal(level[1], level[2]),
         sd_slope = halfnormal(slope[1], slope[2]),
         sd_seasonal = halfnormal(seasonal[1], seasonal[2]),  a1 = a1, P1 = as.matrix(P1),
-        distribution = distribution, xreg = xreg,
+        distribution = "poisson", xreg = xreg,
         beta = normal(0, beta[, 1], beta[, 2]))
       
       ## refine initial mode
@@ -145,13 +175,13 @@ stannis <- function(formula, data, level, slope, seasonal,
         a1 = structure(a1, dim = length(a1)), P1 = as.matrix(P1), 
         sd_prior_means = c(level[1], slope[1], seasonal[1]),
         sd_prior_sds = c(level[2], slope[2], seasonal[2]),
-        initial_mode = c(model$initial_mode, -1e300), distribution = distr,
+        initial_mode = c(model$initial_mode, -1e300), distribution = 1L,
         xreg = xreg, beta_prior_means = beta[, 1], beta_prior_sds = beta[, 2], 
         max_iter = 100, conv_tol = 1e-8)
       if (k == 1) {
         dim(stan_data$beta_prior_means) <- dim(stan_data$beta_prior_sds) <- 1
       }
-      fit <- sampling(stannis:::stanmodels$x_bsm_approx, data = stan_data,
+      fit <- sampling(stanmodels$x_bsm_approx, data = stan_data,
         chains = length(stan_inits), init = stan_inits,
         pars = c("Rt", "xbeta"), include = FALSE,
         iter = iter, thin = thin, ...)
@@ -168,7 +198,7 @@ stannis <- function(formula, data, level, slope, seasonal,
     c_time <- proc.time()
     correction <- is_correction(model, as.matrix(select(stan_out, starts_with("approx_results"))),
       as.matrix(select(stan_out, starts_with("theta"))),
-      select(stan_out, lp__)[, 1], select(stan_out, jacobian)[, 1], 
+      select_(stan_out, "lp__")[, 1], select_(stan_out, "jacobian")[, 1], 
       nsim_states, n_threads, is_seed)
     c_time <- proc.time() - c_time
   } else {
@@ -180,7 +210,7 @@ stannis <- function(formula, data, level, slope, seasonal,
     c_time <- proc.time()
     correction <- is_correction(model, as.matrix(select(stan_out, starts_with("approx_results"))),
       as.matrix(cbind(select(stan_out, starts_with("theta")), select(stan_out, starts_with("beta")))), 
-      select(stan_out, lp__)[, 1], select(stan_out, jacobian)[, 1], 
+      select_(stan_out, "lp__")[, 1], select_(stan_out, "jacobian")[, 1], 
       nsim_states, n_threads, is_seed)
     c_time <- proc.time() - c_time
   }

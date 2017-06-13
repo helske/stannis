@@ -5,7 +5,3 @@ R_is_correction <- function(model_, approx_y, approx_var_y, scales, theta, appro
     .Call(stannis_R_is_correction, model_, approx_y, approx_var_y, scales, theta, approx_posterior, jacobian, nsim_states, n_threads, seed)
 }
 
-R_is_correction_global <- function(model_, approx_y, approx_var_y, theta, approx_posterior, jacobian, nsim_states, n_threads, seed) {
-    .Call(stannis_R_is_correction_global, model_, approx_y, approx_var_y, theta, approx_posterior, jacobian, nsim_states, n_threads, seed)
-}
-

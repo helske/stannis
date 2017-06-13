@@ -59,7 +59,6 @@ ire_experiment_llt <- function(n_iter,
     diags <- get_sampler_params(res, inc_warmup = FALSE)[[1]]
     results[1, 9] <- sum(diags[, "divergent__"])
     results[1, 10] <- sum(diags[, "treedepth__"] >= 15)
-    saveRDS(results, file = paste0("stan_llt_preresults100_",seed,".rda"))
     
     return(results)
   }
@@ -97,33 +96,33 @@ ire_experiment_llt <- function(n_iter,
 }
 
 
-cl<-makeCluster(16)
+cl<-makeCluster(50)
 registerDoParallel(cl)
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "Stan")
 saveRDS(results, file = "stan_llt_iter4e4.rda")
 
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "stannis")
 saveRDS(results, file = "stannis_llt_iter4e4.rda")
 
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "isc")
 saveRDS(results, file = "is_llt_iter4e4.rda")
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "da")
 saveRDS(results, file = "da_llt_iter4e4.rda")
 
 results <- 
-  foreach (i = 1:100, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "pm")
 saveRDS(results, file = "pm_llt_iter4e4.rda")
 
