@@ -125,7 +125,7 @@ IRE = 100\frac{\bar T}{N}\sum_{i=1}^N (\hat \theta_i - \theta)^2,
 \]
 where $\bar T$ is the average running time, $\hat \theta_i$ is the estimate from $i$th run, and $\theta$ is the estimate based on 1,000,000 iterations of pseudo-marginal MCMC.
 
-We ran all algorithms $N=100$ times with $20,000 + 20,000$ iterations, where first half was discarded as a burnin.
+We ran all algorithms $N=500$ times with $20,000 + 20,000$ iterations, where first half was discarded as a burnin.
 For standard HMC, default parameters governing the sampler's behaviour caused severe amount of divergent transitions. We were able to get rid of most these by changing the `adapt_delta` parameter (corresponding to the target average proposal acceptance probability in the adaptation phase) from the default 0.8 to 0.99, and the maximum treedepth (argument `max_treedepth`) from 10 to 15.
 
 

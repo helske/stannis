@@ -96,19 +96,22 @@ ire_experiment_llt <- function(n_iter,
 }
 
 
-cl<-makeCluster(50)
+cl<-makeCluster(10)
 registerDoParallel(cl)
+
+
+results <- 
+  foreach (i = 1:500, .combine=rbind, .packages = c("dplyr","bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "stannis")
+saveRDS(results, file = "stannis_llt_iter4e4.rda")
+
+stopCluster(cl)
+
 
 results <- 
   foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
   ire_experiment_llt(n_iter = 4e4, seed = i, method = "Stan")
 saveRDS(results, file = "stan_llt_iter4e4.rda")
-
-
-results <- 
-  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
-  ire_experiment_llt(n_iter = 4e4, seed = i, method = "stannis")
-saveRDS(results, file = "stannis_llt_iter4e4.rda")
 
 
 results <- 
