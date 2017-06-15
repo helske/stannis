@@ -34,10 +34,10 @@ transformed parameters {
 
 model {
   // priors for theta
-  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
+  theta ~ normal(sd_prior_means, sd_prior_sds);
   // standardised noise terms
-  target += normal_lpdf(level_std | 0, 1);
-  target += normal_lpdf(slope_std | 0, 1);
+  level_std ~ normal(0, 1);
+  slope_std ~ normal(0, 1);
   // Poisson likelihood
-  target += poisson_log_lpmf(y | level);
+  y ~ poisson_log(level);
 } 

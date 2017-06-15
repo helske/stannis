@@ -49,8 +49,8 @@ transformed parameters {
     distribution, max_iter, conv_tol);
 }
 model {
-  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
-  target += normal_lpdf(beta | beta_prior_means, beta_prior_sds);
+  theta ~ normal(sd_prior_means, sd_prior_sds);
+  beta ~ normal(beta_prior_means, beta_prior_sds);
   target += approx_results[3 * n + 1];
 }
 

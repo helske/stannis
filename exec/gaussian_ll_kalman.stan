@@ -55,6 +55,6 @@ transformed parameters {
 }
 
 model {
-  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
+  theta ~ normal(sd_prior_means, sd_prior_sds);
   target += gaussian_filter(y, a1, P1, theta[2]^2, Zt, Tt, Rt);
 }

@@ -5,7 +5,7 @@ Version: 0.0.2
 Date: 2017-06-13
 Author: Jouni Helske
 Maintainer: Jouni Helske <jouni.helske@iki.fi>
-Description: The package provides an mportance sampling type corrected Markov 
+Description: The package provides an importance sampling type corrected Markov 
    chain Monte Carlo (MCMC) algorithm for structural Poisson time series, 
    where the MCMC is performed using Hamiltonian Monte Carlo provided by Stan, 
    and the correction is performed with particle filtering. The 

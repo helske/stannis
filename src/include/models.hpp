@@ -826,7 +826,7 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -1322,9 +1322,9 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(x_raw,0,1));
-            lp_accum__.add(normal_log(y,x,get_base1(theta,2,"theta",1)));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(x_raw, 0, 1));
+            lp_accum__.add(normal_log<propto__>(y, x, get_base1(theta,2,"theta",1)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -1908,7 +1908,7 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             lp_accum__.add(gaussian_filter(y,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -2676,7 +2676,7 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             lp_accum__.add(gaussian_filter(y,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -3778,7 +3778,7 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -4243,9 +4243,9 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(x_raw,0,1));
-            lp_accum__.add(poisson_log_log(y,x));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(x_raw, 0, 1));
+            lp_accum__.add(poisson_log_log<propto__>(y, x));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -5245,7 +5245,7 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -5798,10 +5798,10 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(level_std,0,1));
-            lp_accum__.add(normal_log(slope_std,0,1));
-            lp_accum__.add(poisson_log_log(y,level));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(level_std, 0, 1));
+            lp_accum__.add(normal_log<propto__>(slope_std, 0, 1));
+            lp_accum__.add(poisson_log_log<propto__>(y, level));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -6951,8 +6951,8 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -8092,8 +8092,8 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -8687,10 +8687,10 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
-            lp_accum__.add(normal_log(level_std,0,1));
-            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(level_std, 0, 1));
+            lp_accum__.add(poisson_log_log<propto__>(y, add(xbeta,level)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -9811,8 +9811,8 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
@@ -10491,11 +10491,11 @@ public:
         // model body
         try {
 
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
-            lp_accum__.add(normal_log(level_std,0,1));
-            lp_accum__.add(normal_log(slope_std,0,1));
-            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(level_std, 0, 1));
+            lp_accum__.add(normal_log<propto__>(slope_std, 0, 1));
+            lp_accum__.add(poisson_log_log<propto__>(y, add(xbeta,level)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return

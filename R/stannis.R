@@ -11,7 +11,7 @@
 #' @importFrom stats model.matrix model.response tsp frequency
 #' @importFrom Rcpp loadModule
 #' @importFrom bssm ng_bsm halfnormal normal smoother
-#' @importFrom dplyr _select starts_with
+#' @importFrom dplyr select_ starts_with
 #' @importFrom coda spectrum0.ar
 #' @importFrom diagis weighted_mean weighted_var
 #' @param formula Object of class \code{formula} which defines the regression part. 

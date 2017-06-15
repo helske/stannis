@@ -36,15 +36,13 @@ ire_experiment_llt <- function(n_iter,
     results[1, 3:4] <- res$mean_theta
     results[1, 5:6] <- weighted_mean(t(res$states[1,,]), res$weights)
     results[1, 7:8] <- weighted_mean(t(res$states[n,,]), res$weights)
-    saveRDS(results, file = paste0("stannis_llt_preresults100_",seed,".rda"))
-    
     return(results)
   }
   if(method == "Stan") {
     stan_data <- list(n = n, y = y, a1 = c(0, 0), P1 = diag(c(10, 0.1)), 
       sd_prior_means = rep(0, 2), sd_prior_sds = c(1, 0.1))
     stan_inits <- list(list(theta = c(0.01, 0.01), 
-      slope_std = rep(0, n), level = rep(0, n)))
+      slope_std = rep(0, n), level_std = log(y+0.1)))
     
     res <- sampling(stannis:::stanmodels$llt_poisson, 
       control = list(adapt_delta = 0.99, max_treedepth = 15),
@@ -59,7 +57,7 @@ ire_experiment_llt <- function(n_iter,
     diags <- get_sampler_params(res, inc_warmup = FALSE)[[1]]
     results[1, 9] <- sum(diags[, "divergent__"])
     results[1, 10] <- sum(diags[, "treedepth__"] >= 15)
-    
+    saveRDS(results, file = paste0("stan_llt_preresults100_",seed,".rda"))
     return(results)
   }
   
@@ -96,9 +94,17 @@ ire_experiment_llt <- function(n_iter,
 }
 
 
-cl<-makeCluster(10)
+cl<-makeCluster(32)
 registerDoParallel(cl)
 
+
+
+results <- 
+  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
+  ire_experiment_llt(n_iter = 4e4, seed = i, method = "Stan")
+saveRDS(results, file = "stan_llt_iter4e4.rda")
+
+stopCluster(cl)
 
 results <- 
   foreach (i = 1:500, .combine=rbind, .packages = c("dplyr","bssm", "diagis", "stannis", "rstan")) %dopar% 
@@ -108,10 +114,6 @@ saveRDS(results, file = "stannis_llt_iter4e4.rda")
 stopCluster(cl)
 
 
-results <- 
-  foreach (i = 1:500, .combine=rbind, .packages = c("bssm", "diagis", "stannis", "rstan")) %dopar% 
-  ire_experiment_llt(n_iter = 4e4, seed = i, method = "Stan")
-saveRDS(results, file = "stan_llt_iter4e4.rda")
 
 
 results <- 

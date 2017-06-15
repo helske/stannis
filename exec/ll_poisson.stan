@@ -21,7 +21,7 @@ transformed parameters {
 }
 
 model {
-  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
-  target += normal_lpdf(x_raw | 0, 1);
-  target += poisson_log_lpmf(y | x);
+  theta ~ normal(sd_prior_means, sd_prior_sds);
+  x_raw ~ normal(0, 1);
+  y ~ poisson_log(x);
 }

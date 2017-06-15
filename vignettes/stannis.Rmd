@@ -24,7 +24,7 @@ y_t \sim Poisson(\exp(x_t)),\\
 $$
 with prior $\alpha_1 \sim N(a_1, P_1)$ and unknown $\sigma^2_{\eta}$. Performing computationally efficient inference of these type of models using `Stan` [@stan] can be difficult in practice due to large parameter space (here $n+1$ parameters corresponding to the unknown states $\alpha$ and standard deviation $\sigma^2_{\eta}$) with strong correlation structures. On the other hand, in case of Gaussian observations, the marginal likelihood $p(y)$ is tractable via the Kalman filter, so a simple Metropolis-type Markov chain Monte Carlo (MCMC) targeting the hyperparameters $\theta$ (here $\sigma^2_{\eta}$) can be easily constructed. Then, using the samples $\{\theta^{(i)}\}^N_{i=1}$, we can obtain samples from the joint posterior $(\alpha,\theta)$ by sampling the states $\alpha^{(i)}$ given $y$ and $\theta^{(i)}$ using efficient simulation smoother [@durbin-koopman2002] algorithms for $i=1,\ldots,N$. This approach reduces the scale of the MCMC problem significantly as the dimension of $\theta$ is typically much smaller than $n$.
 
-Unfortunately, the marginal likelihood $p(y)$ is intractable in case of non-Gaussian observations. In this case, one option is to use so called pseudo-marginal MCMC, or more specifically particle MCMC approach [@andrieu-doucet-holenstein], where we replace $p(y)$, with its unbiased estimate, which can be found using some variant particle filter. However, these methods are often computationally unless good proposals for the particle filter are available.
+Unfortunately, the marginal likelihood $p(y)$ is intractable in case of non-Gaussian observations. In this case, one option is to use so called pseudo-marginal MCMC, or more specifically particle MCMC approach [@andrieu-doucet-holenstein], where we replace $p(y)$, with its unbiased estimate, which can be found using some variant particle filter. However, these methods are often computationally demanding unless access to efficient particle filter algorithm (PF) is available. For state space models with linear-Gaussian state dynamics and suitable observation densities such as those belonging to exponential family, we suggest using the $\psi$-PF [@vihola-helske-franks] which takes account readily available Gaussian approximations of the original model. With $\psi$-PF we can typically keep the number of particles low which is a key feature in making the particle MCMC methods computationally efficient. 
 
 @vihola-helske-franks introduces an alternative approach based on importance sampling type correction (IS-MCMC), where first an MCMC run targeting approximate marginal posterior is performed, and then an straighforwardly parallelisable importance sampling type scheme is used to correct for the bias. The MCMC algorithms used in @vihola-helske-franks were based on robust adaptive random walk Metropolis algorithm [@vihola], implemented in the `bssm` package [@helske-vihola]. This vignette provides short non-exhaustive simulation study of the computational efficiency of several Metropolis-type MCMC algorithms as in @vihola-helske-franks, NUTS-MCMC of `Stan` [@hoffman-gelman], and hybrid NUTS-IS-MCMC provided by `stannis` package.
 
@@ -72,7 +72,7 @@ Function `run_mcmc` performs the Markov chain Monte Carlo, where the actual algo
 da_mcmc <- run_mcmc(model, n_iter = 2000, nsim_states = 10) 
 ```
 
-The default option for non-Gaussian non-linear state space models is the delayed acceptance pseudo-marginal algorithm using $\psi$-particle filter [@vihola-helske-franks] with `nsim_states` particles. The $\psi$-PF takes account the available approximations of the non-Gaussian model in order to construct a highly efficient particle filter which needs only few particles for accurate log-likelihood estimation. $\psi$-PF is also used in `stannis`.
+The default option for non-Gaussian non-linear state space models is the delayed acceptance (DA) [@christen-fox, @banterle-grazian-lee-robert] pseudo-marginal algorithm using $\psi$-PF with `nsim_states` particles. This is natural option in DA setting as we use the same Gaussian approximation in the initial acceptance step of DA as in $\psi$-PF. $\psi$-PF is also used in `stannis`.
 
 Here we use `n_iter = 2000` MCMC iterations (by default, first half is discarded as burnin), which is typically too little for reliable inference but illustrates the workflow. The print method of the `run_mcmc` output gives basic information about the MCMC run:
 ```{r da_summary}
@@ -119,6 +119,8 @@ We will use the same local linear trend model and the data as in previous sectio
 * IS-RWM: IS type correction of MCMC with RWM (`bssm`)
 * IS-HMC: IS type correction of MCMC with HMC (`stannis`)
 
+For particle filter approaches (all but HMC), we used $\psi$-PF with 10 particles.
+
 As a measure of efficiency, we use inverse relative efficiency (IRE), defined as 
 \[
 IRE = 100\frac{\bar T}{N}\sum_{i=1}^N (\hat \theta_i - \theta)^2,
@@ -126,7 +128,7 @@ IRE = 100\frac{\bar T}{N}\sum_{i=1}^N (\hat \theta_i - \theta)^2,
 where $\bar T$ is the average running time, $\hat \theta_i$ is the estimate from $i$th run, and $\theta$ is the estimate based on 1,000,000 iterations of pseudo-marginal MCMC.
 
 We ran all algorithms $N=500$ times with $20,000 + 20,000$ iterations, where first half was discarded as a burnin.
-For standard HMC, default parameters governing the sampler's behaviour caused severe amount of divergent transitions. We were able to get rid of most these by changing the `adapt_delta` parameter (corresponding to the target average proposal acceptance probability in the adaptation phase) from the default 0.8 to 0.99, and the maximum treedepth (argument `max_treedepth`) from 10 to 15.
+For standard HMC, default parameters governing the sampler's behaviour caused severe amount of divergent transitions. By changing the `adapt_delta` parameter (corresponding to the target average proposal acceptance probability in the adaptation phase) from the default 0.8 to 0.99, and the maximum treedepth (argument `max_treedepth`) from 10 to 15, we were able to reduce the number of divergent transitions, but there were still on avarage 78 divergent transitions per 20,000 iterations (sd 91).
 
 
 ```{r results}
@@ -155,7 +157,7 @@ sumr <- summarise(grouped, mean = mean(theta_1),
 print.data.frame(sumr, digits = 2)
 ```
 
-We see that given the equal amount of MCMC iterations, the standard deviation of $\textrm{E}(\sigma_{\eta} | y)$ over 100 replications with `Stan` is over two times smaller than the Metropolis-based algorithms. However, the computation time of `Stan` is also two orders of magnitude higher, and thus in terms of IRE, `Stan` performs poorly compared to standard pseudo-marginal MCMC algorithm of `bssm`. As expected, DA approach provides improvements over PM by decreasing the computation time with only negligible increase in SE. Here the IS approach gives small additional boost compared to DA. The hybrid method combining the IS-correction with HMC decreases the standard errors obtained with standard HMC approach, and also almost halves the computation time. Still, the resulting IRE is clearly higher than with random-walk based algorithms.
+We see that given the equal amount of MCMC iterations, the standard deviation of $\textrm{E}(\sigma_{\eta} | y)$ over 100 replications with `Stan` is over two times smaller than the Metropolis-based algorithms. However, the computation time of `Stan` is also almost two orders of magnitude higher, and thus in terms of IRE, `Stan` performs poorly compared to standard pseudo-marginal MCMC algorithm of `bssm`. As expected, DA approach provides improvements over PM by decreasing the computation time with only negligible increase in SE. Here the IS approach gives small additional boost compared to DA. The hybrid method combining the IS-correction with HMC slightly decreases the computation time and the standard errors obtained with standard HMC approach. Still, the resulting IRE is clearly higher than with random-walk based algorithms.
 
 For state variables we see similar differences between the algorithms:
 
@@ -184,7 +186,7 @@ print.data.frame(sumr, digits = 2)
 
 ## Discussion
 
-In this vignette we compared computational aspects of different MCMC algorithms for Poisson state space model using a simple simulation experiment. We also experimented with new hybrid method combining the IS correction with HMC algorithm. Although theoretically valid, the benefits of this new method are not clear. Although it improved the basic approach with `Stan`, it was still found to be less efficient than the random-walk based approaches. In hindsight this is not suprising, as repeated runs of Kalman filter and smoother used in the Laplace approximation algorithm can be problematic for the automatic differention used in `Stan`. It should also be noted that the performance of `Stan` varied heavily between different state space models we initially tested, and some amount of tuning of the NUTS algorithm was needed in all cases.
+In this vignette we compared computational aspects of different MCMC algorithms for Poisson state space model using a simple simulation experiment. We also experimented with new hybrid method combining the IS correction with HMC algorithm. Although theoretically valid, the benefits of this new method are not clear. Although it improved the basic approach with `Stan`, it was still found to be less efficient than the random-walk based approaches. In hindsight this is not suprising, as repeated runs of Kalman filter and smoother used in the Laplace approximation algorithm can be problematic for the automatic differention used in `Stan`. It should also be noted that the performance of `Stan` varied heavily between different state space models we initially tested, and some amount of tuning of the NUTS algorithm was needed in all cases. 
 
 ## References
 
@@ -227,14 +229,13 @@ transformed parameters {
 
 model {
   // priors for theta
-  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
+  theta ~ normal(sd_prior_means, sd_prior_sds);
   // standardised noise terms
-  target += normal_lpdf(level_std | 0, 1);
-  target += normal_lpdf(slope_std | 0, 1);
+  level_std ~ normal(0, 1);
+  slope_std ~ normal(0, 1);
   // Poisson likelihood
-  target += poisson_log_lpmf(y | level);
+  y ~ poisson_log(level);
 } 
-
 
 ```
 

@@ -22,7 +22,7 @@ transformed parameters {
 
 model {
 
-  target += normal_lpdf(theta | sd_prior_means, sd_prior_sds);
-  target += normal_lpdf(x_raw | 0, 1);
-  target += normal_lpdf(y | x, theta[2]);
+  theta ~ normal(sd_prior_means, sd_prior_sds);
+  x_raw ~ normal(0, 1);
+  y ~ normal(x, theta[2]);
 }

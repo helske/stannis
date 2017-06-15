@@ -898,7 +898,7 @@ public:
         try {
 
             current_statement_begin__ = 206;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 207;
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
@@ -1404,11 +1404,11 @@ public:
         try {
 
             current_statement_begin__ = 25;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 26;
-            lp_accum__.add(normal_log(x_raw,0,1));
+            lp_accum__.add(normal_log<propto__>(x_raw, 0, 1));
             current_statement_begin__ = 27;
-            lp_accum__.add(normal_log(y,x,get_base1(theta,2,"theta",1)));
+            lp_accum__.add(normal_log<propto__>(y, x, get_base1(theta,2,"theta",1)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -2007,7 +2007,7 @@ public:
         try {
 
             current_statement_begin__ = 58;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 59;
             lp_accum__.add(gaussian_filter(y,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__));
         } catch (const std::exception& e) {
@@ -2810,7 +2810,7 @@ public:
         try {
 
             current_statement_begin__ = 108;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 109;
             lp_accum__.add(gaussian_filter(y,a1,P1,pow(get_base1(theta,2,"theta",1),2),Zt,Tt,Rt, pstream__));
         } catch (const std::exception& e) {
@@ -3986,7 +3986,7 @@ public:
         try {
 
             current_statement_begin__ = 196;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 197;
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
@@ -4459,11 +4459,11 @@ public:
         try {
 
             current_statement_begin__ = 24;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 25;
-            lp_accum__.add(normal_log(x_raw,0,1));
+            lp_accum__.add(normal_log<propto__>(x_raw, 0, 1));
             current_statement_begin__ = 26;
-            lp_accum__.add(poisson_log_log(y,x));
+            lp_accum__.add(poisson_log_log<propto__>(y, x));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -5535,7 +5535,7 @@ public:
         try {
 
             current_statement_begin__ = 201;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 202;
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
@@ -6099,13 +6099,13 @@ public:
         try {
 
             current_statement_begin__ = 37;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 39;
-            lp_accum__.add(normal_log(level_std,0,1));
+            lp_accum__.add(normal_log<propto__>(level_std, 0, 1));
             current_statement_begin__ = 40;
-            lp_accum__.add(normal_log(slope_std,0,1));
+            lp_accum__.add(normal_log<propto__>(slope_std, 0, 1));
             current_statement_begin__ = 42;
-            lp_accum__.add(poisson_log_log(y,level));
+            lp_accum__.add(poisson_log_log<propto__>(y, level));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -7332,9 +7332,9 @@ public:
         try {
 
             current_statement_begin__ = 211;
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             current_statement_begin__ = 212;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 213;
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
@@ -8544,9 +8544,9 @@ public:
         try {
 
             current_statement_begin__ = 202;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 203;
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             current_statement_begin__ = 204;
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
@@ -9148,13 +9148,13 @@ public:
         try {
 
             current_statement_begin__ = 37;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 38;
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             current_statement_begin__ = 40;
-            lp_accum__.add(normal_log(level_std,0,1));
+            lp_accum__.add(normal_log<propto__>(level_std, 0, 1));
             current_statement_begin__ = 42;
-            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
+            lp_accum__.add(poisson_log_log<propto__>(y, add(xbeta,level)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
@@ -10347,9 +10347,9 @@ public:
         try {
 
             current_statement_begin__ = 207;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 208;
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             current_statement_begin__ = 209;
             lp_accum__.add(get_base1(approx_results,((3 * n) + 1),"approx_results",1));
         } catch (const std::exception& e) {
@@ -11039,15 +11039,15 @@ public:
         try {
 
             current_statement_begin__ = 43;
-            lp_accum__.add(normal_log(theta,sd_prior_means,sd_prior_sds));
+            lp_accum__.add(normal_log<propto__>(theta, sd_prior_means, sd_prior_sds));
             current_statement_begin__ = 44;
-            lp_accum__.add(normal_log(beta,beta_prior_means,beta_prior_sds));
+            lp_accum__.add(normal_log<propto__>(beta, beta_prior_means, beta_prior_sds));
             current_statement_begin__ = 46;
-            lp_accum__.add(normal_log(level_std,0,1));
+            lp_accum__.add(normal_log<propto__>(level_std, 0, 1));
             current_statement_begin__ = 47;
-            lp_accum__.add(normal_log(slope_std,0,1));
+            lp_accum__.add(normal_log<propto__>(slope_std, 0, 1));
             current_statement_begin__ = 49;
-            lp_accum__.add(poisson_log_log(y,add(xbeta,level)));
+            lp_accum__.add(poisson_log_log<propto__>(y, add(xbeta,level)));
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e,current_statement_begin__);
             // Next line prevents compiler griping about no return
