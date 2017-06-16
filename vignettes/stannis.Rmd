@@ -88,11 +88,11 @@ For `Stan`, users typically need to write their own model using Stan language (s
 stan_data <- list(n = n, y = y, a1 = c(0, 0), P1 = diag(c(10, 0.1)), 
   sd_prior_means = rep(0, 2), sd_prior_sds = c(1, 0.1))
 stan_inits <- list(list(theta = c(0.01, 0.01), 
-  slope_std = rep(0, n), level = rep(0, n)))
+  slope_std = rep(0, n), level_std = log(y + 0.1)))
 
 stan_mcmc <- sampling(stannis:::stanmodels$llt_poisson, iter = 500,
   init = stan_inits, data = stan_data, refresh = 0, chains = 1)
-print(stan_mcmc, pars ="theta")
+print(stan_mcmc, pars = "theta")
 ```
 
 ### stannis
