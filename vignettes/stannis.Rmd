@@ -290,7 +290,7 @@ ire_experiment_llt <- function(n_iter,
     stan_data <- list(n = n, y = y, a1 = c(0, 0), P1 = diag(c(10, 0.1)), 
       sd_prior_means = rep(0, 2), sd_prior_sds = c(1, 0.1))
     stan_inits <- list(list(theta = c(0.01, 0.01), 
-      slope_std = rep(0, n), level = rep(0, n)))
+      slope_std = rep(0, n), level_std = log(y + 0.1)))
     
     res <- sampling(stannis:::stanmodels$llt_poisson, 
       control = list(adapt_delta = 0.99, max_treedepth = 15),
