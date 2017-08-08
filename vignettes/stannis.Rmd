@@ -1,9 +1,19 @@
 ---
-title: "Computational efficiency comparison of MCMC algorithms for state space models"
+title: "Computational efficiency comparison of MCMC algorithms for non-Gaussian state space models"
 author: "Jouni Helske"
 date: "13 June 2017"
-link-citations: yes
 bibliography: stannis.bib
+link-citations: true
+output: 
+  pdf_document:
+    fig_caption: yes
+    fig_crop: no
+    fig_height: 6
+    fig_width: 8
+vignette: |
+  %\VignetteIndexEntry{Computational efficiency comparison of MCMC algorithms for non-Gaussian state space models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -186,9 +196,7 @@ print.data.frame(sumr, digits = 2)
 
 ## Discussion
 
-In this vignette we compared computational aspects of different MCMC algorithms for Poisson state space model using a simple simulation experiment. We also experimented with new hybrid method combining the IS correction with HMC algorithm. Although theoretically valid, the benefits of this new method are not clear. Although it improved the basic approach with `Stan`, it was still found to be less efficient than the random-walk based approaches. In hindsight this is not suprising, as repeated runs of Kalman filter and smoother used in the Laplace approximation algorithm can be problematic for the automatic differention used in `Stan`. It should also be noted that the performance of `Stan` varied heavily between different state space models we initially tested, and some amount of tuning of the NUTS algorithm was needed in all cases. 
-
-## References
+In this vignette we compared computational aspects of different MCMC algorithms for Poisson state space model using a simple simulation experiment. We also experimented with new hybrid method combining the IS correction with HMC algorithm. Although theoretically valid, the benefits of this new method are not clear. Although it improved the basic approach with `Stan`, it was still found to be less efficient than the random-walk based approaches. In hindsight this is not suprising, as repeated runs of Kalman filter and smoother used in the Laplace approximation algorithm can be problematic for the automatic differention used in `Stan`. It should also be noted that the performance of `Stan` varied heavily between different state space models we initially tested, and some amount of tuning of the NUTS algorithm was needed in all cases. Also for some model parameterizations we were not able to get rid of divergence problems in NUTS, but it might be possible to obtain better performance from `Stan` using other HMC algoritms, or by defining the behaviour of the warmup phase more carefully.
 
 ## Appendix A: Stan model for Poisson local linear trend model
 
@@ -401,3 +409,5 @@ reference_llt <- c(theta_1 = theta[1], theta_2 = theta[2],
 saveRDS(reference_llt, file = "reference_llt.rda")
 
 ```
+
+## References
